@@ -1,0 +1,105 @@
+/****************************************************************
+ *
+ * Copyright 1990, Brown University, Providence, RI
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ ****************************************************************/
+
+/* A superellipsoid surface (and associated surfaces). */
+
+
+/* Absolute value function. */
+fabs := R -> R : x -> x if x > 0 else -x;
+
+/* This function raises sin(x) to the power 3, and avoids taking square roots
+   of negative numbers. */
+sinexp := (R, R) -> R
+       : (x, e) -> (fabs(sin(x))**e) if (sin(x) > 0) else
+                   (-((fabs(sin(x)))**e))
+       ;
+
+/* This function is the analogue of sinexp for cos(x). */
+cosexp := (R, R) -> R
+       : (x, e) -> (fabs(cos(x))**e) if (cos(x) > 0) else
+                   (-((fabs(cos(x)))**e))
+       ;
+
+
+/* Negative exponent values prevent the solid from closing. */
+e1 := widget Slider(0, 5), init<-1;
+e2 := widget Slider(0, 5), init<-1;
+
+/* CheckBoxes to turn on/off cross-product and normal surface. */
+showCross := widget CheckBox, name<-"cross", init<-False;
+showNormal := widget CheckBox, name<-"normal", init<-False;
+
+
+/* The superellipsoid's definition. */
+ellipsoid
+   := R^2 -> R^3
+   : [u1, u2] -> [cosexp(u1, e1) * cosexp(u2, e2),
+                  cosexp(u1, e1) * sinexp(u2, e2),
+                  sinexp(u1, e1)]
+   ;
+
+/* Here's the surface defined by the cross-product of the tangent vectors.
+   So this is the un-normalized normal vector (!).  Notice that it has the
+   form of a superellipsoid with e1' = 2 - e1, e2' = 2 - e2. */
+cross
+   := R^2 -> R^3
+   : [u1, u2] -> [cosexp(u1, 2-e1) * cosexp(u2, 2-e2),
+                  cosexp(u1, 2-e1) * sinexp(u2, 2-e2),
+                  sinexp(u1, 2-e1)]
+   ;
+
+/* Here is the normal surface (Gauss map) for the ellipsoid. */
+normal
+   := R^2 -> R^3
+   : [u1, u2] -> SurfaceNormal(ellipsoid)([u1, u2])
+   ;
+
+					
+/* Domains. */
+u1DomEllipsoid := Interval(-pi/2.0, pi/2.0, 20);
+u2DomEllipsoid := Interval(-pi, pi, 20);
+ellipsoidDom := [u1DomEllipsoid >< u2DomEllipsoid];
+
+crossDom := ellipsoidDom if showCross = True else
+	    [ {0} >< {0} ];
+
+normalDom := ellipsoidDom if showNormal = True else
+	    [ {0} >< {0} ];
+
+
+/* Other junk. */
+myWindow := widget type<-`window;
+myView := widget type<-`view, parent<-`myWindow;
+
+myEllipsoid := widget type<-`vobject,
+	   set<-( ellipsoid( ellipsoidDom ) ),
+	   parent<-`myView,
+	   color<-"blue";
+
+myCross := widget type<-`vobject,
+	   set<-( cross( crossDom ) ),
+	   parent<-`myView,
+	   color<-"red";
+
+myNormal := widget type<-`vobject,
+	   set<-( normal( normalDom ) ),
+	   parent<-`myView,
+	   color<-"green";
+

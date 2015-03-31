@@ -1,0 +1,158 @@
+/****************************************************************
+ *
+ * Copyright 1990, Brown University, Providence, RI
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ ****************************************************************/
+/*
+
+   Level surfaces of 4-D functions f(x,y,z) = c
+
+   This file does the input panel.   
+
+   $Id: levels4.funct4.fnorse,v 1.1 1993/06/02 17:41:55 rch Exp $ */
+
+require "std.fnorse";
+
+/***********************************************************************
+ * Set up Default Options 
+ */
+/* default equation */
+DefaultEq := 
+   "[x,y,z]-> -8(x**4 + y**4 + z**4) + 8(x**2 + y**2 + z**2) - 3"; 
+
+/* default domain */
+InitXDomMin := "-1";       InitXDomMax := "1";       InitXDomRes := 6;
+InitYDomMin := "-1";       InitYDomMax := "1";       InitYDomRes := 6;
+InitZDomMin := "-1";       InitZDomMax := "1";       InitZDomRes := 6;
+
+/***********************************************************************
+ * Some handy positioning constants 
+ */
+nunits := 12;
+half := 6;
+third := 4;
+
+/***********************************************************************
+ * Define Function/Domain definition inputs
+ */
+
+/* create two windows - one for the equations, one for the controls */
+inpt := widget type<-`window, width<-600,height<-550, numUnits<-nunits;
+eqinpt := widget type<-`window, width<-1000,height<-50, numUnits<-1;
+
+/* The Equation typin */
+f :=
+    widget TypeIn, field<-type(R^3->R), name<-"f := R^3->R :",
+    init<- DefaultEq,
+    top<-0, bottom<-1, left<-0, right<-1,  
+    parent<-`eqinpt;
+
+/*
+ * Domain controls 
+ */
+umin := widget TypeIn, field<-R, name<-"X min := R :", init<-InitXDomMin, 
+        parent<-`inpt, top<-1, bottom<-3, left<-0, right<-(third);
+umax := widget TypeIn, field<-R, name<-"X max := R :", init<-InitXDomMax, 
+        parent<-`inpt, top<-1, bottom<-3, left<-(third), right<-(2*third);
+ures := widget Slider(0,50), field<-Z, name<-"X res := Z :",
+        drag<-False, init<-InitXDomRes, 
+        parent<-`inpt, top<-1, bottom<-3, left<-(2*third), right<-(3*third);
+XInfo := ( umin, umax, ures );
+
+vmin := widget TypeIn, field<-R, name<-"Y min := R :", init<-InitYDomMin, 
+        parent<-`inpt, top<-3, bottom<-5, left<-0, right<-third;
+vmax := widget TypeIn, field<-R, name<-"Y max := R :", init<-InitYDomMax,  
+        parent<-`inpt, top<-3, bottom<-5, left<-third, right<-2*third;
+vres := widget Slider(0,50), field<-Z, name<-"Y res := Z :", 
+        drag<-False, init<-InitYDomRes,
+        parent<-`inpt, top<-3, bottom<-5, left<-2*third, right<-3*third;
+YInfo := ( vmin, vmax, vres );
+
+wmin := widget TypeIn, field<-R, name<-"Z min := R :", init<-InitYDomMin, 
+        parent<-`inpt, top<-5, bottom<-7, left<-0, right<-third;
+wmax := widget TypeIn, field<-R, name<-"Z max := R :", init<-InitYDomMax, 
+        parent<-`inpt, top<-5, bottom<-7, left<-third, right<-2*third;
+wres := widget Slider(0,50), field<-Z, name<-"Z res := Z :", 
+        drag<-False, init<-InitYDomRes,
+        parent<-`inpt, top<-5, bottom<-7, left<-2*third, right<-3*third;
+ZInfo := ( wmin, wmax, wres );
+
+/*
+ * add some nice options as check boxes
+ */
+
+/* top row */
+DoSurf:=widget CheckBox, init<-False, parent<-`inpt, name<-"Compute Lvl",
+        top<-7, bottom<-8, left<-0, right<-third;
+axes := widget CheckBox, init<-True, parent<-`inpt, name<-"Axes",
+        top<-7, bottom<-8, left<-third, right<-2*third;
+zplane := widget CheckBox, init<-False, parent<-`inpt, name<-"Z-Plane",
+        top<-7, bottom<-8, left<-2*third, right<-3*third;
+
+/* second row */
+StripeX:=widget CheckBox, init<-False,parent<-`inpt,
+        top<-8, bottom<-9, left<-0, right<-third;
+StripeY:=widget CheckBox, init<-False,parent<-`inpt,
+        top<-8, bottom<-9, left<-third, right<-2*third;
+StripeZ:=widget CheckBox, init<-False,parent<-`inpt,
+        top<-8, bottom<-9, left<-2*third, right<-3*third;
+
+
+/* 
+ * slider to rotate object-space 
+ */
+Rot1 := widget Slider(0,2pi), parent<-`inpt, drag<-False, init<-0,
+        top<-9, bottom<-11, left<-0, right<-half;
+
+Rot2 := widget Slider(0,2pi), parent<-`inpt, drag<-False, init<-0,
+        top<-9, bottom<-11, left<-half, right<-2*half;
+ 
+/* 
+ * value C to slice at
+ */
+SliceVal := widget TypeIn, field<-R, name<-"f(x,yz) = C := R :", init<-"0", 
+        parent<-`inpt, top<-11, bottom<-12, left<-0, right<-half;
+
+
+/**********************************************************************
+ * Create the output window and add some of our niceties
+ **********************************************************************/
+
+ViewWindow := widget type<-`view;
+
+
+/* add z=0 plane option */
+
+widget type<-`vobject, parent<-`ViewWindow, color<-"blue",
+   set<-( Patch(XInfo,YInfo) if zplane = True else { [0,0,0] } );
+
+
+/* add axes option */
+widget type<-`vobject, parent<-`ViewWindow, color<-"green",
+   set<-( Axes if axes = True else  {} );
+
+widget type<-`vobject, parent<-`ViewWindow, color<-"white",
+   set<-( Labels if axes = True else {});
+
+
+/* create equation F = f-c beacuse slicer always slices at 0 */
+F := 
+   R^3 -> R:		     
+   v -> f(v) - SliceVal
+   ;
+
+b

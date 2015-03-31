@@ -1,0 +1,9 @@
+
+parse_objs := parse.o
+
+gen_src := scan.c
+gen_pkg := parse
+gen_obj := parse
+include admin/Gen-Inc.make
+
+# $Id: Defs,v 1.2 1990/06/10 04:47:14 wsd Exp $

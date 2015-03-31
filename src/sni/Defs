@@ -1,0 +1,6 @@
+# $Id: Defs,v 1.2 1990/11/27 23:20:13 wsd Exp $
+
+sni_objs := sni.o
+
+sni_plain_objs := $(sni_objs)
+sni_implicit_objs := $(sni_objs)

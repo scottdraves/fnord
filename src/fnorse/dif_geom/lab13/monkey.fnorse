@@ -1,0 +1,98 @@
+/****************************************************************
+ *
+ * Copyright 1990, Brown University, Providence, RI
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ ****************************************************************/
+
+/**********************************************************************
+ * RCH 10/24/90
+ * 
+ * General domain->range surface mapper
+ *
+ * Just fill in the equation for surf, then 
+ * the domain parameters, and it should figure
+ * the rest out on its own.
+ **********************************************************************/
+
+
+Surf 
+   := R^2->R^3
+   : [u,v] -> [ v*cos(u), v*sin(u), v*v*v* cos(3*u) - r*v*v ]
+   ;
+
+/* 
+ * define the domain: you must fill these in for the 
+ * domain -> range mapping to work correctly!
+ */
+r := widget Slider( 0, pi ), init<-1, name<-"some constant";
+Umin := -pi;
+Umax := pi;
+Ures := 20;
+
+Vmin := .1;
+Vmax := 1;
+Vres := 20;
+
+
+/**********************************************************************
+ **********************************************************************
+ * Don't change below this line 
+ **********************************************************************
+ **********************************************************************/
+
+/* define domains */
+UDom := Interval( Umin, Umax, Ures );
+VDom := Interval( Vmin, Vmax, Vres );
+SurfDom := [UDom >< VDom ];
+
+LineDom := [ UDom >< {r/3} ];
+
+/* define the domain bitmap */
+M := widget type <- `bitmap, width <- Ures-1, height <- Vres-1,
+     name<-"DOMAIN";
+
+fixu := R -> Z : x -> (ToZ((x - Umin) / (Umax-Umin) * Ures) mod Ures) + 1;
+fixv := R -> Z : x -> (ToZ((x - Vmin) / (Vmax-Vmin) * Vres) mod Vres) + 1;
+
+AddColor 
+   := R^2 -> R^4
+   : v -> [ Surf(v)^1, Surf(v)^2, Surf(v)^3, M^fixv(v^2)^fixu(v^1) ]
+   ;
+
+N 
+   := R^2 -> R^3
+   : v -> (SurfaceNormal Surf)(v)
+   ;
+
+AddCNorm
+   := R^2 -> R^4
+   : v -> [ N(v)^1, N(v)^2, N(v)^3, M^fixv(v^2)^fixu(v^1) ]
+   ;
+
+sview := widget Show(AddColor(SurfDom)), 
+         color <- "4:blue->white", name<-"surface";
+
+widget type<-`vobject, set<-(Surf(LineDom)), color<-"red",
+         parent<-`sview;
+
+gview := widget Show(AddCNorm(SurfDom)), 
+         color <- "4:blue->white", name<-"gauss map";
+
+widget type<-`vobject, set<-(N(LineDom)), color<-"red",
+         parent<-`gview;
+
+widget type<-`output;

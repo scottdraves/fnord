@@ -1,0 +1,59 @@
+/****************************************************************
+ *
+ * Copyright 1990, Brown University, Providence, RI
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ ****************************************************************/
+/*************************************************************
+
+   Create some of the triangles for the air-france cup
+ 
+ *************************************************************/
+
+/* requires:
+ 
+ hr  = half the radius
+ ss   = length of side
+ hh  = half the height
+ solid
+
+*/
+ 
+ConeSamples := 5;    /* how rounded to make the cones */
+
+/* domaines */
+ConeDom := Patch( (-hwedge, hwedge, ConeSamples), (0,1,2) ) if solid = True else
+           Grid( (-hwedge, hwedge, ConeSamples), (0,1,2) ); 
+
+
+/* create a function that makes a function for each 1/4 cone */
+GenCone := R -> (R^2 -> R^3)
+   :  off -> [t,tb] -> [r*cos(t+off), r*sin(t+off), hh  ]*(tb) +
+                       [ss*cos(off) , ss*sin(off), -hh ]*(1-tb)
+   ;		
+
+
+/* add a curve around the top */
+TopInt := Patch(( 0, 2pi, 1+4*Nsides ),(0,r,2) ) if solid = True else
+          Grid(( 0, 2pi, 1+4*Nsides ),(0,r,2) );
+
+Circle := R^2->R^3: [t,tr] -> tr*[cos(t), sin(t), 0]+ [0,0,hh];
+       
+ 
+/* put the segments somewhere */
+ConeCurves := GenCone(SegDom) (ConeDom ) union Circle(TopInt);
+
+ 
+
+

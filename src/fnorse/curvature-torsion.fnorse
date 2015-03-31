@@ -1,0 +1,67 @@
+/**********************************************************************
+ * Copyright 1991, Brown University, Providence, RI
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ **********************************************************************/
+/* $Id: curvature-torsion.fnorse,v 1.2 1993/06/01 19:23:19 rch Exp $ */
+
+
+/*
+ * find a curve with given curvature and torsion functions
+ * this isn't a very nice way of doing this because it hard-wires
+ * the diffyQ solver to be euler.
+ */
+
+/* this and others like it should definiately go into std */
+Segment := (R^?, R^?) -> {R^?}
+        :  (x, y) ->  (R -> R^? : t -> (1-t)*x + t*y)(Interval(0, 1, 2))
+        ;
+
+h := widget Slider(0, 0.1), init <- 0.03;
+
+NextPt
+  := (R^3, R^3^3) -> R^3
+  :  (pt,  frame) -> pt + h frame^1
+  ;
+
+NextFrame
+  := (R, R^3^3) -> R^3^3
+  :  (t, [T, N, B]) -> [T, N, B] + h [kappa(t) N,
+                                      tau(t) B - kappa(t) T,
+                                      -tau(t) N]
+  ;
+
+
+States := type (R, R^3, R^3^3, {R^3});
+
+CTstep
+  := States -> States
+  :  (t, pt, frame,  curve) -> (t + h,
+                                pt + h frame^1,
+                                NextFrame(t, frame),
+                                curve union Segment(pt, NextPt(pt, frame)))
+  ;
+
+InitialState := States : (0, zero, identity, Axes);
+
+state := widget Evolve(InitialState, CTstep);
+
+widget Show(right(state));
+
+/* do a helix */
+kappa := R -> R : t -> 1;
+tau   := R -> R : t -> 1;
+
+t := widget Print(left(left(left(state))));

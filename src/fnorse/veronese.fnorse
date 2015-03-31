@@ -1,0 +1,51 @@
+/**********************************************************************
+ * Copyright 1990, Brown University, Providence, RI
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ **********************************************************************/
+/* $Id: veronese.fnorse,v 1.9 1993/06/01 19:23:53 rch Exp $ */
+
+
+rt := sqrt(2) ;
+ 
+V := R^3 -> R^6
+  :  [x, y, z] -> [x x, y y, z z, rt x y, rt y z, rt z x ]
+  ;
+
+sphere := R^2 -> R^3
+       :  [u, v] -> [(cos u)(cos v), (sin u)(cos v), sin v]
+       ;
+
+U := Patch((-pi, pi, 49), (-pi/2, 0, 30));
+
+P := R^6 -> R^3
+  :  x   -> [(x^1 - x^2)/rt, x^4, x^5]
+  ;
+
+Q := R^6 -> R^3
+  :  x   -> [x^4, x^5, x^6]
+  ;
+
+VP := U -> R^3
+   :  u -> t sphere(u) + (1 - t) P(V(sphere(u)))
+   ;
+
+VQ := U -> R^3
+   :  u -> t sphere(u) + (1 - t) Q(V(sphere(u)))
+   ;
+
+t := widget Slider(0, 1), name<-"from veronese to hemisphere";
+widget Show(VP(U));
+widget Show(VQ(U));

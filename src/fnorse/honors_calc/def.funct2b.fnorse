@@ -1,0 +1,128 @@
+/****************************************************************
+ *
+ * Copyright 1990, Brown University, Providence, RI
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ ****************************************************************/
+/* 
+
+   Define a control panel to input f(x,y) and it's domain.
+   
+   Creates the following objects for use:
+   	F2xy := R^2 -> R        
+        F2   := R^2 -> R^3
+        F2Xinfo := (R, R, Z )
+        F2Yinfo := (R, R, Z )
+        F2dom := R^2
+   	F2image := widget type<-`view
+        DispF2 -> use as "widget DispF2;" - simple adds function graph
+        DispF2color -> widget DispF2color("red") - adds fnct in color
+*/
+
+require "std.fnorse";
+
+/* 
+ * define the control panel
+ */
+/* size/shape/divisions */
+F2numUnits := 6;
+F2half := 3;
+F2third := 2;
+F2inpt := widget type<-`window, width<-600,height<-300, numUnits<-F2numUnits;
+
+/* the function */
+F2xy :=
+  widget TypeIn, field<-type(R^2->R), name<-"f := R^2->R :",
+  init<-"[x,y]-> -(x*x+y*y)/2 + 2", 
+  top<-0, bottom<-1, left<-0, right<-F2numUnits, 
+  parent<-`F2inpt;
+
+F2 := Surfaces
+  : [u,v] -> [ u, v, F2xy( [u,v] ) ]
+  ;
+
+/* the domain */
+F2umin := widget TypeIn, field<-R, name<-"X min := R :", init<-"-1", 
+        parent<-`F2inpt, top<-1, bottom<-3, left<-0, right<-(F2third);
+F2umax := widget TypeIn, field<-R, name<-"X max := R :", init<-"1", 
+        parent<-`F2inpt, top<-1, bottom<-3, left<-(F2third), right<-2*F2third;
+F2ures := widget Slider(0,50), field<-Z, name<-"X res := Z :", init<-8, 
+        parent<-`F2inpt, drag<-False,
+        top<-1, bottom<-3, left<-(2*F2third), right<-(F2numUnits);
+F2Xinfo := ( F2umin, F2umax, F2ures );
+
+F2vmin := widget TypeIn, field<-R, name<-"Y min := R :", init<-"-1", 
+        parent<-`F2inpt, top<-3, bottom<-5, left<-0, right<-F2third;
+F2vmax := widget TypeIn, field<-R, name<-"Y max := R :", init<-"1", 
+        parent<-`F2inpt, top<-3, bottom<-5, left<-F2third, right<-2*F2third;
+F2vres := widget Slider(0,50), field<-Z, name<-"Y res := Z :", init<-8, 
+        parent<-`F2inpt, drag<-False,
+        top<-3, bottom<-5, left<-2*F2third, right<-F2numUnits;
+F2Yinfo := ( F2vmin, F2vmax, F2vres );
+
+F2axes := widget CheckBox, init<-True, parent<-`F2inpt, name<-"Axes",
+        top<-5, bottom<-6, left<-0, right<-F2third;
+F2zplane := widget CheckBox, init<-False, parent<-`F2inpt, name<-"Z-Plane",
+        top<-5, bottom<-6, left<-F2third, right<-2*F2third;
+F2zsolid :=  False;/* don't have room for this control ! */
+F2solid := widget CheckBox, init<-True, parent<-`F2inpt, 
+	 name<-"Solid Function",
+	 top<-5, bottom<-6, left<-2*F2third, right<-F2numUnits;   
+
+/* 
+ * Create the entered domain.
+ */
+F2dom := Patch ( F2Xinfo, F2Yinfo )  if F2solid = True else
+       Grid ( F2Xinfo, F2Yinfo );
+
+
+/*
+ * Create the basic viewing window
+ */
+
+F2image := widget type<-`view;
+
+/*  
+ * add our options to the window
+ */
+
+/* Axes */
+widget type<-`vobject, parent<-`F2image, color<-"CornflowerBlue",
+   set<-( Axes if F2axes = True else  {} );
+
+/* Labels */
+widget type<-`vobject, parent<-`F2image, color<-"white",
+   set<-( Labels if F2axes = True else {});
+
+/* z-plane */
+F2pdom := Patch ( F2Xinfo, F2Yinfo ) if F2zsolid = True 
+     else Grid ( F2Xinfo, F2Yinfo );
+
+widget type<-`vobject, parent<-`F2image, color<-"gray20",
+   set<-( F2pdom if F2zplane = True else { [0,0,0] } );
+
+/* 
+ * Create string to display function 
+ */
+DispF2 := type<-`vobject, parent<-`F2image, color<-"LightSlateBlue",
+          set<-( F2(F2dom) );   
+
+DispF2color := (col) -> ( type<-`vobject, 
+                          parent<-`F2image, 
+                          color<-col,
+                          set<-( F2(F2dom) )
+                        );   
+

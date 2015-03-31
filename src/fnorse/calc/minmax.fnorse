@@ -1,0 +1,75 @@
+/****************************************************************
+ *
+ * Copyright 1990, Brown University, Providence, RI
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ ****************************************************************/
+
+
+view := widget type<-`view;
+
+cmin := -2;
+cmax := 5;
+
+
+sdom := Grid( (-1.5, 1.5, 20), (-1.5, 1.5, 20) );
+surface := R^2 -> R^3
+	: [x,y] -> [ x, y, x**2 + 2*y**2 - x ]
+	;
+
+widget type<-`vobject, parent<-`view, 
+	color<-"blue", set<-( surface sdom );
+
+cdom := Interval( -pi, pi,  30 );
+curve   := R -> R^2
+	: t -> [ cos(t), sin(t) ]
+	;
+
+bcDom := Patch( (-pi,pi,30), (0,1,2));
+bcol	:= R^2 -> R^3
+	: [t,h] -> h*[curve(t)^1,curve(t)^2, cmin] +
+		   (1-h)*surface(curve(t))
+	;
+
+
+widget type<-`vobject, parent<-`view, 
+	color<-"red", set<-( bcol bcDom );
+
+
+ton := widget CheckBox, name<-"top half of prism";
+tcDom := Grid( (-pi,pi,30), (0,1,2)) if ton = True else {[0,0]};
+tcol	:= R^2 -> R^3
+	: [t,h] -> (1-h)*[curve(t)^1,curve(t)^2, cmax] +
+		   (h)*surface(curve(t))
+	;
+
+widget type<-`vobject, parent<-`view,
+	color<-"red", set<-( tcol tcDom );
+
+plDom := Patch( (-2,2,2),(-2,2,2) );
+plane := R^2-> R^3
+      : v -> [v^1, v^2, 0]
+      ;
+
+widget type<-`vobject, parent<-`view,
+	color<-"green", set<-(plane plDom );
+
+
+widget type<-`vobject, parent<-`view,
+	color<-"black", set<-(Axes);
+
+
+

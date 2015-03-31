@@ -1,0 +1,139 @@
+/**********************************************************************
+ * Copyright 1990, Brown University, Providence, RI
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ **********************************************************************/
+/**********************************************************************
+ * RCH 10/30/90
+ *
+ * Demonstrate curve on surface concept
+ *
+ * Define a curve in the uv plan. That is displayed.
+ * 
+ * Define a mapping to a surface. That is displayed, then the 
+ * curve mapped on to the surface.
+ **********************************************************************/
+
+Surf
+   := R^2 -> R^3
+   : [u,v] -> [ cos(u)(1.5+cos(v)), sin(u)(1.5+cos(v)), sin(v) ] /* sphere */
+   ;
+
+
+SurfDom := Patch( (-pi, pi, 20), (-pi, pi, 20 ) );  
+
+
+x := widget  Slider( -pi, pi), init<-0, name<-"x offset in U-V plane";
+y := widget Slider( -pi, pi ), init<-0, name<-"y offset in U-V plane";;
+
+Curve
+   := R -> R^2
+   : t -> [ t, sin( pi*2*t ) ] + [ x, y ]   /* sine wave plus offset */
+   ;
+
+/* the min and max values for the curve's domain - also used for t slider */
+tmin := -.5;
+tmax :=  .5;
+
+CurveDom := Interval( tmin, tmax, 20 );
+
+
+myUV := widget type<-`view, name<-"curve in U-V plane";
+
+/* blue grid for surface domain */
+widget type<-`vobject, set<-( SurfDom ), parent<-`myUV,
+   color<-"blue";
+/* red curve in U-V space */
+widget type<-`vobject, set<-( Curve CurveDom ), parent<-`myUV,
+   color<-"red";
+
+
+mySurf := widget type<-`view, name<-"Surface with mapped curve";
+
+/* the surface */
+widget type<-`vobject, set<-( Surf SurfDom ), parent<-`mySurf,
+   color<-"blue";
+/* the curve mapped onto the surface */
+widget type<-`vobject, set<-( Surf( Curve CurveDom ) ), parent<-`mySurf,
+   color<-"red";
+
+
+/* now add  T U N frame & unit tangent*/
+
+UnitI := Interval( 0, 1, 2 );
+
+
+t := widget Slider( tmin, tmax) , init<-tmin, name<-"Point for TUN frame";
+
+/* tangent on U-V plane */
+T2d 
+   := R^2 -> R^2
+   : [t,u] -> Curve(t) + u * Normalize( Curve'(t) ) 
+   ;
+
+/* add the unit tangent */
+widget type<-`vobject, set<-( T2d( [{t} >< UnitI] ) ), parent<-`myUV,
+   color<-"white";
+
+ConS 
+   := R->R^3
+   : t -> Surf(Curve(t))
+   ;
+
+T 
+   := R -> R^3
+   : t -> Normalize( ConS'(t)) 
+   ;
+N
+   := R-> R^3
+   : t -> (SurfaceNormal Surf)(Curve t)
+   ;
+
+T3d 
+   := R^2 -> R^3
+   : [t,u] -> ConS(t) + u * T(t)
+   ;
+
+N3d
+   := R^2 -> R^3
+   : [t,u] -> ConS(t) + u * N(t)
+   ;
+
+/* U = -T >< N  by definition in class */
+U3d 
+   := R^2 -> R^3
+   : [t,u] -> ConS(t) +
+        u * (T(t) >< N(t))
+   ;
+
+
+/* add the TUN frame */
+widget type<-`vobject, set<-( N3d( [{t} >< UnitI] ) ),
+   parent<-`mySurf, color<-"green";
+
+widget type<-`vobject, set<-( T3d( [{t} >< UnitI] ) ),
+   parent<-`mySurf, color<-"white";
+
+widget type<-`vobject, set<-( U3d( [{t} >< UnitI] ) ),
+   parent<-`mySurf, color<-"yellow";
+
+
+
+
+
+
+
+

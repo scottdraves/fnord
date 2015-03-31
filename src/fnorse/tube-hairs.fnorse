@@ -1,0 +1,38 @@
+/**********************************************************************
+ * Copyright 1990, Brown University, Providence, RI
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ **********************************************************************/
+/* $Id: tube-hairs.fnorse,v 1.10 1993/06/01 19:23:49 rch Exp $ */
+
+I := interval(-pi, pi, 100) ;
+U  := [I >< interval(-pi, pi, 20)];
+hU := sample(U) >< interval(0, 0.1, 2);
+
+H := I -> R^3
+  :  t -> [(1 + cos(t))(cos t),
+           (1 + cos(t))(sin t),
+           sin t]
+  ;
+
+X := Tube(H, t->Torsion(H)(t)/5);
+hX := ParallelSurface(X);
+
+hasHair := widget CheckBox;
+
+surface := X(U);
+hair := hX(hU);
+
+widget Show(surface union hair if hasHair else surface);

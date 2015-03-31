@@ -1,0 +1,100 @@
+/****************************************************************
+ *
+ * Copyright 1990, Brown University, Providence, RI
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ ****************************************************************/
+/* widgets for parameters */
+
+r := widget Slider( 0, 4), init<-2, name<-"radius of circle";
+s := widget Slider( 0, 4), init<-1, name<-"length of sides";
+h := widget TypeIn, init<-"2", name<-"height";
+Vexplode := widget Slider( 0,2), init<-0, name<-"Vertical explode";
+Hexplode := widget Slider( 0,2), init<-0, name<-"Horizontal explode";
+Nsides := widget Slider( 2, 10 ), field<-Z, init<-4, drag<-False,
+       name<-"number of sides";
+solid := widget CheckBox, init<- True;
+
+hr := (r/2);
+ss := (s);
+hh := (h/2);
+wedge := R:/*pi/2*/ 2pi/Nsides; 
+hwedge := R:/*pi/4*/ pi/Nsides;
+
+/* which quadrent it's in */
+SegDom := sample(interval(0, 2pi, Nsides+1 ));
+
+
+include "af.conecurves";   /* hr, s, hh -> ConeCurves */
+
+include "af.intris";         /* hr, ss, hh -> intri1, intri2 */
+
+include "af.outtris";         /* hr, ss, hh -> intri1, intri2 */
+
+include "af.tetra.fnorse";    /* Hexplode -> the 4 tetrahedrons. */
+
+/*
+ * create the base of the bottom pyramid 
+ */ 
+
+basedom := Patch((0,1,2),(0,2pi,Nsides+1))   if solid = True else
+           Grid((0,1,2),(0,2pi,Nsides+1));
+
+base := R^2 -> R^3
+     : [r,th] -> r *s* [cos(th), sin(th), 0 ] + [ 0, 0, -hh ]
+     ;
+     
+
+/*
+ * offset functions to implement the expolode sliders 
+ */
+movecones := R^3 -> R^3
+	  : v -> v + [0,0,Vexplode*h]
+	  ;
+
+movepyr := R^3 -> R^3
+	  : v -> v - [0,0,Vexplode*h] + [0,0,.001]
+	  ;
+
+
+
+/* 
+ * create the viewable objects 
+ */
+Pict := widget type<-`view, name<-"Air France cup";
+
+widget type<-`vobject, parent<-`Pict, color<-"white",
+   set<-( Axes union Labels );
+
+widget type<-`vobject, parent<-`Pict, color<-"green",
+   set<-( movecones( ConeCurves ) );
+widget type<-`vobject, parent<-`Pict, color<-"SeaGreen",
+   set<-( movecones( UpperTri) );
+
+
+/*widget type<-`vobject, parent<-`Pict, color<-"red",
+   set<-( UpperTri );
+widget type<-`vobject, parent<-`Pict, color<-"firebrick",
+   set<-( outtri2 );
+*/
+widget type<-`vobject, parent<-`Pict, color<-"firebrick",
+   set<-( AllTetras );
+
+widget type<-`vobject, parent<-`Pict, color<-"blue",
+   set<-( movepyr(outtri1) );
+widget type<-`vobject, parent<-`Pict, color<-"NavyBlue",
+   set<-( movepyr(base(basedom)) );
+

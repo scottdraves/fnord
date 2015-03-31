@@ -1,0 +1,44 @@
+/**********************************************************************
+ * Copyright 1990, Brown University, Providence, RI
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ **********************************************************************/
+/* $Id: QSort.fnorse,v 1.5 1993/06/01 19:18:07 rch Exp $ */
+
+/* QSort takes a list and sorts it */
+
+nil    := `nil;
+null   := ? -> B : x -> not typematch(x, (?, ?));
+single := ? -> B : x -> typematch(x, (?, ?)) and not typematch(x, ((?, ?), ?));
+
+Append := (a, b) -> a if null(b) else (Append(a, left(b)), right(b));
+
+Split
+   := (pivot, list) -> (nil, nil) if (null list) else
+      (let (t, h) be list in
+       let (s, l) be Split(pivot, t) in
+       ((s, h), l) if h > pivot else (s, (l, h)))
+   ;
+
+QSort
+   := list -> list if null(list) or single(list) else
+      (let (t, h) be list in
+       let (s, l) be Split(h, t) in
+       Append((QSort(s), h), QSort(l)))
+   ;
+
+
+
+widget Print(QSort(nil, 1, 10, 5, 4, 5, 11));

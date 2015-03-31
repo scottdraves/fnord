@@ -1,0 +1,970 @@
+/****************************************************************/
+/*								*/
+/* $Id: std.fnorse,v 1.19 1993/06/01 19:23:40 rch Exp $		*/
+/*								*/
+/* Std.fnorse contains a series of definitions that we think	*/
+/* will prove generally useful in writing fnorse programs.	*/
+/* These include mathematical constants, commonly-used		*/
+/* operators from differential geometry, and convenience	*/
+/* functions for the creation of domains and widgets.		*/
+/*								*/
+/* To ensure that these definitions are read by fnord before	*/
+/* any file that you write are processed, add the line:		*/
+/*								*/
+/*		require "std";					*/
+/*								*/
+/* to all of your fnorse files.					*/
+/*								*/
+/****************************************************************/
+/****************************************************************
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ ****************************************************************/
+
+/****************************************************************/
+/*								*/
+/* Essential mathematical constants:				*/
+/*	pi	-	ratio of diameter to circumference	*/
+/*	e	-	base of natural logarithms		*/
+/*	i	-	square root of -1			*/
+/*	Zero	-	additive identity in integers		*/
+/*	One	-	multiplicative identity in integers	*/
+/*	True	-	multiplicative identity in Z/2Z		*/
+/*	False	-	additive identity in Z/2Z		*/
+/*								*/
+/****************************************************************/
+
+pi := 3.1415926535897932384;
+e  := 2.7182818284590452354;
+i  := complex(0, 1);
+
+Zero  := 0;
+One   := 1;
+True  := 0 = 0;
+False := 1 = 0;
+
+/****************************************************************/
+/*								*/
+/* Fnord's names for the mathematical types of its objects:	*/
+/*	B	-	boolean values, two element field	*/
+/*	Z	-	integers				*/
+/*	R	-	real numbers				*/
+/*	C	-	complex numbers				*/
+/*	Maps	-	functions from reals to reals		*/
+/*	Curves	-	functions from the line into space	*/
+/*	PlaneCurves -	functions from the line to the plane	*/
+/*	Surfaces    -	functions from the plane into space	*/
+/*	Alist	-	used only to identify alist parameters	*/
+/*								*/
+/****************************************************************/
+
+B := type True;
+Z := type Zero;
+R := type pi;
+C := type i;
+
+Maps	    := type(R -> R);
+Curves	    := type(R -> R^3);
+PlaneCurves := type(R -> R^2);
+Surfaces    := type(R^2 -> R^3);
+ColoredSurfaces    
+            := type(R^2 -> R^4);
+Alist	    := type(?);
+
+/****************************************************************/
+/*								*/
+/* Basic vector manipulations.					*/
+/*	Length	-	length of an arbitrary vector of reals	*/
+/*	VSize	-	dimensionality of a vector of reals	*/
+/*	Normalize   -	unit vector in same dimension as arg	*/
+/*	ZeroVector  -	true just in case vector has 0 length	*/
+/*	PerpVec	    -	generates a vector perpendicular to its	*/
+/*			argument (vectors in R^3 only)		*/
+/*	GramSchmidt -	project out that part of the second	*/
+/*			vector which points in the direction of	*/
+/*			the first.				*/
+/*								*/
+/****************************************************************/
+
+Length
+   := R^? -> R
+   :  x -> sqrt(x . x)
+   ;
+
+VSize
+   := R^? -> Z
+   :  x	  -> right (type x)
+   ;
+
+Normalize
+   := R^? -> R^?
+   :  x -> x / sqrt(x . x)
+   ;
+
+ZeroVector
+   := R^? -> B
+   :  v	  -> (v . v) = 0
+   ;
+
+PerpVec
+   := R^3 -> R^3
+   :  v	  -> let tryX be [1, 0, 0] - (v . [1, 0, 0]) v	in
+	     [0, 1, 0] - (v . [0, 1, 0]) v if ZeroVector(tryX) else tryX
+   ;
+
+GramSchmidt
+   := (R^?, R^?) -> R^?
+   :  (n,   v)	 -> v - n (v . n) / (n . n)
+   ;
+
+/****************************************************************/
+/*								*/
+/* Simple matrix stuff.						*/
+/*	Det2	-	determinant of a 2 by 2 matrix of reals	*/
+/*	Inverse2    -	inverse of a 2 by 2 matrix of reals	*/
+/*	Trace2	-	trace of a 2 by 2 matrix of reals	*/
+/*	Transpose2  -	transpose of a 2 by 2 matrix of reals	*/
+/*	Det3	-	determinant of a 3 by 3 matrix of reals	*/
+/*	Transpose3  -	transpose of a 3 by 3 matrix of reals	*/
+/*								*/
+/****************************************************************/
+
+Det2
+   := R^2^2 -> R
+   :  [[a, b], 
+       [c, d]] -> a * d - b * c
+   ;
+
+Inverse2
+   := R^2^2 -> R^2^2
+   :  [[a, b], [c, d]] -> [[d, -b], [-c, a]] / (a d - b c)
+   ;
+
+Trace2
+   := R^2^2 -> R
+   :  [[a, b], 
+       [c, d]] -> a + d
+   ;
+
+Transpose2
+   := R^2^2 -> R^2^2
+   :  [[a, b], [c, d]] -> [[a, c], [b, d]]
+   ;
+
+Det3
+   := R^3^3 -> R
+   :  [[a11, a12, a13], 
+       [a21, a22, a23],
+       [a31, a32, a33]] -> a11*(a22*a33 - a23*a32) 
+			 - a12*(a21*a33 - a31*a23)
+			 + a13*(a21*a32 - a31*a22)
+   ;
+
+Trace3
+   := R^3^3 -> R
+   :  [[a11, a12, a13], 
+       [a21, a22, a23],
+       [a31, a32, a33]] -> a11 + a22 + a33
+   ;
+
+Transpose3
+   := R^3^3 -> R^3^3
+   :  [[a11, a12, a13],
+       [a21, a22, a23],
+       [a31, a32, a33]] -> [[a11, a21, a31],
+			    [a12, a22, a32],
+			    [a13, a23, a33]]
+   ;
+
+/****************************************************************/
+/*								*/
+/* Two fancier functions for 2 by 2 matrices of real numbers:	*/
+/*	EigenValues2	-	returns a 2 vector, such that	*/
+/*				each element is an Eigenvalue	*/
+/*				of the input matrix.  Assumes	*/
+/*				that these will be real.	*/
+/*	EigenVectors2	-	returns a 2 vector of 2 vectors	*/
+/*				in which each element is an	*/
+/*				Eigenvector for the passed	*/
+/*				matrix.	 Again, assumes that	*/
+/*				the matrix has real Eigen-	*/
+/*				values.				*/
+/* Which use:							*/
+/*	RealQuadraticRoots   -	returns a pair: the roots of	*/
+/*				axx + bx + c, where you pass in */
+/*				a list for (a,b,c).  Assumes	*/
+/*				that the roots exist and are	*/
+/*				real.				*/
+/*	evHelper	     -	nondescript helper function	*/
+/*				for computing Eigenvectors.	*/
+/*								*/
+/****************************************************************/
+
+RealQuadraticRoots
+   := (R, R, R) -> (R, R)
+   :  (a, b, c) -> ((-b + sqrt(b b - 4 a c))/(2a),
+		    (-b - sqrt(b b - 4 a c))/(2a))
+   ;
+
+EigenValues2
+   := R^2^2 -> R^2
+   :  [[a, b], [c, d]] -> [RealQuadraticRoots(1, -(a + d), a d - b c)]
+   ;
+
+evHelper
+   := (R^2^2, R^2) -> R^2^2
+   :  ([[a, b], [c, d]], [l1, l2]) -> 
+	   [Normalize[1, c / (l1 - d)] if l1 != d else [0, 1],
+	    Normalize[1, c / (l2 - d)] if l2 != d else [0, 1]]
+	   if l1 != l2 else [[1, 0], [0, 1]]
+   ;
+
+EigenVectors2
+   := R^2^2 -> R^2^2
+   :  M	    -> evHelper(M, EigenValues2(M))
+   ;
+
+/****************************************************************/             
+/*								*/
+/* Conversions among scalar values.				*/
+/*	Abs	-	absolute value of a real number		*/
+/*	Sign	-	-1 or 1, according to whether its input	*/
+/*			is negative or positive.		*/
+/*	Re	-	real part of a complex number		*/
+/*	Im	-	imaginary part of a complex number	*/
+/*	ToC	-	takes a 2 vector of reals and makes	*/
+/*			a complex number out of it		*/
+/*	ToR	-	inverse function of ToC			*/
+/*	ToZ	-	returns the truncated integer value	*/
+/*			corresponding to its real argument	*/
+/*	Clamp	-	Truncates a real number so that it lies	*/
+/*			between 0 and 1				*/
+/*	Hash	-	A semi-random value associated with any	*/
+/*			real number				*/
+/*      Frac   -       returns the fractional part of number   */
+/****************************************************************/
+
+Abs := R -> R : x -> x if x >= 0 else -x ;
+Sign:= ? -> ? : x -> (-1) if x < 0 else 1;
+Re  := C -> R : z -> left(cxfrag(z)) ;
+Im  := C -> R : z -> right(cxfrag(z)) ;
+ToC := R^2 -> C : [x, y] -> complex(x, y) ;
+ToR := C -> R^2 : z -> [cxfrag(z)] ;
+ToZ := R -> Z : r -> realtoint(r);
+
+Clamp
+   := R -> R
+   :  x -> 0 if x < 0 else
+	   1 if x > 1 else
+	   x
+   ;
+
+Hash
+   := R -> R
+   :  x ->  let y be (x + 10)**3 + x/2 in  y - ToZ(y)
+   ;
+
+Frac
+   := R->R
+   :  x->x-ToZ(x)
+   ;
+
+/****************************************************************/
+/*								*/
+/* This is where the differential geometry actually starts.	*/
+/* First, we'll define the Frenet frame for analyzing curves.	*/
+/*								*/
+/*	frenetPrebinormal	-	convenience function	*/
+/*					used in calculating	*/
+/*					the Frenet binormal	*/
+/*	FrenetTangent		-	canonical tangent to a	*/
+/*					curve in space		*/
+/*	FrenetBinormal		-	the two canonical	*/
+/*	FrenetNormal			normals to a curve in	*/
+/*					space (one is in the	*/
+/*					direction of the tor-	*/
+/*					sion)....		*/
+/*	FrenetFrame		-	Tangent, normal, and	*/
+/*					binormal, all together.	*/
+/*								*/
+/****************************************************************/
+
+frenetPrebinormal
+   := Curves -> Curves
+   :  g	     -> (t -> g'(t) >< g''(t))
+   ;
+
+FrenetTangent
+   :=  Curves -> Curves
+   :   g -> (t -> Normalize(g'(t)))
+   ;
+
+FrenetBinormal
+   := Curves -> Curves
+   :  g	     -> (t -> Normalize(frenetPrebinormal(g)(t)))
+   ;
+
+FrenetNormal
+   := Curves -> Curves
+   :  g -> (t -> FrenetBinormal(g)(t) >< FrenetTangent(g)(t))
+   ;
+
+FrenetFrame
+   := Curves -> (R -> R^3^3)
+   :  g	     -> (t -> [FrenetTangent(g)(t),
+		       FrenetNormal(g)(t),
+		       FrenetBinormal(g)(t)])
+   ;
+
+/****************************************************************/
+/*								*/
+/*	This stuff is particular to planar curves.		*/
+/*	The UnitTangent gives the tangent vector to a point on	*/
+/*	a plane curve.						*/
+/*	The UnitNormal is simple the UnitTangent rotated by	*/
+/*	90 degrees in the counter-clockwise direction.		*/
+/*	Curvature2d is the curvature of a curve in the plane.	*/
+/*	Unlike curvature in space, it can be positive or	*/
+/*	negative.						*/
+/*								*/
+/*	RadiusOfCurvature returns the radius of curvature	*/
+/*	given a curve and a point in the domain.		*/
+/*                                                              */
+/*      Evolute returns the evolute of a plane curve.           */
+/****************************************************************/
+
+UnitTangent
+  :=PlaneCurves->PlaneCurves
+  :    curve   ->(t-> Normalize(curve'(t)))
+  ;
+
+UnitNormal
+  :=PlaneCurves->PlaneCurves
+  :    curve   ->(t->[[0,-1],
+                  [1, 0]] ((UnitTangent curve) t))
+  ;
+
+Curvature2d
+  :=PlaneCurves->(R->R)
+  :    curve   ->(t->((UnitNormal curve) t).
+                     ((UnitTangent curve)'(t))/
+                     Length(curve'(t)))
+  ;
+
+RadiusOfCurvature
+  :=PlaneCurves->(R->R)
+  :    curve   ->(t->1/((Curvature2d curve) t))
+  ;
+
+Evolute
+  :=PlaneCurves->(R->R^2)
+  :    curve   ->(t->curve(t)+((UnitNormal curve) t)/((Curvature2d curve) t))
+  ; 
+
+RadiusOfCurvature3d
+  :=Curves->(R->R)
+  :    curve   ->(t->1/((Curvature curve) t))
+  ;
+
+Evolute3d
+  :=PlaneCurves->(R->R^2)
+  :    curve   ->(t->curve(t)+((UnitNormal curve) t)/((Curvature2d curve) t))
+  ; 
+
+/****************************************************************/
+/*								*/
+/*	Curvature and Torsion define the expected two functions	*/
+/* of curves in space.						*/
+/*								*/
+/****************************************************************/
+
+Curvature
+    := Curves -> Maps
+    :  g -> (t -> sqrt(frenetPrebinormal(g)(t) .
+                       frenetPrebinormal(g)(t)) / (g'(t) . g'(t))**(3/2))
+    ;
+
+Torsion
+   := Curves -> Maps
+   :  g  -> (t -> (frenetPrebinormal(g)(t) . g'''(t)) /
+                  (frenetPrebinormal(g)(t) . frenetPrebinormal(g)(t)))
+   ;
+
+
+/****************************************************************/
+/*								*/
+/* The next functions enable you to create a tube around a 	*/
+/* curve in space.  These definitions are designed to provide	*/
+/* all the flexibility needed in a way that does not require 	*/
+/* you to worry about details for simple cases.  The specific 	*/
+/* tube function takes a map function, a plane curve, and a 	*/
+/* space curve, and returns a tube around the space curve whose	*/
+/* radius is defined by the map function and whose		*/
+/* cross-sections are similar to the plane curve.  It uses the	*/
+/* Frenet frame to calculate the tube function.  The		*/
+/* tubeDefaults enables the GeneralTube function not to require */
+/* all three of the parameters for specific tube.  By default,  */
+/* the spine is a line, and the tube has circular cross		*/
+/* sections of radius 1 GeneralTube looks up each of the	*/
+/* required arguments to specific tube in the passed list and	*/
+/* its defaults, and returns the specific tube generated from	*/
+/* these parameters.  Tube is the most commonly used case of 	*/
+/* the general function---when you've got a circle.		*/
+/*								*/
+/*								*/
+/* We've used this paradigm for function definitions in several	*/
+/* places later on.						*/
+/*								*/
+/****************************************************************/
+
+specificTube
+   := (Maps, PlaneCurves, Curves) -> Surfaces
+   :  (radius, plane, spine) -> ([t, theta] ->
+          spine(t) + radius(t) * 
+             (plane(theta)^1 *   FrenetNormal(spine)(t) +
+              plane(theta)^2 * FrenetBinormal(spine)(t)))
+   ;
+
+tubeDefaults
+   := spine <- (Curves : t -> [t, 0, 0]), 
+      radius<- (Maps   : t -> 1),
+      plane <- (PlaneCurves : t -> [sin t, cos t])
+   ;
+
+GeneralTube
+   := Alist -> Surfaces
+   :  alist -> specificTube(assoc(radius,(alist,tubeDefaults)),
+                            assoc(plane ,(alist,tubeDefaults)),
+                            assoc(spine ,(alist,tubeDefaults)))
+   ;
+
+Tube
+   := (Curves, Maps) -> Surfaces
+   :  (g, r) -> GeneralTube(spine<-g, radius<-r)
+   ;
+
+/****************************************************************/
+/*								*/
+/* Sweeps are a lot like tubes---however, they don't insist 	*/
+/* the direction of the shape being swept out be dictated by	*/
+/* the Frenet frame of the curve that it's riding.  Hence, the	*/
+/* additional parameter in these functions....			*/
+/*								*/
+/****************************************************************/
+
+specificSweep
+   := (Maps, Maps, Curves, Curves) -> Surfaces
+   :  (begin, end, direction, spine) -> ([t, r] ->
+          spine(t) + (r*(end(t) - begin(t)) + begin(t))
+                            * direction(t))
+   ;
+
+sweepDefaults
+   := spine     <- (Curves : t -> [t, 0, 0]), 
+      begin     <- (Maps   : t -> 0),
+      end       <- (Maps   : t -> 1),
+      direction <- (Curves : t -> [0, 0, 1])
+   ;
+
+GeneralSweep
+   := Alist -> Surfaces
+   :  alist -> specificSweep(assoc(begin,      (alist,sweepDefaults)),
+                             assoc(end,        (alist,sweepDefaults)),
+                             assoc(direction , (alist,sweepDefaults)),
+                             assoc(spine ,     (alist,sweepDefaults)))
+   ;
+
+Sweep
+   := (Curves, Maps) -> Surfaces
+   :  (g, e) -> GeneralSweep(spine<-g, 
+                             direction<-FrenetNormal(g),
+                             end<-e)
+   ;
+
+/****************************************************************/
+/*								*/
+/* The following definitions for functions based on surfaces	*/
+/* are designed to provide the same level of background for	*/
+/* dealing with the differential geometry of surfaces as the	*/
+/* previous functions did for curves.  Analogous to the frames	*/
+/* associated with curves, we have:				*/
+/*	SurfaceNormal	-	generates a function defining	*/
+/*				the surface normals of the 	*/
+/*				surface which is its argument	*/
+/*	GaussMap	-	same thing			*/
+/*								*/
+/****************************************************************/
+
+SurfaceNormal
+   := Surfaces -> Surfaces
+   :  X        -> (u   -> Normalize((X'(u))^1 >< (X'(u))^2))
+   ;
+GaussMap := SurfaceNormal;
+
+/****************************************************************/
+/*								*/
+/* Curvature is a lot more fun on a surface:			*/
+/*								*/
+/*	FirstFundamentalForm	-	the g_i_j metric	*/
+/*	SecondFundamentalForm	-				*/
+/*	GaussianCurvature	- 	what you expect		*/
+/*	MeanCurvature		-	       ''		*/
+/*	WeingartenMap		-	       ''		*/
+/*	PrincipalCurvatures	-	       ''		*/
+/*	PrincipalDirections	-	       ''		*/
+/*	AsymptoticDirections	-	(not done yet)		*/
+/*								*/
+/****************************************************************/
+
+FirstFundamentalForm
+   := Surfaces -> (R^2 -> R^2^2)
+   :  X        -> (u   -> let (x1, x2) be (X'(u)^1, X'(u)^2) in
+		   [[x1 . x1, x2 . x1],
+		    [x1 . x2, x2 . x2]])
+   ;
+
+SecondFundamentalForm
+   := Surfaces -> (R^2 -> R^2^2)
+   :  X        -> (u   -> let n be SurfaceNormal(X)(u) in
+		   [[X''(u)^1^1 . n, X''(u)^2^1 . n],
+		    [X''(u)^1^2 . n, X''(u)^2^2 . n]])
+   ;
+
+GaussianCurvature
+   := Surfaces -> (R^2 -> R)
+   :  X        -> (u   -> Det2(SecondFundamentalForm(X)(u)) /
+                                Det2(FirstFundamentalForm(X)(u)))
+   ;
+
+MeanCurvature
+   := Surfaces -> (R^2 -> R)
+   :  X        -> (u   -> Trace2(WeingartenMap(X)(u)) /2)
+   ;
+
+/**********************************************************************
+ * The Weingarten map is the L's with the upper and lower numbers.
+ * The Second Fundamental Form is the L's with two numbers at the bottom.
+ * The First fundamental Form is the gij's.
+ **********************************************************************/
+
+WeingartenMap
+   := Surfaces -> (R^2 -> R^2^2)
+   :  X        -> (u   -> SecondFundamentalForm(X)(u) *
+		   Inverse2(FirstFundamentalForm(X)(u)))
+   ;
+
+PrincipalCurvatures
+   := Surfaces -> (R^2 -> R^2)
+   :  X        -> (u   -> EigenValues2(WeingartenMap(X)(u)))
+   ;
+
+PrincipalDirections
+   := Surfaces -> (R^2 -> R^2^2)
+   :  X        -> (u   -> EigenVectors2(WeingartenMap(X)(u)))
+   ;
+
+/* not done yet */
+AsymptoticDirections
+   := Surfaces -> (R^2 -> R^2^2)
+   :  X        -> (u   -> EigenVectors2(WeingartenMap(X)(u)))
+   ;
+
+/* Generates the general parallel surface function, which takes
+   an interval and the distance of the parallel surface from the
+   surface.  I'm not really happy with this interface. */
+
+ParallelSurface
+   := Surfaces -> ((R^2, R) -> R^3)
+   :  X        -> ((u  , h) -> X(u) + h SurfaceNormal(X)(u))
+   ;
+
+/**********************************************************************
+ * These evaluate the geodesics and normal curvature at a point on a 
+ * surface given a curve in the domain of the surface, the surface and
+ * and the point.  I'm not quite sure that they work properly.
+ **********************************************************************/
+
+CurveOnSurfT:=PlaneCurves->(Surfaces->Curves)
+            :   uvcurve  ->(surf   ->(t->
+                let surfcurve be (Curves: t->surf(uvcurve(t))) in
+                ((FrenetTangent surfcurve) t)))
+            ;
+
+CurveOnSurfP:=PlaneCurves->(Surfaces->Curves)
+            :   uvcurve  ->(surf   ->(t->
+                let surfcurve be (Curves: t->surf(uvcurve(t))) in
+                ((FrenetNormal surfcurve) t)))
+            ;
+
+CurveOnSurfB:=PlaneCurves->(Surfaces->Curves)
+            :   uvcurve  ->(surf   ->(t->
+                let surfcurve be (Curves: t->surf(uvcurve(t))) in
+                ((FrenetBinormal surfcurve) t)))
+            ;
+
+CurveOnSurfN:=PlaneCurves->(Surfaces->Curves)
+            :  uvcurve   ->(surf    ->(t->((SurfaceNormal surf) uvcurve(t))))
+            ;
+
+CurveOnSurfU:=PlaneCurves->(Surfaces->Curves)
+            :   uvcurve  ->(surf   ->(t->
+                let surfcurve be (Curves: t->surf(uvcurve(t))) in
+                (((CurveOnSurfN uvcurve) surf) t) ><
+                (((CurveOnSurfT uvcurve) surf) t)))
+            ;
+
+GeodesicCurvature
+   :=PlaneCurves->(Surfaces->(R->R))
+   :   uvcurve  ->(   
+       surf ->(t->
+               let surfcurve be (Curves: t->surf(uvcurve t)) in 
+                ((Curvature surfcurve) t)
+                (((CurveOnSurfP uvcurve) surf) t).
+                (((CurveOnSurfU uvcurve) surf) t)
+              ))
+   ;
+
+NormalCurvature
+   :=PlaneCurves->(Surfaces->(R->R))
+   :   uvcurve  ->(   surf ->(t->
+           let surfcurve be (Curves: t->surf(uvcurve t)) in
+                ((Curvature surfcurve) t)
+                (((CurveOnSurfP uvcurve) surf) t).
+                (((CurveOnSurfN uvcurve) surf) t)
+              ))
+   ;
+
+/****************************************************************/
+/*								*/
+/* Here are some functions that help you go from definitions to	*/
+/* objects that you can put on the screen.			*/
+/* 	For quick graphing of functions:			*/
+/*	Graph	-	"graphs" a function from R to R in the	*/
+/*			plane the way you did in 9th grade.	*/
+/*	MongePatch  -	same thing, for functions of two	*/
+/*			variables.				*/
+/*								*/
+/****************************************************************/
+
+Graph
+   := Maps -> PlaneCurves
+   :  f    -> (x -> [x, f(x)])
+   ;
+
+MongePatch
+   := (R^2 -> R) -> Surfaces
+   :  f          -> (u -> u :: [f(u)])
+   ;
+
+ShiftVector
+   := (R, R^?) -> R^?
+   :  (x, v)   -> [x, left(fragment(v))]
+   ;
+
+HistoryGraph
+   := Z -> R^? -> {R^2}
+   :  n -> state -> 
+   let F be (R -> R^2 : x -> [x, state^(ToZ(n x + 1))]) in
+   F(Interval(0, 0.99, n))
+   ;
+
+/****************************************************************/
+/*								*/
+/* Convenience wrappers for widgets				*/
+/*								*/
+/****************************************************************/
+
+CheckBox := type <- `checkbox;
+Button   := type <- `button;
+TypeIn   := type <- `typein;
+View     := type <- `view;
+Point    := type <- `point;
+Show     := a -> (type<-`view, set<-a);
+Print    := a -> (type<-`printer, set<-a);
+TapeDeck := a -> (type<-`tapedeck, speed<-a);
+Window   := a -> (type<-`window, numUnits<-a);
+Slider   := (a, b) -> (type<-`slider, min<-a, max<-b);
+Evolve   := (a, b) -> (type<-`evolve, init<-a, next<-b);
+Bitmap   := (a, b) -> (type<-`bitmap, width<-a, height<-b);
+Color    := (a, b) -> (type<-`vobject, set<-a, color<-b);
+Location := (t, l, b, r) -> (top <- t, left <- l, bottom <- b, right <- r);
+Output   := type <- `output;
+
+Text
+   := (R^?, Z^?) -> ?
+   :  (pos, str) -> {pos} >< {str}
+   ;
+
+/****************************************************************/
+/*								*/
+/* A bunch of sets to use for domains.  See the manual to	*/
+/* discover what each looks like, or try them out.		*/
+/*								*/
+/*	Interval	- a bit of the real line		*/
+/*	Dashes		- morse code on the real line		*/
+/*	Spots		- disconnected patches in the plane	*/
+/*	Checks		- grids like the shaded portion of	*/
+/*			  a chessboard (in the plane)		*/
+/*	Grid		- a mesh of lines in the plane, as	*/
+/*			  distinct from				*/
+/*	Patch		- a rectangular subset of the plane	*/
+/*			  which can be filled in using hidden	*/
+/*			  surface removal			*/
+/*	Weave		- Like grid, only with a mesh of a	*/
+/*			  visible thickness			*/
+/*	Stripes		- A collection of slices of the plane	*/
+/*			  either horizontal or vertical		*/
+/*								*/
+/****************************************************************/
+
+Interval
+   := (R, R, Z) -> {R}
+   :  (l, h, n) -> interval(l, h, n)
+   ;
+
+/****************************************************************/
+
+specificDashes
+   := ((R, R, Z), R, Z) -> {R}
+   :  ((lo, hi, n), p, d) -> let flatten 
+   be ((R, R) -> R
+   :  (x, y) -> (x + y) * (hi - lo) /
+   ( ((n-1)/2) if (n mod 2) = 1 else (n/2 - 1 + p)) + lo)
+   in
+   flatten(sample(Interval(0, ToZ(n/2)-1, ToZ(n/2))) >< Interval(0, p, d))
+   ;
+
+dashesDefaults
+   := spec       <- (0, 1, 10),
+      percent    <- 0.5,
+      subsamples <- 2
+   ;
+
+GeneralDashes
+   := Alist -> {R}
+   :  alist -> specificDashes(assoc(spec,       (alist, dashesDefaults)),
+                              assoc(percent,    (alist, dashesDefaults)),
+                              assoc(subsamples, (alist, dashesDefaults)))
+   ;
+
+Dashes
+   := (R, R, Z) -> {R}
+   :  s -> GeneralDashes(spec<-s)
+   ;
+
+/****************************************************************/
+
+GeneralSpots
+   := (Alist, Alist) -> {R^2}
+   :  (u, v) -> [GeneralDashes(u) >< GeneralDashes(v)]
+   ;
+Spots
+   := ((R, R, Z), (R, R, Z)) -> {R^2}
+   :  (l, h) -> [Dashes(l) >< Dashes(h)]
+   ;
+
+/****************************************************************/
+
+Checks
+   := ((R, R, Z), (R, R, Z)) -> {R^2}
+   :  ((ul, uh, un), (vl, vh, vn)) ->
+          Spots((ul, uh, un), (vl, vh, vn)) union
+          Spots((ul+(uh - ul)/(un - 1), uh, un-1),
+                (vl+(vh - vl)/(vn - 1), vh, vn-1))
+
+   ;
+
+
+/****************************************************************/
+
+specificGrid
+   := (((R, R, Z), Z), ((R, R, Z), Z)) -> {R^2}
+   :  ((u, nu), (v, nv)) ->
+      [sample(Interval(u)) >< Interval(left(v), nv (right(v) - 1) + 1) union
+       Interval(left(u), nu (right(u) - 1) + 1) >< sample(Interval(v))]
+   ;
+
+gridDefaults
+   := spec       <- (0, 1, 10),
+      subsamples <- 1
+   ;
+
+GeneralGrid
+   := (Alist, Alist) -> {R^2}
+   :  (u, v) -> specificGrid((assoc(spec,       (u, gridDefaults)),
+                              assoc(subsamples, (u, gridDefaults))),
+                             (assoc(spec,       (v, gridDefaults)),
+                              assoc(subsamples, (v, gridDefaults))))
+   ;
+
+Grid
+   := ((R, R, Z), (R, R, Z)) -> {R^2}
+   :  (u, v) -> specificGrid((u, 1), (v, 1))
+   ;
+
+/****************************************************************/
+
+specificWeave
+   := (((R, R, Z), R), ((R, R, Z), R)) -> {R^2}
+   :  ((u, pu), (v, pv)) ->
+      [Interval(u)><GeneralDashes(spec<-v,percent<-pv) union
+       GeneralDashes(spec<-u,percent<-pu)><Interval(v)]
+   ;
+
+weaveDefaults
+   := spec    <- (0, 1, 10),
+      percent <- 0.2
+   ;
+
+GeneralWeave
+   := (Alist, Alist) -> {R^2}
+   :  (u, v) -> specificWeave((assoc(spec,       (u, weaveDefaults)),
+                               assoc(percent,    (u, weaveDefaults))),
+                              (assoc(spec,       (v, weaveDefaults)),
+                               assoc(percent,    (v, weaveDefaults))))
+   ;
+
+Weave
+   := ((R, R, Z), (R, R, Z)) -> {R^2}
+   :  (u, v) -> specificWeave((u, 0.2), (v, 0.2))
+   ;
+
+/****************************************************************/
+
+Patch
+   := ((R, R, Z), (R, R, Z)) -> {R^2}
+   :  (u, v) -> [Interval(u) >< Interval(v)]
+   ;
+
+StripesU
+   := ((R, R, Z), (R, R, Z)) -> {R^2}
+   :  (u, v) -> [Interval(u) >< Dashes(v)]
+   ;
+
+StripesV
+   := ((R, R, Z), (R, R, Z)) -> {R^2}
+   :  (u, v) -> [Dashes(u) >< Interval(v)]
+   ;
+
+/**********************************************************************
+ * This one has been added to make defining 3d domains easier.
+ **********************************************************************/
+
+Cube
+  := ((R, R, Z), (R, R, Z), (R, R, Z)) -> {R^3}
+  :  (u, v, w) -> [Interval(u) >< Interval(v) >< Interval(w)]
+  ;
+
+/****************************************************************/
+/*								*/
+/* No picture is complete without a good indication of the	*/
+/* coordinate system.  Here are some sets to get axes up into	*/
+/* a window.							*/
+/*								*/
+/*	Axes		-	sticks				*/
+/*	PositiveAxes	-	sticks in a corner		*/
+/*	Labels		- 	floating XYZ			*/
+/*	Axes2d		-	sticks in a plane		*/
+/*	PositiveAxes2d	-	an L in the plane		*/
+/*	Labels2d	-	floating X and Y		*/
+/*	LabelsUV	-	like Labels2d, but with U and V	*/
+/*								*/
+/****************************************************************/
+
+biUnitInterval := Interval(-1, 1, 2);
+unitInterval   := Interval( 0, 1, 2);
+Axes
+   := [biUnitInterval >< {0} >< {0} union
+       {0} >< biUnitInterval >< {0} union
+       {0} >< {0} >< biUnitInterval];
+
+PositiveAxes
+   := [unitInterval >< {0} >< {0} union
+       {0} >< unitInterval >< {0} union
+       {0} >< {0} >< unitInterval];
+
+Labels
+   := Text([1, 0, 0], "+X") union
+      Text([0, 1, 0], "+Y") union
+      Text([0, 0, 1], "+Z");
+
+Axes2d
+   := [biUnitInterval >< {0} union
+       {0} >< biUnitInterval];
+
+PositiveAxes2d
+   := [unitInterval >< {0} union
+       {0} >< unitInterval];
+
+Labels2d
+   := Text([1, 0], "+X") union
+      Text([0, 1], "+Y");
+
+LabelsUV
+   := Text([1, 0], "+U") union
+      Text([0, 1], "+V");
+
+
+/****************************************************************/
+/*								*/
+/* The reduce operator performs a binary operation on all of	*/
+/* the elements of a set, in some order, starting with the 	*/
+/* specified initial value.  The function must be commutative,	*/
+/* and, in fact, for now, must be one of a very few possible	*/
+/* selections.  Convenient aliases are given for these here:	*/
+/*								*/
+/*	SumReduce	-	Add the elements of a set	*/
+/*	ProductReduce	-	Multiply the elements of a set	*/
+/*	UnionReduce	-	Take the union of the elements	*/
+/*	AndReduce	-	Take the boolean and of all	*/
+/*				of the elements of a set	*/
+/*	OrReduce	- 	Take the boolen or of all of	*/
+/*				the elements of a set		*/
+/*	MaxReduce	- 	Finds the maximum of all of	*/
+/*				the elements of a set		*/
+/*	MinReduce	- 	Finds the minimum of all of	*/
+/*				the elements of a set		*/
+/*								*/
+/****************************************************************/
+
+SumReduce
+   := {?} -> ?
+   :  A   -> reduce(A, ((x,y)->x+y), zero)
+   ;
+ProductReduce
+   := {?} -> ?
+   :  A   -> reduce(A, ((x,y)->x*y), identity)
+   ;
+UnionReduce
+   := {{?}} -> {?}
+   :  A   -> reduce(A, ((x,y)->x union y), {})
+   ;
+AndReduce
+   := {B} -> B
+   :  A   -> reduce(A, ((x,y)->x and y), True)
+   ;
+OrReduce
+   := {B} -> B
+   :  A   -> reduce(A, ((x,y)->x or y), False)
+   ;
+
+MaxReduce
+   := {R} -> R
+   :  A   -> reduce(A, ((x,y)->max(x,y)), -1e+308)
+   ;
+
+MinReduce
+   := {R} -> R
+   :  A   -> reduce(A, ((x,y)->min(x,y)), 1e+308)
+   ;

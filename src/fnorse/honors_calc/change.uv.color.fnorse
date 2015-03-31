@@ -1,0 +1,235 @@
+/****************************************************************
+ *
+ * Copyright 1990, Brown University, Providence, RI
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ ****************************************************************/
+/* 
+
+   Demo for change of variables. Defines a domain as 
+   the domain of double integral
+            b_     _d(v)
+            /     /
+            |     |  f(u,v)  du dv
+           _/    _/
+            a     c(v)
+
+   Then allows a map to be created, (u,v -> x,y)
+ 
+ **********************************************************************/
+
+/***********************************************************************
+ * Some handy positioning constants 
+ */
+nunits := 8;
+half := 4;
+third := 3;
+twothirds := 6;
+fourth := 2;
+twofourth := 4;
+threefourth := 6;
+
+/***********************************************************************
+ * Define Function/Domain definition inputs
+ */
+inpt :=
+   widget type<-`window, name<-"[dudv] (u, v) -> (x, y)",
+   width<-700,height<-400, numUnits<-nunits;
+
+
+b := widget TypeIn, field<-R, name<-"b := R :", init<-"1", 
+        parent<-`inpt, 
+        top<-0, left<-0, bottom<-1, right<-half;
+vlines := widget CheckBox, parent<-`inpt, name<-"V domain",
+        top<-1, left<-0, bottom<-2, right<-fourth;
+Vcolor := widget CheckBox, parent<-`inpt, name<-"V color",
+        top<-1, left<-fourth, bottom<-2, right<-twofourth;
+a := widget TypeIn, field<-R, name<-"a := R :", init<-"0", 
+        parent<-`inpt, 
+        top<-2, left<-0, bottom<-3, right<-half;
+
+fx := widget TypeIn, field<-Maps, name<-"d(v) := R->R :", init<-"v -> 1",
+        parent<-`inpt, 
+        top<-0, left<-half, bottom<-1, right<-nunits;
+ulines := widget CheckBox, parent<-`inpt, name<-"U domain",
+        top<-1, left<-twofourth, bottom<-2, right<-threefourth;
+Ucolor := widget CheckBox, parent<-`inpt, name<-"U color",
+        top<-1, left<-threefourth, bottom<-2, right<-nunits;
+gx := widget TypeIn, field<-Maps, name<-"c(v) := R->R :", init<-"v -> 0",
+        parent<-`inpt, 
+        top<-2, left<-half, bottom<-3, right<-nunits;
+
+
+ures := widget Slider(0,50), field<-Z, name<-"U res := Z :",
+        drag<-False, init<-10,
+        parent<-`inpt, 
+        top<-3, left<-0, bottom<-5, right<-half;
+
+vres := widget Slider(0,50), field<-Z, name<-"V res := Z :",
+        drag<-False, init<-10,
+        parent<-`inpt, 
+        top<-3, left<-half, bottom<-5, right<-nunits;
+
+
+doaxes := widget CheckBox, init<-True, parent<-`inpt, name<-"Axes",
+        top<-6, left<-0, bottom<-7, right<-third;
+
+dofunct := widget CheckBox, init<-False, parent<-`inpt, name<-"Function",
+        top<-6, left<-third, bottom<-7, right<-twothirds;
+
+domsolid := widget CheckBox, init<-False, parent<-`inpt, name<-"Solid Domain",
+        top<-6, left<-twothirds, bottom<-7, right<-nunits;
+
+
+fuv := widget TypeIn, field<-type(R^2->R), name<-"f := R^2 -> R :", 
+        init<-"[u,v]-> u**2 - v**2",
+        parent<-`inpt, 
+        top<-5, left<-0, bottom<-6, right<-nunits;
+
+
+/* now the uv->xy map */
+mapx := widget TypeIn, field<-type(R^2->R), name<-"x := R^2 -> R :", 
+        init<-"[u,v] -> u",
+        parent<-`inpt, 
+        top<-7, left<-0, bottom<-8, right<-half;
+
+mapy := widget TypeIn, field<-type(R^2->R), name<-"y := R^2 -> R :", 
+        init<-"[u,v] -> v",
+        parent<-`inpt, 
+        top<-7, left<-half, bottom<-8, right<-nunits;
+
+/**********************************************************************
+ * define the domain 
+ */
+
+Xinfo := ( 0, 1, ures );
+Yinfo := ( a, b, vres );
+
+
+Udom := [sample(Interval(Yinfo)) >< Interval(Xinfo)];
+Vdom := [Interval(Yinfo) >< sample(Interval(Xinfo))];
+Domain := Grid( Yinfo, Xinfo );
+sDomain := Patch( Yinfo, Xinfo );
+domDomain := sDomain if domsolid = True else 
+	     Domain  if (ulines = False and vlines = False) else
+	     Udom    if (ulines = True and vlines = False) else
+	     Vdom    if (ulines = False and vlines = True) else
+	     Domain;
+
+/***********************************************************************
+ * define the 4d color map
+ */
+
+coloruv := R^2 -> R^4
+   : [u,v] -> [0,0,0,
+   u                     if (Ucolor = True and Vcolor = False) else
+   (v-a)/(b-a)           if (Ucolor = False and Vcolor = True) else
+   ( u+(v-a)/(b-a) )/2   if (Ucolor = True and Vcolor = True) else
+   0
+   ]
+   ;   		
+
+
+/**********************************************************************
+ * define the map
+ */
+
+IntMap := R^2 -> R^4
+   : [y,x] -> (x)[ gx(y), y,0,0]   +  (1-x)[fx(y),y,0,0]  
+              + coloruv([x,y])
+   ;
+
+/**********************************************************************
+ * define the function 
+ */
+
+funct := R^4 -> R^3
+   : v -> [ v^1, v^2, fuv([v^1,v^2]) ]
+   ;
+
+/**********************************************************************
+ * U-V to X-Y map function
+ */
+
+theMap := R^4 -> R^4
+   : v -> [mapx([v^1,v^2]), mapy([v^1,v^2]),0, v^4 ]
+   ;
+
+functMap := R^4 -> R^3
+	 : v -> [ mapx([v^1,v^2]), mapy([v^1,v^2]), fuv([v^1,v^2]) ]
+	 ;
+
+
+/**********************************************************************
+ * Create the output window and add some of our niceties
+ **********************************************************************/
+
+Views := widget type<-`window, name<-"U-V space  ==> X-Y space",
+   width<-800, height<-400, numUnits<-2;
+
+ViewWindow := widget type<-`view, name<-"U-V space",
+	   parent<-`Views, 
+	   top<-0, bottom<-2, left<-0, right<-1;
+
+/* add axes option */
+widget type<-`vobject, parent<-`ViewWindow, color<-"green",
+   set<-( Axes if doaxes = True else  {} );
+
+UVZLabels 
+   := Text([1,0,0], "+U") union 
+      Text([0,1,0], "+V") union
+      Text([0,0,1], "+Z");
+
+widget type<-`vobject, parent<-`ViewWindow, color<-"white",
+   set<-( UVZLabels if doaxes = True else {});
+
+
+/* add domain */
+widget type<-`vobject, parent<-`ViewWindow, color<-"4:red->yellow",
+   set<-( IntMap(domDomain) );
+
+/* ad range */
+widget type<-`vobject, parent<-`ViewWindow, color<-"blue",
+   set<-( funct(IntMap(sDomain)) if dofunct = True else {[0,0,0]} );
+   
+
+/**********************************************************************
+ * U-V to X-Y map window
+ */
+
+MapWindow := widget type<-`view, name<-"X-Y space",
+	   parent<-`Views, 
+	   top<-0, bottom<-2, left<-1, right<-2;
+
+
+/* add axes option */
+widget type<-`vobject, parent<-`MapWindow, color<-"green",
+   set<-( Axes if doaxes = True else  {} );
+
+widget type<-`vobject, parent<-`MapWindow, color<-"white",
+   set<-( Labels if doaxes = True else {});
+
+/* add mapped domain */
+widget type<-`vobject, parent<-`MapWindow, color<-"4:red->yellow",
+   set<-( theMap(IntMap(domDomain)) );
+
+
+/* ad range */
+widget type<-`vobject, parent<-`MapWindow, color<-"blue",
+   set<-( functMap(IntMap(sDomain)) if dofunct = True else {[0,0,0]} );
+
+
+

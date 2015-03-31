@@ -1,0 +1,54 @@
+/****************************************************************
+ *
+ * Copyright 1990, Brown University, Providence, RI
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ ****************************************************************/
+
+
+
+r := widget Slider(0, 4), init<-1;
+/* b := widget Slider(0, 4), init<-1; */
+
+Torus := R^2 -> R^3 :
+  [u, v] -> [(r + (cos v))(cos u), (r +  (cos v))(sin u), sin v]
+  ;
+
+Dom := Patch((-pi, pi, 30), (-pi, pi, 30));
+gDom := Grid((-pi, pi, 10), (-pi/2, pi/2, 10));
+
+/* inversion around the origin through a sphere of radius one */
+Inversion := R^3 -> R^3
+   : doob -> doob / (doob . doob);
+
+Sphere := R^2 -> R^3
+       : [u, v] -> [(cos u) (cos v), (sin u) (cos v), sin v];
+
+a := widget Slider(0, 3), init<-1;
+b := widget Slider(0, 3), init<-1;
+c := widget Slider(0, 3), init<-1;
+
+trans := R^3 -> R^3
+      : v -> v + [a, b, c];
+
+
+GooGoo := widget type<-`view;
+
+widget type<-`vobject, set<-(Inversion(trans(Torus(Dom)))), color<-"magenta",
+      parent<-`GooGoo;
+widget type<-`vobject, set<-(Sphere(gDom)), color<-"green",
+      parent<-`GooGoo;
+widget type<-`output;

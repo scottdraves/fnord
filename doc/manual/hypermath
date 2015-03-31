@@ -1,0 +1,53 @@
+From rch Tue Nov  3 18:38:11 1992
+Subject: RE: ???
+To: LLEE3@LUCY.WELLESLEY.EDU (Lily at Wellesley)
+Date: Tue, 3 Nov 92 18:38:11 EST
+Organization: Brown University, CS Dept
+Location: Providence, RI USA
+X-Mailer: ELM [version 2.3 PL11]
+
+
+********
+1
+********
+
+Fnord errors: we don't get them at brown because Motif is installed, 
+You get them at Wellesley because it isn't. You can ignore them safely. 
+
+Alternately, you can install /home/gerber/mmagid/dtext2/tmp/XKeysymDB
+in /usr/lib/X11. (Actually, since you run OpenWindows, it needs to go
+in /usr/openwin/lib)
+HOWEVER, to do this, you need to have root (system administrator)
+access.
+
+On the upside, your backspace/delete keys should work correctly after
+that. 
+
+********
+2
+********
+To find the file names, go to the Books menu in the table of contents
+(TOC) and select "New View" and select the view "fnorse". This will
+have no text in it, just section headings and fnorse file names
+(without .fnorse on them).
+ 
+Then look at them in /home/gerber/mmagid/dtext2/books/dg/fnord
+
+
+********
+3
+********
+for fnorse info look at the help book, the fnorse section. 
+For the manual, look at fnord/doc/manual/manual.ps - this is a
+postscript version you should be able to print on any PostScript
+printer. 
+
+Work through the fnorse help in the dynatext book. 
+
+If you want, we can print a copy of the manual out and send it back
+with Marty. 
+
+					- Curtis
+
+
+

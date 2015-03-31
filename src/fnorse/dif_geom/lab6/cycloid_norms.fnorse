@@ -1,0 +1,71 @@
+/****************************************************************
+ *
+ * Copyright 1990, Brown University, Providence, RI
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ ****************************************************************/
+
+/**********************************************************************
+ *  RCH 10/16/90
+ *
+ * Cycloid with normal lines 
+ *
+ * from lab #6 handout
+ **********************************************************************/
+
+/* cycloid radius */
+a := 1;
+
+cycloid 
+   := R-> R^3
+   : t -> [ a*(t-sin(t)), a*(1-cos(t)), 0 ]
+   ;
+
+cycNorm
+   := R^2 -> R^3
+   : [t,l] -> cycloid(t) + l * FrenetNormal(cycloid)(t)
+   ;
+
+/* define domain for the curve */
+CurveDom := Interval( -2pi, 2pi, 60 );
+
+/* define a solid domain */
+SolidDom := [ CurveDom >< Interval(-3,8, 10 ) ];
+
+/* display the normal surface: normal lines and parallel
+ * curves together. This object will become opaque if you hit 
+ * the space bar 
+ */
+myView1 := widget type<-`view;
+widget type<-`vobject, set<-( cycNorm( SolidDom ) ),
+   parent<-`myView1, color<-"blue";
+widget type<-`vobject, set<-( cycloid( CurveDom ) ),
+   parent<-`myView1, color<-"red";
+
+
+/* define a sampled domain */
+SampleDom := [ sample( CurveDom ) >< Interval( -3,8, 2) ];
+
+/* display the normals then unoin with the original curve
+ * This only shows the normals, because the sample function
+ * disconnected it along the length-on-curve dimension 
+ */
+myView2 := widget type<-`view;
+widget type<-`vobject, set<-( cycNorm( SampleDom ) ),
+   parent<-`myView2, color<-"blue";
+widget type<-`vobject, set<-( cycloid( CurveDom ) ),
+   parent<-`myView2, color<-"red";
+

@@ -1,0 +1,207 @@
+$Id: short-overview.text,v 1.10 1992/06/22 15:53:23 mas Exp $
+
+Copyright 1990, 1991, 1992, Brown University, Providence, RI
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
+
+structure
+=========
+
+This is the structure of the fnord hierarchy.  CVS directories are
+also scattered about; they can be ignored.  met and winsys represent
+the approximately ten src directories.  The source hierarchy is
+mirrored in each of the lib directories.
+
+		  $(root)
+	     _____/ /  \_____
+	    /  	   /         \
+	   /   	  /    	      \
+        src     doc             lib
+       /   \   	               /   \
+     met   parse        sun4-debug  mips-optimize
+      |      |           /  \             /  \
+    foo.c   bar.c     met    parse     met    parse
+    foo.h   bar.h      |       |        |	|
+       	       	     foo.o   bar.o    foo.o    	.
+		     foo.dep bar.dep	.       .
+		     foo.ln  bar.ln	.       .
+
+files of note:
+
+$(root)/src/GNUmakefile				project description
+$(root)/src/config.make				default options
+$(root)/src/admin/Rules.make			meat of the makefiles
+$(root)/src/admin/sysinfo			are we on a sun4? etc.
+$(root)/src/$(pkg)/Defs				a package Defs file
+$(root)/lib/$(arch)-$(mode)/dep.$(program)	.dep files for $(pgm)
+$(root)/lib/$(arch)-$(mode)/Defs		all Defs files
+$(root)/lib/$(arch)-$(mode)/$(program)		an executable
+
+I use the $(root) variable only for the purposes of illustration.
+There is no such variable in the makefiles.
+
+
+installing
+==========
+
+This section tells you how to create an executable given the just the
+sources.
+
+1)  Acquire a version of gnumake version 3.58 (or greater).
+
+2)  cd to $(root), and make sure that "lib" is either a directory, or
+    a link to a directory.  You will probably receive it as a link to
+    some place that doesn't exist on your system.
+
+3)  cd to $(root)/src, edit the GNUmakefile to reflect the
+    configuration of your site.  you will no doubt change the
+    locations of include and library directories.
+
+4)  Decide if you want graphics or not.  Edit the appropriate line of
+    config.make to read "xmfnord" or "ttyfnord".  You might want to
+    start out with the terminal version because it has fewer system
+    dependencies.
+
+5)  Decide if you want a optimized version, or a debugging version.
+    You might want to start out with a debugging version.  Edit the
+    appropriate line of config.make to read "debug" or "optimize".
+
+6)  This step is optional if you aren't going to change any of the
+    source code.  Make the makefile dependencies with
+    "gnumake -rk depend".  It will complain about not being able to
+    read the files "Defs" and "dep.fnord", but then it should make
+    them both.
+
+7)  Make the executable with "gnumake -rk program".  If you didn't do
+    step 6, you will get the complaints described there.  Ignore them.
+    Eventually you will see "making xmfnord", and then it will finish.
+
+8)  Test it with
+    "../lib/xxx-yyy/xmfnord fnorse/std.fnorse fnorse/cyclide.fnorse".
+    or 
+    "../lib/xxx-yyy/ttyfnord fnorse/std.fnorse fnorse/stress.fnorse".
+
+
+
+programming
+===========
+
+The source is distributed among about ten directories.  They form a
+one-level hierarchy.  All the code in any one of these directories is
+loosely refered to as a "package".  Currently there are several
+programs including "xmfnord", and "ttyfnord".  There is no distinction
+between code for programs and code shared between programs.
+
+Use gnumake version 3.58.  Other versions might work, but we don't
+know; we've never tried.  Caveat: you must *always* use the -r option
+to gnumake.  From here on in, we will pretend we have an alias "G"
+which does "gnumake -r" for us.  You can run G from any directory with
+a GNUmakefile, which should be every directory with source code.  A
+complete list of targets can be produced with "G help".  The important
+ones are program, depend, and lint.
+
+Use the program target to create an executable.  Which executable is
+controlled by the program variable, which is set in config.make.  You
+can override this value on the command-line; thus "G program=dronf
+program" makes the dronf program.  The location of the executable
+depends on two things 1) the current architecture, and 2) the current
+compilation mode. 1) is taken care of automatically.  2) is also set
+in config.make and can be overridden in the same fashion: "G
+mode=profile program" makes a profiling version of the default
+program.  The program is actually created in
+lib/$(arch)-$(mode)/$(program).  All generated files (with the
+exception of TAGS files) are placed in the lib hierarchy.
+
+Use the depend target after you have changed how files include each
+other, or have created or removed a file.  The file
+lib/$(arch)-$(mode)/dep.$(program) is created.  This file is included
+by the makefiles every time you run G.
+
+Use the lint target often.  Its goal is not the creation of a file,
+but to check all the .c files which make up a program for consistency.
+
+The Defs file: In each package directory is a file named Defs.  It has
+a list of all .o files in this package.  The name of the variable is
+critical.  The Defs file for the "global" package looks like:
+
+global_objs := global.o
+
+If there are any source files which are generated and then included
+(eg scan.c is generated by lex and then #included into the parser),
+then you must register them.  To do so, define the variables gen_src,
+gen_pkg, and gen_obj, then include admin/Gen-Inc.make.  gen_src is the
+name of the generated source file.  gen_pkg is the name of this
+package.  gen_obj is the root name of the object file that gen_src is
+eventually included in.
+
+parse_objs := parse.o
+gen_src := scan.c
+gen_pkg := parse
+gen_obj := parse
+include admin/Gen-Inc.make
+
+There are two other options besides mode and program: echo and cppsrc.
+Each is boolean valued; define it to anything to enable it.  If echo
+is on, then the actual shell commands used to build the target are
+printed as they are exectued.  Normally a message similar to "making
+where/what" is displayed.  If cppsrc is on, then rather than compiling
+.c files into .o files, the .c files are preprocessed into .i files,
+which are then compiled into .o files.  This is useful because then
+the debugging info in the .o files refers to the already expanded .i
+files.
+
+Keep the following in mind as you write code:
+
+legal issues: *Every* ascii file in the source hierarchy must
+prominently (as near the beginning as possible) display a copyright
+notice.  Use admin/Copyright-Template.
+
+code issues: Use the definitions provided in the globals package,
+including ME(), ALLOC() and its relatives, the Real type rather than
+doubles, SQRT() instead of sqrt(), etc.  All code should pass lint as
+best as possible.  All functions must declare their type.  Use static
+wherever possible.
+
+including other files:  When #including another fnord source file, you
+should use ""s and use a path relative to $(root)/src. eg
+#include "met/met.h"
+
+writing included files: Except in strange circumstances, all included
+source files should ifdef themselves out if they have already been
+included. eg
+#ifndef _PARSE_H_ 
+#define _PARSE_H_
+...
+#endif /* ndef _PARSE_H_ */
+
+
+administrating
+==============
+
+The sysinfo program should be somewhere on your path.
+
+no program can have the same name as a package.
+
+and much much more.
+
+
+bugs
+====
+
+If you find any, let us know.  We are trying very hard to make the
+program as nearly bug-free as possible.
+
+The manual and todo files have the known bugs.

@@ -1,0 +1,5 @@
+# $Id: Defs,v 1.3 1991/09/30 13:39:11 mas Exp $
+
+met_objs := met_block.o met_connex.o met_data.o met_globals.o \
+	    met_list.o met_opt.o met_set.o met_sym.o met_type.o \
+	    met_verts.o met_env.o met_tags.o

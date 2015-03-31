@@ -1,0 +1,86 @@
+/**********************************************************************
+ * Copyright 1991, Brown University, Providence, RI
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ **********************************************************************/
+/* $Id: circle-intersection.fnorse,v 1.2 1993/06/01 19:23:16 rch Exp $ */
+
+/******
+  this breaks on the pmax
+******/
+
+/* hek (Henry Kaufman)*/
+/* Fnord program to demostrate the intersection of two circles */
+/* improved and simplified by spot */
+
+/* must define these here to avoid circular definition problem.
+   what's the right solution? */
+p1 := [0, 0];
+p2 := [0, 0];
+
+R1 :=  widget Slider(1, 10), init<-2.0;
+R2 :=  widget Slider(1, 10), init<-4.0;
+
+circle := R^2 -> R -> R -> R^2
+       :  pos -> r -> t -> pos + r [cos(t), sin(t)]
+       ;
+circleI := Interval(0,2 * pi,36);
+
+Line
+   := R^2^2 -> R -> R^2
+   :  [e1, e2] -> t -> t e1 + (1 - t) e2
+   ;
+lineI := Interval(0, 1, 2);
+
+perp
+   := R^2 -> R^2
+   :  [x, y] -> [-y, x]
+   ;
+
+graphPaper := Grid((-1,11,12), (-4,10,14));
+
+
+
+/* ickey code.  slow and doesn't handle /0 */
+Diffv := p2 - p1;
+L := sqrt(Diffv . Diffv);
+DiffvN := (1.0 / L) * Diffv;
+L1 := (R1 R1 + L L - R2 R2) / (2 L);
+P  := p1 + L1 DiffvN;
+Perpv := perp(DiffvN);
+D := sqrt (Abs(R1 R1 - L1 L1));
+
+
+/* outdated stuff.  revive if you want nice color. */
+/*
+circles := widget View;
+widget Color(graphPaper, "blue"), parent <- `circles;
+widget Color(circle(p1)(R1)(circleI), "red"), parent <- `circles;
+widget Color(circle(p2)(R2)(circleI), "red"), parent <- `circles;
+widget Color(vecline1(Interval(Dlinein)), "green"), parent <- `circles;
+widget Color(vecline2(Interval(linein1)), "green"), parent <- `circles;
+*/
+
+
+default := widget Show(graphPaper union
+		       circle(p1)(R1)(circleI) union
+		       circle(p2)(R2)(circleI) union
+		       Line([P + Perpv * -D,
+			     P + Perpv *  D])(lineI) union
+		       Line([p1 + DiffvN * min(0, L1),
+			     p1 + DiffvN * max(0, L1)])(lineI));
+
+p1:= widget type <- `point, drag <- True, parent <- `default, modifiers <- "None";
+p2:= widget type <- `point, drag <- True, parent <- `default, modifiers <- "Shift";

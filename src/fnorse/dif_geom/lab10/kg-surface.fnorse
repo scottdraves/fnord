@@ -1,0 +1,160 @@
+/****************************************************************
+ *
+ * Copyright 1990, Brown University, Providence, RI
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ ****************************************************************/
+
+/**********************************************************************
+ * RCH 10/30/90
+ * Modified by Doug Dunham 11-18-90
+ *
+ * Demonstrate normal plane at point 7 theta cutting surface
+ * to produce a curve - normal curvature.
+ *
+ **********************************************************************/
+
+c := widget Slider( 0, 5 ), drag<-False, name<-"which surface";
+d := ToZ(c);
+sk := widget Slider( 0, 1), drag<-False, init<-0, name<-"Which curve";
+k := ToZ( sk );
+
+Surf
+   := R^2 -> R^3
+   : [u,v] -> [ cos(u)(1.5+cos(v)), sin(u)(1.5+cos(v)), sin(v) ]  if d = 0 else
+              [ -cos(u)cos(v), -sin(u)cos(v), sin(v) ]            if d = 1 else
+              [ u, v, (u*u - 2*v*v) ] 			          if d = 2 else
+              [ cosh(u)*cos(v), cosh(u)*sin(v), u ]	          if d = 3 else
+     	      [ sinh(u)*sin(v), -sinh(u)*cos(v), v ]              if d = 4 else
+   	      [ cos(u)/v, sin(u)/v, myst(v) ]  
+
+   ;
+
+/* need this for mystery surface */
+myst := R -> R: t -> -sqrt(t*t-1)/t + ln( t + sqrt(t*t-1) ) if t > 1 else
+                     0   ;
+
+/* domains*/
+SurfDom := Grid( (-pi, pi, 20), (-pi, pi, 20 ) )              if d = 0 else 
+           Grid( (-pi, pi, 20 ), (-pi/2, pi/2, 20 ) )         if d = 1 else
+           Grid( (-1, 1, 10 ), (-1, 1, 10 ) )                 if d = 2 else
+           Grid( (-pi/2, pi/2, 20 ), (-pi, pi, 20) )          if d = 3 else
+           Grid( (-pi/2, pi/2, 20 ), (-pi/2, pi/2, 20) )      if d = 4 else
+           Grid( (0, 2pi, 40), (1, 15, 75) )
+	 ;
+
+x := widget Slider( -pi, pi), drag<-False, init<-0,
+  name<-"u value of anchor point";
+y := widget Slider( -pi, pi ), drag<-False, init<-0, 
+  name<-"v value of anchor point";
+ang1 := widget Slider( -pi, pi ), init<-0, drag<-False,
+     name<-"start angle";
+ang2 := widget Slider( -pi, pi ), init<-pi, drag<-False,
+     name<-"end angle";
+size := widget Slider(0, 2*pi), init<-1, drag<-False,  
+     name<-"size";
+
+Curve 
+   := R -> R^2
+   : t -> ([x,y] + size*t*[cos(ang1),sin(ang1)]) * (1-sk) +    
+          ([x,y] + [size/2,0] + size/2*
+            [cos(ang1*t + (1-t)ang2),sin(ang1*t + (1-t)ang2)]) * sk
+   ;
+
+CurveDom := Interval( 0, 1, 50 );
+
+/* define parts for red cross hair in domain */
+
+UnitI := Interval( -.5, .5, 2 );
+
+Hcross := R->R^2: t -> [x+t,y];
+Vcross := R->R^2: t -> [x,y+t];
+
+/*****
+ * create domain window 
+ *****/
+myUV := widget type<-`view, name<-"curve in U-V plane";
+
+widget type<-`vobject, set<-( SurfDom ), parent<-`myUV,
+   color<-"blue";
+widget type<-`vobject, set<-( Hcross UnitI ), parent<-`myUV,
+   color<-"green";
+widget type<-`vobject, set<-( Vcross UnitI ), parent<-`myUV,
+   color<-"green";
+widget type<-`vobject, set<-( Curve CurveDom ), parent<-`myUV,
+   color<-"red";
+
+/********
+ * curve on surface 
+ ********/
+mySurf := widget type<-`view, name<-"Surface with mapped curve";
+
+widget type<-`vobject, set<-( Surf SurfDom ), parent<-`mySurf,
+   color<-"blue";
+widget type<-`vobject, set<-( Surf (Curve CurveDom) ), parent<-`mySurf,
+   color<-"red";
+
+
+/******
+ * find Gij's, in terms of t on curve!
+ ******/
+Cur := R-> R^2: t -> Curve(t);     /* short hand */
+CurS := R -> R^3: t -> Surf( Curve t );
+
+sPrime := R -> R: t -> sqrt( g11(Cur t)*u1'(t)**2 + 
+                            g22(Cur t)*u2'(t)**2 );
+
+
+X1 := R^2->R^3: v -> Surf'(v)^1;
+X2 := R^2->R^3: v -> Surf'(v)^2;
+
+g11 := R^2->R: v -> X1(v) . X1(v);
+g12 := R^2->R: v -> X1(v) . X2(v);
+g22 := R^2->R: v -> X2(v) . X2(v);
+
+g := R^2->R: v -> g11(v)*g22(v) - g12(v)*g12(v);
+
+u1 := R -> R: t -> Curve(t)^1;
+u2 := R -> R: t -> Curve(t)^2;
+
+dokg := widget CheckBox, name<-"Display Curvature", init<-False;
+/* define geodesic curvature */
+kg 
+   := R -> R
+   : t -> 0 if dokg = False else
+          sqrt( g(Cur t) ) *  (
+             - 1/(2*g11(Cur t)) * g11'(Cur t)^1 * u1'(t)**2 * u2'(t)
+             - 1/g11(Cur t) * g11'(Cur t)^2 * u1'(t) * u2'(t)**2
+             + 1/(2*g11(Cur t)) * g22'(Cur t)^1 * u2'(t)**3
+   	     - u2'(t) * u1''(t)
+             - 1/(2*g22(Cur t)) * g11'(Cur t)^2 * u1'(t)**3
+   	     + 1/g22(Cur t) * g22'(Cur t)^1 * u1'(t)**2 * u2'(t)
+   	     + 1/(2*g22(Cur t)) * g22'(Cur t)^2 * u1'(t) * u2'(t)**2
+   	     + u1'(t) * u2''(t) 
+   	  ) / sPrime(t)**3
+   ;
+
+KGvsS := R -> R^2: t -> [size*t, kg(t) ];
+
+kgView := widget type<-`view, name<-"Curvature vs t";
+
+widget type<-`vobject, set<-( Axes ), 
+   color<-"green", parent<-`kgView;
+
+widget type<- `vobject, set<-( KGvsS CurveDom ), 
+   color<-"red", parent<-`kgView;
+ 
+

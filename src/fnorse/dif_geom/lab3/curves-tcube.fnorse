@@ -1,0 +1,92 @@
+/****************************************************************
+ *
+ * Copyright 1990, Brown University, Providence, RI
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ ****************************************************************/
+
+/**********************************************************************
+ *
+ * RCH 9/19/90
+ *
+ * This is a pretty way of doing the visuals
+ * for the twisted cubic
+ **********************************************************************/
+
+/*
+ * make the cubic w/ a tube so we can see it 
+ */
+lenDom := Interval(-1, 1, 30);
+circDom := Interval(0, 2pi, 6);
+
+thick := 0.04;    /* radius of tube */
+
+Tcubic
+	 := R -> R^3 
+	 : t -> [ t, t*t, t*t*t ]
+	 ;
+
+mixWin := widget type<-`view, set<-Axes;
+
+widget type<-`vobject, 
+/*   set<-(Tube(Tcubic, radius->thick)[lenDom><circDom]), */
+   set<-(Tcubic lenDom), 
+   color<-"black",
+   parent<-`mixWin;
+
+/*
+ * now for the three sheets
+ */
+
+
+t := widget Slider( -1, 1 ), init<-0,
+  parent<-`panel, name<-"Value of t to place 3 curves";
+
+CurveDom := Interval( -1, 1, 15 );
+
+PSht 
+   := R -> R^3
+   : u -> [ u, u**2, t**3 ]
+   ;
+CSht 
+   := R -> R^3
+   : u -> [ u,t**2, u**3 ]
+   ;
+OSht 
+   := R -> R^3
+   : u -> [ t, u**2, u**3 ]
+   ;
+
+
+widget type<-`vobject, set<-( PSht CurveDom ), color<-"green",
+   parent<-`mixWin;
+
+widget type<-`vobject, set<-( CSht CurveDom ), color<-"blue",
+   parent<-`mixWin;
+
+widget type<-`vobject, set<-( OSht CurveDom ), color<-"red",
+   parent<-`mixWin;
+
+
+
+
+
+
+
+
+
+
+

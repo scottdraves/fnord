@@ -1,0 +1,108 @@
+/****************************************************************
+ *
+ * Copyright 1990, Brown University, Providence, RI
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ ****************************************************************/
+
+/**********************************************************************
+ *
+ * RCH 10/16/90
+ *
+ * General surface of revolution
+ **********************************************************************/
+
+/*
+ * f(t) is the magnitude of the vector in the
+ * x-y plane. This corresponds to (y) in the  
+ * "original" graph of the curve
+ */
+f
+   := R -> R
+   : t ->  sin(2t)*sin(3t) + 1
+   ;
+
+/*
+ * g(t) is the z coord of the curve.
+ * This corresponds to (x) in the  
+ * "original" graph of the curve
+ */
+g
+   := R -> R
+   : t ->  t
+   ;
+
+
+/*
+ * the surface of revolution!
+ */
+surf 
+   := R^2 -> R^3
+   : [t, u] -> [ f(t)cos(u), f(t)sin(u), g(t) ]
+   ;
+
+/*
+ * create a domain along the curve and a
+ * domain through the angle of rotation
+ */
+
+DomT := Interval( 0, 2pi, 50 );
+
+r := widget Slider( 0, 2pi), init<-2pi;
+
+DomRot := [ DomT >< Interval( 0, r, 20 ) ];
+
+/* 
+ * the original curve to graph separately
+ */
+theCurve
+   := R -> R^2
+   : t -> [ g(t), f(t) ]
+   ;
+
+widget Show( theCurve( DomT ) union Axes );
+
+/*
+ * make pretty window
+ */
+
+/* 
+ * define light-source stuff
+ */
+/*
+ * this mapping takes a function and a light source vector and 
+ * creates the lightsource mapping for that function. The value
+ * of the light is the 4th dimension
+ */
+
+LS := (R^2->R^3, R^3) -> (R^2->R^4)
+   :  (f, v) -> ( t -> [ f(t)^1, f(t)^2, f(t)^3, SurfaceNormal(f)(t) . v ] )
+   ;
+/*
+ * light source vector
+ */
+lv := Normalize([-1, 0, .5]);
+
+myView := widget type<-`view;
+
+widget type<-`vobject, set<-( LS(surf, lv)(DomRot)  ),
+   parent<-`myView, color<-"4:red->gray10";
+widget type<-`vobject, set<-( surf( [DomT >< {0} ] ) ),
+   parent<-`myView, color<-"black";
+widget type<-`vobject, set<-( Axes ),
+   parent<-`myView, color<-"green";
+
+

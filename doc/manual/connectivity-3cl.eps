@@ -1,0 +1,128 @@
+%!
+
+/FMBEGINPAGE { 3 {pop} repeat } def
+/FMENDPAGE {} def
+
+% doesn't handle lots of characters.
+/FMDEFINEFONT { 
+	findfont exch scalefont 
+	FMfonts 3 1 roll 
+	put
+} def
+
+20 /FMfonts exch array def
+
+
+% fill patterns.  gray only.
+/FP 32 array def
+/SG {setgray} def
+FP 0 { 0.0 SG } put
+FP 1 { 0.1 SG } put
+FP 2 { 0.3 SG } put
+FP 3 { 0.5 SG } put
+FP 4 { 0.7 SG } put
+FP 5 { 0.9 SG } put
+FP 6 { 0.97 SG } put
+FP 7 { 1.0 SG } put
+FP 8 { 0.0 SG } put
+FP 9 { 0.0 SG } put
+FP 10 { 0.0 SG } put
+FP 11 { 0.0 SG } put
+FP 12 { 0.0 SG } put
+FP 13 { 0.0 SG } put
+FP 14 { 0.0 SG } put
+FP 15 { 0.0 SG } put
+FP 16 { 1.0 SG } put
+FP 17 { 0.9 SG } put
+FP 18 { 0.7 SG } put
+FP 19 { 0.5 SG } put
+FP 20 { 0.3 SG } put
+FP 21 { 0.1 SG } put
+FP 22 { 0.03 SG } put
+FP 23 { 0.0 SG } put
+FP 24 { 0.0 SG } put
+FP 25 { 0.0 SG } put
+FP 26 { 0.0 SG } put
+FP 27 { 0.0 SG } put
+FP 28 { 0.0 SG } put
+FP 29 { 0.0 SG } put
+FP 30 { 0.0 SG } put
+FP 31 { 0.0 SG } put
+
+% x y x y ... n POLYLINE -
+/L {/n exch def newpath moveto 
+    2 1 n {pop lineto} for
+} def
+
+
+% x y x y FILLEDRECT -
+/R {/y2 exch def /x2 exch def /y1 exch def /x1 exch def
+     x1 y1 x2 y1 x2 y2 x1 y2 4 L closepath
+} def
+
+
+% x y x y r ROUNDEDRECT -
+/RR { 
+	/rad exch def
+	/y2 exch def
+	/x2 exch def
+	/y1 exch def
+	/x1 exch def
+	newpath
+	x1 y1 rad add moveto
+	x1 y2 x2 y2 rad arcto
+	x2 y2 x2 y1 rad arcto
+	x2 y1 x1 y1 rad arcto
+	x1 y1 x1 y2 rad arcto
+	closepath
+	16 {pop} repeat
+} def
+
+% angle1 angle2 radx rady x y ELLIPSE - (adds to path)
+/EM matrix def
+/ellipse {
+	EM currentmatrix pop
+	translate
+	scale
+	0 0 1 5 3 roll arc
+	EM setmatrix
+} def
+
+
+% ignore color
+/K {pop} def
+
+% simple stuff
+/V {gsave eofill grestore} def
+/H {setlinewidth} def
+/Z {setlinecap} def
+/N {stroke} def
+/X {FP exch get exec} def
+/Y {L closepath} def
+/F {FMfonts exch get setfont} def
+/T {moveto show} def
+/M {newpath moveto} bind def
+/D {curveto} bind def
+/A {newpath ellipse stroke} def
+/G {newpath ellipse closepath fill} def
+
+%%
+
+612 792 0 FMBEGINPAGE
+0 X
+0 K
+90 450 9 9 225 603 G
+0.5 H
+2 Z
+90 450 9 9 225 603 A
+90 450 9 9 297 603 G
+90 450 9 9 297 603 A
+90 450 9 9 369 603 G
+90 450 9 9 369 603 A
+1 H
+14 X
+%%BoundingBox: 216 594 378 612
+225 603 369 603 2 L
+0 X
+N
+FMENDPAGE

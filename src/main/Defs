@@ -1,0 +1,8 @@
+# $Id: Defs,v 1.1 1990/11/08 06:10:38 wsd Exp $
+
+main_objs := main.o
+
+main_fnord_objs    := $(main_objs)
+main_xfnord_objs   := $(main_objs)
+main_xmfnord_objs  := $(main_objs)
+main_implicit_objs := $(main_objs)

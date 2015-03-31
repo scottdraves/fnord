@@ -1,0 +1,57 @@
+/****************************************************************
+ *
+ * Copyright 1990, Brown University, Providence, RI
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ ****************************************************************/
+
+/**********************************************************************
+ * demo file 2.3
+ * mappings from 1 dimesion to 2.
+ * 
+ * graphing a sin wave
+ * use of connected, dashed and sampled domains
+ *
+ **********************************************************************/
+
+
+/* 
+ * create a domain
+ * 60 points spaced from 0 to 2pi radians
+ * 
+ */
+domcon :=	Interval( 0, 2 pi, 60 );	    /* connected domain */
+domdash :=	Dashes( 0, 2 pi, 60 ); 	 	    /* partly connected domain (defined std.fnorse)*/
+domdot :=	sample( domcon );		    /* disconnected domain */
+/*
+ * create a mapping (a function) from an interval on the 
+ * real number line to a set of points on R^2.
+ * f(t) = < t, sin(t) >
+ */
+f :=                    /* name of function */
+	R -> R^2:       /* type: maps reals to real-pairs (2D) */    		
+	t -> [t, sin t];     /* equation for the mapping */
+
+/*
+ * create a graphics widget to view the 
+ * resulting graph. 
+ *
+ */
+widget Show( f( domcon ) );
+widget Show( f( domdash ) );
+widget Show(( f( domdot ) );
+
+

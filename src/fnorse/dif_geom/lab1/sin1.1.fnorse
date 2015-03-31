@@ -1,0 +1,54 @@
+/****************************************************************
+ *
+ * Copyright 1990, Brown University, Providence, RI
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ ****************************************************************/
+
+/**********************************************************************
+ * demo file 1.1
+ * starting from scratch.
+ * 
+ * graphing a sin wave
+ *
+ **********************************************************************/
+
+
+/* 
+ * create a domain
+ * 60 points spaced from 0 to 2pi radians
+ */
+dom :=	Interval( 0, 2 pi, 60 );
+
+/*
+ * create a mapping (a function) from an interval on the
+ * real number line to an interval on the real number line.
+ *
+ * f(t) = sin(t)
+ */
+f :=               /* name of function */
+	R -> R:       /* type: maps reals to reals */    		
+	t -> sin t;   /* equation for the mapping */
+
+/*
+ * create a graphics widget to view the 
+ * resulting graph. 
+ *
+ * we are using the macro "Graph" (from std.fnorse)
+ * to diplay our function as a 2D plot of t vs f(t)
+ *
+ */
+widget Show( Graph (f) (dom) );

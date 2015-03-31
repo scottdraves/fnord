@@ -1,0 +1,118 @@
+/**********************************************************************
+ * Copyright 1991, Brown University, Providence, RI
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ **********************************************************************/
+/* $Id: principals.fnorse,v 1.2 1993/06/01 19:23:37 rch Exp $ */
+
+/* set this to false to get two-hump.
+   the only difference is the surface function, and the initial points
+   to use for generating the curves */
+
+choose := True;
+
+X := 
+(R^2 -> R^3 :  [u, v] -> [sin(u)cos(v), 3 cos(u)cos(v),  2 sin(v)])
+  if choose else
+(R^2 -> R^3 :  [u, v] -> [u, v, v v + u u u u - 2 u u])
+  ;
+
+
+
+
+rez := 20 if choose else 40;
+U := Patch((0, pi/2, rez), (0, pi/2, rez))
+if choose else
+Patch((-2, 2, rez), (-2, 2, rez));
+
+/* widget Show(X(U)); */
+
+MakeDomainCrosses
+   := R^2 -> R^2 -> R^2
+   :  p   -> u   -> u + Transpose2(PrincipleDirections(X)(u)) p
+   ;
+
+sz := 1/rez/2 if choose else 1/rez;
+Cross := [Interval(-sz, sz, 2) >< {0}] union 
+         [{0} >< Interval(-sz, sz, 2)]
+      ;
+
+
+widget Show(MakeDomainCrosses(Cross)(sample(U)));
+
+/* *********** */
+h := widget Slider(0, .2), init <- 0.03;
+Segment
+   := (R^?, R^?) -> R -> R^?
+   :  (x,   y )  -> t -> (1-t)x + t y
+   ;
+EulerStep 
+   := (R^? -> R^?) -> R^? -> R^?
+   :   F           -> x   -> x + h F(x)
+   ;
+/* r-k doesn't work well at all.  why? */
+RungeKuttaStep
+   := (R^? -> R^?) -> R^? -> R^?
+   :  F            -> x   -> x + h F(x + h F(x + h F(x + h F(x) / 2))) / 6
+   ;
+/* this does the work of deciding which direction and sign to use
+   next, given the last direction used. */
+helpChoose
+   := (R^2^2, R^2) -> R^2
+   :  ([a, b], last) ->
+       (a if a . last > 0 else -a)
+       if Abs(a . last) > Abs(b . last) else
+       (b if b . last > 0 else -b)
+   ;
+Choose
+   := (R^2 -> R^2^2) -> R^2 -> R^2 -> R^2
+   :  f -> lastDir -> u -> helpChoose(f(u), lastDir)
+   ;
+myfun := Choose(PrincipleDirections(X));
+
+PairStep
+   := (R^2, R^2) -> (R^2, R^2, R^2)
+   :  (x, lastDir) -> (x, 
+		       EulerStep(myfun lastDir)(x),
+		       (myfun lastDir x))
+   ;
+Left2  := (?, ?, ?) -> ? : (x, y, z) -> (x, y);
+Right2 := (?, ?, ?) -> ? : (x, y, z) -> (y, z);
+J := Interval(0, 3/4, 2);
+nextstate
+   := (trails, triples) -> (trails union Segment(Left2 triples)(J),
+			    Right2 triples)
+   ;
+
+top := pi/2 - 0.05;
+UU := (([{0, pi/2} >< Interval(-top, top, 10)] >< {[1, 0]}) union
+      ([{0, pi/2} >< Interval(-top, top, 10)] >< {[-1, 0]}) union
+      ([Interval(0, pi/2, 7) >< {pi/2}] >< {[0, -1]}) union
+      ([Interval(0, pi/2, 7) >< {-pi/2}] >< {[0, 1]}))
+   if choose else
+      ([Interval(-1, 1, 5) >< Interval(-1, 1, 5)] >< 
+      {[1, 0], [0, 1], [-1, 0], [0, -1]})
+   ;
+
+/* the pts are here pairs of point in the domain, and the last
+   direction taken.  we use the last direction to choose which of the
+   4 possible directions at the next pt to use (use the one that is
+   closest to the last.  For the first iteration, use an arbitrary
+   vector.  */
+ini := ({}, sample(UU));
+state := widget Evolve(ini, (trails, pts) -> nextstate(trails, PairStep(pts)));
+/* *********** */
+widget Show(left(state) union Axes);
+widget Show(X(left(state) union {[0,0]}));

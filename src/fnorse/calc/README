@@ -1,0 +1,58 @@
+/**********************************************************************
+ *
+ * This subdirectory contains all the fnorse demo that were
+ * used to teach:
+ *
+ *    Third Semester Calculus
+ *
+ * These are only the fnorse demos, none of the handouts, etc from the 
+ * course are included. 
+ *
+ * These files are still buggy. 
+ * They are not very high quality.
+ **********************************************************************/
+
+/*
+ * INDEX
+ */
+
+************
+* field
+************
+
+Shows the line integral along a circle over a vector field with
+a singularity at the origin. You can move the circle around. 
+
+************
+* line_int
+************
+
+This is supposed to show the value of the line integral along
+a sin wave in a vector field, but IT DOES NOT WORK CORRECTLY. 
+
+************
+* minmax
+************
+
+Illustraits the idea of a surface (function graph) taking on a min
+and max value over a bounded region (circle). 
+
+************
+* project
+************
+
+Shows a square (or a circle) projected onto a surface.
+
+************
+* strange2
+************
+
+A surface that is discontinous at the origin along any 
+straight line in x-y, but is continuously 1 if you travel along
+the parabola y = x^2.
+
+************
+* tanget_plane
+************
+
+Tangent plane show at a moveable point for z = x^2 + c*y^2

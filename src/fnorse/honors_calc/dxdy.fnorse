@@ -1,0 +1,141 @@
+/****************************************************************
+ *
+ * Copyright 1990, Brown University, Providence, RI
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ ****************************************************************/
+/* 
+
+   Domains of double integrals demo
+   Works for the form 
+            b_     _d(y)
+            /     /
+            |     |  f(x,y)  dx dy
+           _/    _/
+            a     c(y)
+
+ 
+ **********************************************************************/
+
+/***********************************************************************
+ * Some handy positioning constants 
+ */
+nunits := 6;
+half := 3;
+third := 2;
+
+/***********************************************************************
+ * Define Function/Domain definition inputs
+ */
+inpt :=
+   widget type<-`window, name<-"int(a,b) int(c(y),d(y)) f(x,y) dx dy",
+   width<-700,height<-300, numUnits<-nunits;
+
+
+b := widget TypeIn, field<-R, name<-"b := R :", init<-"1", 
+        parent<-`inpt, 
+        top<-0, left<-0, bottom<-1, right<-third;
+a := widget TypeIn, field<-R, name<-"a := R :", init<-"0", 
+        parent<-`inpt, 
+        top<-1, left<-0, bottom<-2, right<-third;
+
+fx := widget TypeIn, field<-Maps, name<-"d(y) := R->R :", init<-"y -> 1",
+        parent<-`inpt, 
+        top<-0, left<-third, bottom<-1, right<-nunits;
+gx := widget TypeIn, field<-Maps, name<-"c(y) := R->R :", init<-"y -> 0",
+        parent<-`inpt, 
+        top<-1, left<-third, bottom<-2, right<-nunits;
+
+
+ures := widget Slider(0,50), field<-Z, name<-"X res := Z :",
+        drag<-False, init<-10,
+        parent<-`inpt, 
+        top<-2, left<-0, bottom<-4, right<-half;
+
+vres := widget Slider(0,50), field<-Z, name<-"Y res := Z :",
+        drag<-False, init<-10,
+        parent<-`inpt, 
+        top<-2, left<-half, bottom<-4, right<-nunits;
+
+
+doaxes := widget CheckBox, init<-True, parent<-`inpt, name<-"Axes",
+        top<-4, left<-0, bottom<-5, right<-third;
+
+dofunct := widget CheckBox, init<-False, parent<-`inpt, name<-"Function",
+        top<-4, left<-third, bottom<-5, right<-2*third;
+
+domsolid := widget CheckBox, init<-False, parent<-`inpt, name<-"Solid Domain",
+        top<-4, left<-2*third, bottom<-5, right<-nunits;
+
+
+fuv := widget TypeIn, field<-type(R^2->R), name<-"f := R^2 -> R :", 
+        init<-"[x,y]-> x**2 - y**2",
+        parent<-`inpt, 
+        top<-5, left<-0, bottom<-6, right<-nunits;
+
+/**********************************************************************
+ * define the domain 
+ */
+
+Xinfo := ( 0, 1, ures );
+Yinfo := ( a, b, vres );
+
+
+Domain := Grid( Yinfo, Xinfo );
+sDomain := Patch( Yinfo, Xinfo );
+domDomain := sDomain if domsolid = True else Domain;
+
+/**********************************************************************
+ * define the map
+ */
+
+IntMap := R^2 -> R^2 
+   : [y,x] -> (x)[ gx(y), y]   +  (1-x)[fx(y),y]  
+   ;
+
+/**********************************************************************
+ * define the function 
+ */
+
+funct := R^2 -> R^3
+   : v -> [ v^1, v^2, fuv(v) ]
+   ;
+
+
+/**********************************************************************
+ * Create the output window and add some of our niceties
+ **********************************************************************/
+
+ViewWindow := widget type<-`view, name<-"f(x,y) dx dy";
+
+/* add axes option */
+widget type<-`vobject, parent<-`ViewWindow, color<-"green",
+   set<-( Axes if doaxes = True else  {} );
+
+widget type<-`vobject, parent<-`ViewWindow, color<-"white",
+   set<-( Labels if doaxes = True else {});
+
+
+/* add domain */
+widget type<-`vobject, parent<-`ViewWindow, color<-"red",
+   set<-( IntMap(domDomain) );
+
+/* ad range */
+widget type<-`vobject, parent<-`ViewWindow, color<-"blue",
+   set<-( funct(IntMap(sDomain)) if dofunct = True else {[0,0,0]} );
+   
+
+

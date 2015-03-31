@@ -1,0 +1,209 @@
+/****************************************************************
+ *
+ * Copyright 1990, Brown University, Providence, RI
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ ****************************************************************/
+/* 
+
+   Demonstration of arbitrarily typed typein widgets.
+ 
+   $Id: chain.fnorse,v 1.1 1993/06/02 17:41:27 rch Exp $ */
+
+require "std.fnorse";
+
+nunits := 12;
+half := 6;
+third := 4;
+inpt := widget type<-`window, width<-600,height<-600, numUnits<-nunits;
+
+fxy :=
+  widget TypeIn, field<-type(R^2->R), name<-"f := R^2->R :",
+  init<-"[x,y]-> -(x**2+y**2)/2 + 2", 
+  top<-0, bottom<-1, left<-0, right<-nunits, 
+  parent<-`inpt;
+
+f := Surfaces
+  : [u,v] -> [ u, v, fxy( [u,v] ) ]
+  ;
+
+
+umin := widget TypeIn, field<-R, name<-"X min := R :", init<-"-1", 
+        parent<-`inpt, top<-1, bottom<-3, left<-0, right<-(third);
+umax := widget TypeIn, field<-R, name<-"X max := R :", init<-"1", 
+        parent<-`inpt, top<-1, bottom<-3, left<-(third), right<-(2*third);
+ures := widget Slider(0,50), field<-Z, name<-"X res := Z :", init<-10, 
+        parent<-`inpt, top<-1, bottom<-3, left<-(2*third), right<-(3*third);
+vmin := widget TypeIn, field<-R, name<-"Y min := R :", init<-"-1", 
+        parent<-`inpt, top<-3, bottom<-5, left<-0, right<-third;
+vmax := widget TypeIn, field<-R, name<-"Y max := R :", init<-"1", 
+        parent<-`inpt, top<-3, bottom<-5, left<-third, right<-2*third;
+vres := widget Slider(0,50), field<-Z, name<-"Y res := Z :", init<-10, 
+        parent<-`inpt, top<-3, bottom<-5, left<-2*third, right<-3*third;
+axes := widget CheckBox, init<-True, parent<-`inpt, name<-"Axes",
+        top<-5, bottom<-6, left<-0, right<-third;
+zplane := widget CheckBox, init<-False, parent<-`inpt, name<-"Z-Plane",
+        top<-5, bottom<-6, left<-third, right<-2*third;
+solid :=  widget CheckBox, init<-True, parent<-`inpt, name<-"Solid Surf",
+        top<-5, bottom<-6, left<-2*third, right<-3*third;
+zsolid :=  widget CheckBox, init<-True, parent<-`inpt, name<-"Solid Z-Plane",
+        top<-6, bottom<-7, left<-2*third, right<-3*third;
+
+/*height := widget TypeIn, field<-R,  name<-"Plane Height:", init<-"0", 
+ *       parent<-`inpt, top<-5, bottom<-6, left<-4, right<-6;
+ */
+
+
+/* image */
+
+pict := widget type<-`view;
+
+dom := Patch ((umin, umax, ures), (vmin, vmax, vres)) if solid = True else
+       Grid ((umin, umax, ures), (vmin, vmax, vres));
+
+widget Color ( f( dom ), "LightSlateBlue"),
+   parent<-`pict;
+/* Axes */
+
+widget type<-`vobject, parent<-`pict, color<-"CornflowerBlue",
+   set<-( Axes if axes = True else  {} );
+
+widget type<-`vobject, parent<-`pict, color<-"white",
+   set<-( Labels if axes = True else {});
+
+pdom := Patch ((umin, umax, ures), (vmin, vmax, vres)) if zsolid = True 
+     else Grid ((umin, umax, ures), (vmin, vmax, vres)); 
+
+plane := R^2 -> R^3: [u,v]->[ u, v, 0 ];
+
+widget type<-`vobject, parent<-`pict, color<-"gray20",
+   set<-( plane(pdom) if zplane = True else { [0,0,0] } );
+
+/*****************************/
+/*  Now add chain-rule stuff */
+/*****************************/
+
+cnct := widget CheckBox, init<-True, parent<-`inpt, name<-"Connections",
+        top<-6, bottom<-7, left<-0, right<-third;
+tplane := widget CheckBox, init<-True, parent<-`inpt, name<-"Tangent Plane",
+        top<-6, bottom<-7, left<-third, right<-2*third;
+
+/* first the curve on the surface */
+lmin := widget TypeIn, field<-R, name<-"L min := R :", init<-"-1", 
+        parent<-`inpt, top<-8, bottom<-10, left<-0, right<-third;
+lmax := widget TypeIn, field<-R, name<-"L max := R :", init<-"1", 
+        parent<-`inpt, top<-8, bottom<-10, left<-third, right<-2*third;
+lres := widget Slider(0,50), field<-Z, name<-"L res := Z :", init<-20, 
+        parent<-`inpt, top<-8, bottom<-10, left<-2*third, right<-3*third;
+curt := widget Slider( 0, 1 ), init<-0,
+        name<-"Current t (fraction of domain) := R :",  
+        parent<-`inpt, top<-10, bottom<-12, left<-0, right<-3*third;
+
+/* get the point on the curve */
+ct := lmin*(1-curt) + lmax*curt;
+
+ldom := Interval( lmin, lmax, lres );
+
+line :=
+  widget TypeIn, field<-type(R->R^2), name<-"line := R->R^2 :",
+  init<-"t-> [ t, sin(4*t) ]",
+  top<-7, bottom<-8, left<-0, right<-(nunits), 
+  parent<-`inpt;
+
+tline := R -> R^3
+      : t -> [ line(t)^1, line(t)^2, 0 ]
+      ;
+
+fline := R -> R^3
+      : t -> f(line(t))
+      ;
+
+widget type<-`vobject, parent<-`pict, color<-"green",
+   set<-( line( ldom ) );
+
+widget type<-`vobject, parent<-`pict, color<-"green",
+   set<-( f(line( ldom )) );
+
+/* now an assortment of vectors */
+uI := Interval( 0, 1, 2 );
+uId := sample(Interval( 0, 1, 20 ));
+
+vec := ( R^?, R^? ) -> ( R -> R^? )
+     : ( p1, p2 )-> (t -> t * p1 + (1-t) * p2)
+     ;
+
+rvec := ( R^?, R^? ) -> ( R -> R^? )
+     : ( p1, p2 )-> (t -> p1 + t * p2)
+     ;
+
+/* vectors in z=0 plane */
+widget type<-`vobject, parent<-`pict, color<-"firebrick",
+   set<-( rvec( line(ct), [line'(ct)^1,0] )(uI) union
+          rvec( line(ct), [0,line'(ct)^2] )(uI)
+        );
+
+widget type<-`vobject, parent<-`pict, color<-"red",
+   set<-( rvec( line(ct), line'(ct))(uI) );
+
+/* vectors on surface */
+
+widget type<-`vobject, parent<-`pict, color<-"firebrick",
+   set<-( rvec( f(line(ct)), [line'(ct)^1,0,(fxy'(line(ct))^1)*line'(ct)^1])(uI)
+   union  rvec( f(line(ct)), [0,line'(ct)^2,(fxy'(line(ct))^2)*line'(ct)^2])(uI)
+        );
+
+
+widget type<-`vobject, parent<-`pict, color<-"red",
+   set<-( rvec( fline(ct), fline'(ct))(uI) );
+
+/* connectors */
+
+widget type<-`vobject, parent<-`pict, color<-"white",
+   set<-( vec( tline(ct)+[line'(ct)^1,0,0], 
+                f(line(ct)) + [line'(ct)^1,0,(fxy'(line(ct))^1)*line'(ct)^1])
+              (uId) 
+          if cnct = True else {} );		
+
+widget type<-`vobject, parent<-`pict, color<-"white",
+   set<-( vec( tline(ct)+[0,line'(ct)^2,0], 
+                f(line(ct)) + [0,line'(ct)^2,(fxy'(line(ct))^2)*line'(ct)^2])
+              (uId)
+          if cnct = True else {} );		
+
+widget type<-`vobject, parent<-`pict, color<-"green",
+   set<-( vec( tline(ct), f(line(ct)))(uId)
+          if cnct = True else {} );
+
+
+widget type<-`vobject, parent<-`pict, color<-"yellow",
+   set<-( vec( fline(ct)+fline'(ct), tline(ct)+tline'(ct))(uId)
+          if cnct = True else {} );
+
+/* tangent surface */
+
+Tdom := [{ct} >< interval(-.2, .2, 3) >< interval(-.2, .2, 3) ];
+
+tf := R^3 -> R^3
+   : [t,u,v] -> f(line(t)) + [1,0,fxy'(line(t))^1]* u
+   			   + [0,1,fxy'(line(t))^2]* v
+   ;
+
+widget type<-`vobject, parent<-`pict, color<-"chartreuse",
+   set<-( tf( Tdom ) if tplane = True else {} );
+
+	
+
+   

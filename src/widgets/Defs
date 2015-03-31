@@ -1,0 +1,5 @@
+# Copyright 1990, Brown University.  All rights reserved. 
+# $Id: Defs,v 1.4 1991/03/27 01:49:18 wsd Exp $
+
+widgets_objs := View.o VirtualS.o Joystick.o PixelEditor.o \
+	spin.o Point.o

@@ -1,0 +1,161 @@
+/**********************************************************************
+ * Copyright 1990, Brown University, Providence, RI
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ **********************************************************************/
+/**********************************************************************
+ * RCH 10/30/90
+ *
+ * Demonstrate curve on surface concept
+ *
+ * Define a curve in the uv plan. That is displayed.
+ * 
+ * Define a mapping to a surface. That is displayed, then the 
+ * curve mapped on to the surface.
+ **********************************************************************/
+
+c := widget Slider( 0, 4 ), drag<-False, name<-"which surface";
+d := ToZ(c);
+sk := widget Slider( 0, 3), drag<-False, init<-0, name<-"Which curve";
+k := ToZ( sk );
+
+Surf
+   := R^2 -> R^3
+   : [u,v] -> [ cos(u)(1.5+cos(v)), sin(u)(1.5+cos(v)), sin(v) ]  if d = 0 else
+              [ -cos(u)cos(v), -sin(u)cos(v), sin(v) ]            if d = 1 else
+              [ u, v, (u*u - 2*v*v) ] 			          if d = 2 else
+              [ cosh(u)*cos(v), cosh(u)*sin(v), u ]	          if d = 3 else
+   	      [ sinh(u)*sin(v), -sinh(u)*cos(v), v ]
+
+   ;
+
+
+/* domains*/
+SurfDom := Patch( (-pi, pi, 20), (-pi, pi, 20 ) )              if d = 0 else 
+           Patch( (-pi, pi, 20 ), (-pi/2, pi/2, 20 ) )         if d = 1 else
+           Patch( (-1, 1, 10 ), (-1, 1, 10 ) )                 if d = 2 else
+           Patch( (-pi/2, pi/2, 20 ), (-pi, pi, 20) )          if d = 3 else
+           Patch( (-pi/2, pi/2, 20 ), (-pi, pi, 20) )
+   ;  
+
+
+x := widget  Slider( -pi, pi), init<-0, name<-"x offset in U-V plane";
+y := widget Slider( -pi, pi ), init<-0, name<-"y offset in U-V plane";;
+
+Curve
+   := R -> R^2
+   : t -> [ x+t, y+sin( pi*2*t ) ]    if k = 0 else    /* sine wave */
+          [ x+cos(t), y+sin(t) ]      if k = 1 else    /* circle */
+          [ x, y + t ] 		      if k = 2 else    /* u line */
+          [ x + t, y ]                                 /* v line */
+   ;
+
+tmin := -.5 	if k = 0 else        /* sine wave */
+        0       if k = 1 else        /* circle */
+        -.5     if k = 2 else        /* u line */
+        -.5                          /* v line */
+     ;
+tmax :=  .5 	if k = 0 else        /* sine wave */
+        2pi     if k = 1 else        /* circle */
+         .5     if k = 2 else        /* u line */
+         .5                          /* v line */
+     ;
+
+CurveDom := Interval( tmin, tmax, 20 );
+
+
+myUV := widget type<-`view, name<-"curve in U-V plane";
+
+oo := R^2 -> R^3: v -> [ v^1,v^2,0];
+
+widget type<-`vobject, set<-( oo SurfDom ), parent<-`myUV,
+   color<-"blue";
+widget type<-`vobject, set<-( oo (Curve CurveDom) ), parent<-`myUV,
+   color<-"red";
+
+
+mySurf := widget type<-`view, name<-"Surface with mapped curve";
+
+widget type<-`vobject, set<-( Surf SurfDom ), parent<-`mySurf,
+   color<-"blue";
+widget type<-`vobject, set<-( Surf( Curve CurveDom ) ), parent<-`mySurf,
+   color<-"red";
+
+
+/* now add  T U N frame */
+
+UnitI := Interval( 0, 1, 2 );
+
+
+t := widget Slider( tmin, tmax) , init<-tmin, name<-"Point for TUN frame";
+
+/* tangent on U-V plane */
+T2d 
+   := R^2 -> R^2
+   : [t,u] -> Curve(t) + u * Normalize( Curve'(t) ) 
+   ;
+
+widget type<-`vobject, set<-( T2d( [{t} >< UnitI] ) ), parent<-`myUV,
+   color<-"white";
+
+ConS 
+   := R->R^3
+   : t -> Surf(Curve(t))
+   ;
+
+T 
+   := R -> R^3
+   : t -> Normalize( ConS'(t)) 
+   ;
+N
+   := R-> R^3
+   : t -> (SurfaceNormal Surf)(Curve t)
+   ;
+
+T3d 
+   := R^2 -> R^3
+   : [t,u] -> ConS(t) + u * T(t)
+   ;
+
+N3d
+   := R^2 -> R^3
+   : [t,u] -> ConS(t) + u * N(t)
+   ;
+
+/* U = -T >< N  by definition in class */
+U3d 
+   := R^2 -> R^3
+   : [t,u] -> ConS(t) +
+        u * (T(t) >< N(t))
+   ;
+
+
+widget type<-`vobject, set<-( N3d( [{t} >< UnitI] ) ),
+   parent<-`mySurf, color<-"green";
+
+widget type<-`vobject, set<-( T3d( [{t} >< UnitI] ) ),
+   parent<-`mySurf, color<-"white";
+
+widget type<-`vobject, set<-( U3d( [{t} >< UnitI] ) ),
+   parent<-`mySurf, color<-"yellow";
+
+
+
+
+
+
+
+

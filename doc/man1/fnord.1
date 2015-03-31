@@ -1,0 +1,91 @@
+.TH FNORD 1 "Mar 21 1991"
+.UC 4
+.SH NAME
+fnord \- visualization of mathematics
+.SH SYNOPSIS
+.PU
+.ll +8
+.B fnord
+[
+.I Xt options
+]
+.sp
+.B xmfnord
+[
+.I Xt options
+]
+[ 
+.I filename
+] ...
+.sp
+.B xfnord
+[
+.I Xt options
+]
+[ 
+.I filename
+] ...
+.sp
+.B ttyfnord
+[ 
+.I filename
+] ...
+.SH DESCRIPTION
+.I fnord
+is a system for visualizing mathematics.  The user describes
+mathematical objects such as curves and surfaces; the program computes
+and displays them.
+.PP
+Descriptions of objects may depend upon the values of interactive
+widgets; when the widgets are changed by the user the objects are
+updated in real time.
+.PP
+The language includes symbolic operations such as differentiation and
+higher-order functions, thus powerful mathematical operators such as
+differential geometry's first and second fundamental forms may be
+easily implemented in terms of language primitives.
+.PP
+See the manual in doc/manual for complete documentation.
+.PP
+There are several versions of the executable.
+.B ttyfnord
+works in a glass tty and does no graphics.
+.B xfnord
+uses X and Xt for graphics output.
+.B xmfnord
+uses X, Xt, and Xm (Motif) for graphics input and output.
+.B fnord
+is the same as
+.B xmfnord
+but it does some convenience wrapping.
+.B xfnord, xmfnord,
+and
+.B fnord
+all recognize the standard Xt command line options.
+.B ttyfnord, xfnord,
+and
+.B xmfnord
+take a list of files on the command line to be read by the
+interpreter.  The special name "stdin" indicates reading from
+stdin.
+.PP
+There is also a gnu-emacs mode for editing and running fnord programs;
+it isn't very good at formatting code, but its execution facilities
+are quite useful.
+.SH BUGS
+On monochrome systems,
+.B fnord
+always draws in black, so if you're background is also black, you will
+see nothing.
+.sp
+The text editor widget does not work on the sun3.
+.sp
+Developement was done on a sun4, other systems will probably be pretty
+shaky.
+.sp
+See the manual in the doc directory.
+.SH AUTHOR
+Scott Draves (spot@cs.cmu.edu).
+.sp
+Nick Thompson (nix@sgi.com) and Matthew Stone (mas@cs.brown.edu) also
+contributed; see the manual.

@@ -1,0 +1,93 @@
+/**********************************************************************
+ * Copyright 1990, 1992
+ * RCH & MAS 
+ *
+ * The Death Star
+ *
+ * Fancy fnorse for doing light source shading
+ *
+ **********************************************************************/
+
+
+/*
+ * the direction the light is coming from 
+ */
+lvec := Normalize( [-2, 0, -1] ); 
+
+/*
+ * Light source function.
+ *
+ * Takes a surface map (R2->R3) and produces a 
+ * map from R2 -> R4 that is the same in the first three dimensions
+ * and contains shading information in the fourth. 
+ */
+LS := (R^2->R^3, R^3) -> (R^2->R^4)
+   :  (f, v) -> 
+          ( w -> f(w) :: [ -(SurfaceNormal(f)(w) . v)/2 + .5 ] )
+   ;
+
+
+/*
+ * domain for the body of the Deathstar:
+ * a sphere with a gap around the north pole
+ */
+body := Patch((-pi/2, 3pi/8, 16), (-pi, pi, 20));
+
+/* 
+ * domain for the planet-blaster dish.
+ * a piece for a sphere from around the south pole
+ */
+dish:= Patch((-pi/2, -3pi/8, 6), (-pi, pi, 20));
+
+/*
+ * function to map from a planar domain onto a sphere.
+ */
+Sphere := R^2->R^3 : [u, v] -> [ cos (u) sin (v), cos (u) cos (v), sin (u) ];
+
+/* 
+ * translate the dish to it's correct position
+ * while preserving it's color info
+ */
+PlusSome := R^4->R^4 : x -> [x^1, x^2, x^3 + 2 sin(3pi/8), x^4];
+
+
+/*
+ * throw it all together 
+ */
+DeathStar := LS(Sphere, lvec)(body) 
+	     union 
+   	     PlusSome( LS(Sphere, (-lvec))(dish) );
+
+/*
+ * now draw it with a nice color range
+ */
+Dstar := widget type<-`view , name<-"Death Star";
+
+widget type<-`vobject, color<-"4:gray10->gray80", 
+       set<- DeathStar, parent<-`Dstar;
+
+lineout
+   := R -> (R -> R^3)
+   :  theta  -> (t -> (1 - t) * [0, 0, 1.3] + t * Sphere([3pi/8, theta]))
+   ;
+
+linetube 
+   := (R,R,R) -> R^3
+   : (theta, t, th) -> lineout(theta)(t) + 
+   .02 * cos(th) * [ sin(theta), cos(theta), 1] + 
+   .02 * sin(th) * [ cos(theta), -sin(theta), 0]
+   ;
+
+widget type<-`vobject, color<-"green", 
+   set<- linetube (
+   sample(interval(0,2pi,4))><interval(0,1,2)><interval(0, 2pi, 4)),
+   parent<-`Dstar;
+
+circ := (R,R) -> (R,R,R) : (u,v) -> (0.02 (cos u), 0.02 (sin u), v);
+
+a := widget Slider(1.6, 8);
+
+widget type<-`vobject, color<-"green",
+   set <- circ(interval(pi/2,5pi/2,4) >< interval(1.3, a, 2)),
+   parent<-`Dstar;
+

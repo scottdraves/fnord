@@ -1,0 +1,58 @@
+/****************************************************************
+ *
+ * Copyright 1990, Brown University, Providence, RI
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ ****************************************************************/
+
+/**********************************************************************
+ *
+   Airplane
+
+   by the 'Fuzzola
+**********************************************************************/
+
+/* Create a planar section in the form of a triangle, with corners at (-1,1), 
+   (1,-1), and (0,2), and with 12 representative points along each line */
+s := triangle ( [ [-1,-1], [1,-1], [0,2] ], 12);
+
+/* absolute value function */
+absolute := R -> R : x -> x if x > 0 else -x;
+
+/* function to "fold" the triangular section into an airplane shape;
+   airplane2 and airplane1 are used as substitutes for local variables.
+   In a prettier form, this function would read:
+
+   airplane := R^2 -> R^4 :
+     [x,y] -> {
+       temp1 := absolute (x) - 0.25;
+       temp2 := temp1 if temp1 < 0 else 0 if temp1 < 0.55 else -temp1 + 0.55;
+       [x, y, temp2, temp2 * 4 + 1]
+     };
+
+   The function maps a coordinate pair to four coordinates for (x,y,z) and color.
+
+   The idea is this: cause a dip in z to -0.25 at |x| = 0, leveling from 
+   |x| = 0.25 to 0.80 and then taking another dip from |x| = 0.80 to 1.
+   The color is the same as the z dimension, except it has to be fit into the range [0,1].
+*/   
+airplane2 := R -> R : ab -> (ab if ab < 0 else 0 if ab < 0.55 else -ab + 0.55);
+airplane1 := R -> R : x -> airplane2 (absolute (x) - 0.25);
+airplane  := R^2 -> R^4 : [x,y] -> [x, y, airplane1 (x), airplane1 (x) * 4 + 1];
+
+/* show the airplane */
+widget type<-`view, set<-airplane(s), color<-"4:green->deep sky blue";
+

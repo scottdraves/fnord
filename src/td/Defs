@@ -1,0 +1,15 @@
+# $Id: Defs,v 1.6 1993/06/03 14:16:21 rch Exp $
+td_objs := td_work.o td_create.o td_create_motif.o \
+	   td_destroy.o td_text.o td_recalc.o td_comm.o
+
+td_new_objs := td_shared.o td_x_shared.o td_flow.o \
+	 td_top.o td_window.o td_view.o td_object.o \
+	 td_editor.o td_camera.o td_boolean.o \
+	 td_printer.o td_point.o td_slider.o \
+	 td_tapedeck.o td_evolve.o td_comm.o \
+	 td_bitmap.o td_typein.o td_output.o td_video.o
+
+td_tty_objs := $(td_new_objs)
+td_x_objs := $(td_new_objs)
+td_motif_objs := $(td_new_objs)
+

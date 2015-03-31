@@ -1,0 +1,153 @@
+/****************************************************************
+ *
+ * Copyright 1990, Brown University, Providence, RI
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ ****************************************************************/
+/**********************************************************************
+
+ Taylor approximations demo.
+ 
+ **********************************************************************/
+
+/* get all the nice surface definition stuff */
+
+include "def.funct2b.fnorse";
+
+/* display the surface */
+widget DispF2color( "blue" );
+
+/* now make controls for Taylor Aprox */
+Tinput := widget type<-`window, width<-300, height<-150, numUnits<-2;
+/*          name<-"Taylor values"; */
+
+Tlevel := widget Slider( 0, 4 ), init<-0, field<-Z, parent<-`Tinput,
+       left<-0, top<-0, right<-1, bottom<-1, drag<-False;
+
+Tsolid := widget CheckBox, init<-False, parent<-`Tinput,
+       left<-1, top<-0, right<-2, bottom<-1, name<-"Taylor Solid";
+
+x0 := widget TypeIn, field<-R, name<-"Xo := R:", init<-"0",
+	parent<-`Tinput, left<-0, top<-1, right<-1, bottom<-2;
+
+y0 := widget TypeIn, field<-R, name<-"Yo := R:", init<-"0",
+	parent<-`Tinput, left<-1, top<-1, right<-2, bottom<-2;
+
+Xnot := [ x0, y0 ];
+
+/* taylor domain - only do it ourselves so can have different
+ * solid toggle from surface 
+ */
+Tdom := Patch ( F2Xinfo, F2Yinfo )  if Tsolid = True else
+       Grid ( F2Xinfo, F2Yinfo );
+
+
+/* start building approximation */
+
+Hmap := R^2 -> R^2
+   : v -> v - [ x0, y0 ]
+   ;
+   
+
+/* zero order taylor term */
+T0 := R^2 -> R
+  : h -> F2xy( Xnot )
+  ;
+
+/* first order taylor term */
+T1 := R^2 -> R
+   : h -> 0 if Tlevel < 1 else 
+          (h^1) * F2xy'(Xnot)^1 + (h^2) * F2xy'(Xnot)^2
+   ;
+
+T2 := R^2 -> R
+   : h -> 0 if Tlevel < 2 else
+          1/2* ( (h^1)*(h^1)*(F2xy''(Xnot)^1^1) +
+                 (h^1)*(h^2)*(F2xy''(Xnot)^1^2) +
+                 (h^2)*(h^1)*(F2xy''(Xnot)^2^1) +
+                 (h^2)*(h^2)*(F2xy''(Xnot)^2^2) 
+               )
+   ;
+
+T3 := R^2 -> R
+   : h -> 0 if Tlevel < 3 else
+          1/(3!)* ( (h^1)*(h^1)*(h^1)*(F2xy'''(Xnot)^1^1^1) +
+                    (h^1)*(h^1)*(h^2)*(F2xy'''(Xnot)^1^1^2) +
+                    (h^1)*(h^2)*(h^1)*(F2xy'''(Xnot)^1^2^1) +
+                    (h^2)*(h^1)*(h^1)*(F2xy'''(Xnot)^2^1^1) +
+
+                    (h^1)*(h^2)*(h^2)*(F2xy'''(Xnot)^1^2^2) +
+                    (h^2)*(h^1)*(h^2)*(F2xy'''(Xnot)^2^1^2) +
+                    (h^2)*(h^2)*(h^1)*(F2xy'''(Xnot)^2^2^1) +
+                    (h^2)*(h^2)*(h^2)*(F2xy'''(Xnot)^2^2^2) 
+               )
+   ;
+
+T4 := R^2 -> R
+   : h -> 0 if Tlevel < 4 else
+          1/(4!)* ( (h^1)*(h^1)*(h^1)*(h^1)*(F2xy''''(Xnot)^1^1^1^1) +
+
+   		    (h^1)*(h^1)*(h^1)*(h^2)*(F2xy''''(Xnot)^1^1^1^2) +
+   		    (h^1)*(h^1)*(h^2)*(h^1)*(F2xy''''(Xnot)^1^1^2^1) +
+   		    (h^1)*(h^2)*(h^1)*(h^1)*(F2xy''''(Xnot)^1^2^1^1) +
+   		    (h^2)*(h^1)*(h^1)*(h^1)*(F2xy''''(Xnot)^2^1^1^1) +
+
+   		    (h^1)*(h^1)*(h^2)*(h^2)*(F2xy''''(Xnot)^1^1^2^2) +
+   		    (h^1)*(h^2)*(h^2)*(h^1)*(F2xy''''(Xnot)^1^2^2^1) +
+   		    (h^2)*(h^2)*(h^1)*(h^1)*(F2xy''''(Xnot)^2^2^1^1) +
+
+   		    (h^1)*(h^2)*(h^1)*(h^2)*(F2xy''''(Xnot)^1^2^1^2) +
+   		    (h^2)*(h^1)*(h^2)*(h^1)*(F2xy''''(Xnot)^2^1^2^1) +
+   		    (h^2)*(h^1)*(h^1)*(h^2)*(F2xy''''(Xnot)^2^1^1^2) +
+
+   		    (h^1)*(h^2)*(h^2)*(h^2)*(F2xy''''(Xnot)^1^2^2^2) +
+   		    (h^2)*(h^1)*(h^2)*(h^2)*(F2xy''''(Xnot)^2^1^2^2) +
+   		    (h^2)*(h^2)*(h^1)*(h^2)*(F2xy''''(Xnot)^2^2^1^2) +
+   		    (h^2)*(h^2)*(h^2)*(h^1)*(F2xy''''(Xnot)^2^2^2^1) +
+
+   		    (h^1)*(h^1)*(h^1)*(h^1)*(F2xy''''(Xnot)^2^2^2^2)
+               )
+   ;
+
+/* total terms */
+T := R^2 -> R
+   : h -> T0(h)+T1(h)+T2(h)+T3(h)+T4(h)
+          
+  ;
+
+
+Tail := R^2 -> R^3
+     : v-> [ x0, y0, 0] + [ v^1, v^2, T(v) ]
+     ;
+
+
+widget Color( Tail( Hmap(Tdom) ), "red" ), parent<-`F2image; 
+ 
+
+Diff := R^2 -> R^3
+     : v -> [ v^1, v^2, F2xy(v) - T(Hmap(v)) ]
+     ;
+
+vdiff := widget type<-`view, name<-"Difference";
+
+widget type<-`vobject, parent<-`vdiff, color<-"Blue",
+   set<-( Axes );
+
+widget type<-`vobject, parent<-`vdiff, color<-"white",
+   set<-( Labels );
+
+widget type<-`vobject, parent<-`vdiff, color<-"green",
+   set<-( Diff( F2dom ) );

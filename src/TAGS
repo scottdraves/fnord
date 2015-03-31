@@ -1,0 +1,1014 @@
+
+td/td_bitmap.c,211
+static void td_bitmap_changed(84,2401
+static METsym *td_bitmap_create(169,4379
+static void td_bitmap_destroy(158,4185
+static FOboolean td_bitmap_request(124,3402
+static void td_create_bitmap_widget(97,2663
+
+td/td_boolean.c,386
+static void td_boolean_destroy(113,3176
+static FOboolean td_boolean_request(122,3340
+static void td_button_changed(232,6225
+static METsym *td_button_create(278,7447
+static void td_button_step(250,6751
+static void td_checkbox_changed(148,3906
+static METsym *td_checkbox_create(186,5071
+static void td_create_button_widget(259,6912
+static void td_create_checkbox_widget(162,4344
+
+td/td_camera.c,231
+static void td_camera_destroy(176,4792
+static FOboolean td_camera_request(243,6303
+static void td_camera_secure(190,5104
+static void td_camera_step(211,5584
+fnord_widget *td_new_vs(134,3781
+static void td_vs_callback 87,2556
+
+td/td_comm.c,501
+td_off(385,10682
+td_off(391,10791
+td_read_connect(197,5682
+td_read_connect(203,5801
+static METsym *td_read_create(308,8531
+static void td_read_destroy(285,7938
+td_read_info(107,3451
+td_read_info(113,3568
+static FOboolean td_read_request(232,6571
+td_write_connect(467,12447
+td_write_connect(473,12567
+static METsym *td_write_create(618,16192
+static void td_write_destroy(596,15643
+static FOboolean td_write_request(550,14497
+td_write_set(427,11640
+static void td_write_update(530,14007
+
+td/td_editor.c,574
+static void GoAway(494,13062
+static void execute_text(174,4734
+static METsym *td_editor_create(620,17949
+static void td_editor_destroy(679,19604
+int td_text_read(138,3796
+xtd__text_init(597,17189
+static void xtd_cancel_quit(475,12638
+static void xtd_do_load(336,8672
+static void xtd_do_save(255,6639
+static void xtd_load_button(435,11388
+static int xtd_load_file(293,7543
+static void xtd_quit_button(370,9406
+static void xtd_run_fnorse(198,5294
+static void xtd_save_button(389,9810
+static void xtd_save_text(224,6015
+static void xtd_text_form_kids(511,13378
+
+td/td_evolve.c,322
+static void td_create_evolve_widget(199,5630
+static METset *td_evolve(311,9256
+static void td_evolve_changed(163,4557
+static METsym *td_evolve_create(248,7466
+static void td_evolve_destroy(148,4120
+static FOboolean td_evolve_request(104,2965
+static void td_evolve_reset(180,5082
+static void td_evolve_step(88,2558
+
+td/td_flow.c,745
+void destroy_new_widgets(388,8357
+void fix_widgets(406,8682
+static void td_and_state(208,4870
+static void td_call_clear(113,2959
+static void td_call_destroy(181,4348
+static void td_call_post_update(155,3799
+static void td_call_secure(250,5664
+static void td_call_step(92,2582
+static void td_call_update(134,3374
+FOboolean td_control_callback(358,7869
+void td_destroy(372,8120
+static void td_destroy_doomed(290,6317
+static void td_doom_new(271,6001
+td_fd_add(668,16020
+td_fd_check(735,17646
+int td_fd_get_string(751,17853
+td_fd_remove(715,17221
+static void td_input_here(626,14869
+td_input_here(631,14965
+static void td_or_state(229,5234
+void td_update(336,7407
+td_work(538,12712
+td_work(552,12943
+METsym *widget(420,8882
+
+td/td_object.c,81
+static METsym *td_object_create(88,2542
+static void td_object_destroy(176,4752
+
+td/td_output.c,209
+static void td_create_output_widget(179,4890
+static METsym *td_output_create(325,10387
+static void td_output_destroy(374,11790
+static void td_output_print(111,3275
+static void td_output_set_style 88,2488
+
+td/td_point.c,304
+static void td_create_point_widget(266,7069
+static void td_point_changed(129,3914
+td_point_create(299,7922
+static void td_point_destroy(246,6673
+static FOboolean td_point_request(188,5181
+static void td_point_secure(254,6801
+static void td_point_step(177,4934
+static void td_point_update(86,2502
+
+td/td_printer.c,323
+static void td_printer_clear(86,2703
+static void td_printer_clear(280,7704
+static METsym *td_printer_create(125,3562
+static METsym *td_printer_create(209,5869
+static void td_printer_destroy(78,2549
+static void td_printer_destroy(270,7483
+static void td_printer_update(99,3002
+static void td_printer_update(292,7979
+
+td/td_shared.c,369
+METsym *td_cant_create(452,10562
+FOboolean td_cant_request(465,10847
+FOboolean td_find_symbol(63,2071
+FOboolean td_lookup_boolean(149,3898
+FOboolean td_lookup_field(255,6025
+FOboolean td_lookup_int(100,3045
+FOboolean td_lookup_real(209,5204
+FOboolean td_lookup_type(308,6976
+td_make_set_cast(423,9654
+td_make_set_recalc(363,8133
+td_make_type_recalc(396,9097
+
+td/td_slider.c,212
+static void td_create_slider_widget(124,3595
+static void td_slider_changed(85,2430
+static METsym *td_slider_create(176,5327
+static void td_slider_destroy(245,7196
+static FOboolean td_slider_request(254,7362
+
+td/td_tapedeck.c,342
+static void td_create_tapedeck_widget(227,6158
+static METsym *td_tapedeck_create(292,8986
+static void td_tapedeck_destroy(122,3518
+static void td_tapedeck_forward(194,5380
+static FOboolean td_tapedeck_request(135,3903
+static void td_tapedeck_reverse(211,5776
+static void td_tapedeck_step(85,2482
+static void td_tapedeck_stop(179,5038
+
+td/td_text.c,1084
+static void BeginningOfLine(539,14402
+static void EndOfLine(504,13691
+static void GoAway(612,15882
+static void KillLine(574,15120
+static int edit_text_read(148,4457
+static void execute_text(184,5406
+xtd__text_init(715,19936
+static void xtd_cancel_quit(484,13204
+static void xtd_create_output_widget(1108,30552
+void xtd_create_typein_widget(908,25169
+static void xtd_do_load(346,9339
+static void xtd_do_save(265,7309
+static void xtd_load_button(444,11995
+static int xtd_load_file(303,8213
+METsym *xtd_new_editor(739,20758
+METsym *xtd_new_editor(1306,37407
+METsym *xtd_new_output(1252,35991
+METsym *xtd_new_output(1330,37981
+xtd_new_printer(799,22341
+METsym *xtd_new_printer(1318,37693
+static void xtd_output_print(1040,28939
+static void xtd_output_set_style 1017,28151
+xtd_printer_clear(958,26838
+xtd_printer_update(968,27009
+static void xtd_quit_button(380,10073
+static void xtd_run_fnorse(208,5968
+static void xtd_save_button(398,10450
+static void xtd_save_text(234,6688
+static void xtd_text_form_kids(629,16198
+static void xtd_typein_changed(860,23865
+
+td/td_top.c,364
+XtAppInitializeR3(162,4153
+void td_init(440,11412
+static void td_init_syms(75,2274
+void td_register_running(421,10994
+static void td_top_destroy(295,8140
+static void td_top_destroy(333,8917
+static fnord_widget *td_top_new(248,6994
+static fnord_widget *td_top_new(306,8348
+void td_wfd_add(391,10202
+void td_wfd_clean(356,9425
+void td_wfd_remove(343,9148
+
+td/td_typein.c,212
+static void td_create_typein_widget(177,4848
+static void td_typein_changed(86,2458
+static METsym *td_typein_create(224,6536
+static void td_typein_destroy(133,3729
+static FOboolean td_typein_request(146,4095
+
+td/td_video.c,315
+static Widget td_create_video_widget(178,4729
+static void td_video_changed(141,3745
+static void td_video_clear(90,2583
+static METsym *td_video_create(243,7133
+static void td_video_destroy(316,8862
+static void td_video_frame(113,3130
+static void td_video_toggle 125,3351
+static void td_video_update(104,2920
+
+td/td_view.c,230
+static void td_view_camera(86,2482
+static void td_view_clear(298,8551
+static METsym *td_view_create(220,6549
+static void td_view_destroy(289,8397
+static FOboolean td_view_req_cam(322,9005
+static void td_view_update(308,8726
+
+td/td_window.c,161
+static void td_form_resize_call(88,2545
+fnord_widget *td_new_window(117,3393
+static METsym *td_window_create(270,7892
+static void td_window_destroy(287,8269
+
+td/td_x_shared.c,155
+push_widget_under(552,15220
+void td_attach_in_window(162,4192
+Boolean td_can_have_child(57,1884
+void td_link_in(346,9281
+void td_winkid_geom(253,6652
+
+threedee/camera.c,271
+void CameraBuildXform(55,1962
+void CameraGetInterest 188,5344
+CameraGetInverseXform(110,3482
+void CameraGetSpin 202,5581
+void CameraRescale 230,6332
+void CameraSetInterest 174,5097
+void CameraSetSpin 214,5795
+#define NORM(46,1606
+#define VECTOR_DISTANCE(47,1658
+
+threedee/xenv.c,678
+static int EnvAllocColor 492,14684
+static FOboolean EnvAllocDBColors(317,9475
+static void EnvCloseFile 690,20169
+DrawEnv EnvCreate 557,16806
+void EnvDestroy 771,21723
+static void EnvDitherPatterns 192,5532
+void EnvDrawAdd 782,21904
+static void EnvFlipColors 732,21007
+void EnvFlush 742,21208
+FOboolean EnvFreeColors 841,23304
+static FOboolean EnvMoreColors 451,13580
+static void EnvOpenFile 614,18095
+FOboolean EnvRealizeColors 804,22311
+static FOboolean EnvReferencedColors 372,11570
+static void EnvSetDBColors(263,7816
+static void EnvSetDefaultDBColors(217,6344
+void EnvSetOutputFile 871,23872
+static void EnvSetupColors 702,20409
+void EnvUseMask 720,20807
+
+threedee/xpict.c,1125
+static void PictAddBlock 603,16184
+static void PictAddCurves 435,11806
+void PictAddObject 729,19305
+static void PictAddSurfaces(524,14095
+void PictChangeDrawMode 1277,33170
+void PictChangePixmap 1261,32944
+void PictChangeWindow 1270,33090
+static void PictClear(818,21254
+static void PictCommandsForCurve 312,8594
+static void PictCommandsForMesh 391,10536
+static void PictCommandsForObject 699,18611
+static void PictCommandsForPoints 244,6926
+static void PictCommandsForSpecial 280,7740
+static void PictCommandsForTriangles 340,9152
+Pict PictCreate(153,4668
+void PictDefaultScale(867,22269
+void PictDestroy(847,21825
+static void PictExecuteHSCommands 998,25919
+static void PictExecuteWFCommands 942,24420
+PictGetCamera(1295,33494
+void PictOutput 1179,30626
+void PictRemoveObject 748,19736
+void PictRescale(884,22642
+void PictSetDrawStyle 203,5924
+void PictSetSpin 1286,33353
+FOboolean PictUpdate 773,20331
+static void PictWriteHSCommands 1123,29434
+static void PictWriteWFCommands 1064,27723
+static void pict_free_commands(796,20826
+Real *pict_new_vertex 121,3643
+void pict_object_free(105,3171
+
+threedee/xpictdraw.c,563
+#define PS_CNVT_PT(51,1741
+#define X_CNVT_PT(47,1594
+void print_filled_triangle 644,17158
+void print_line 557,14955
+void print_point 509,13811
+void print_text_2d 540,14544
+void print_triangle 598,15965
+void rgb_to_cmyk(493,13526
+void xdraw_line(354,9904
+void xdraw_point(280,8179
+void xdraw_text_2d(296,8513
+void xdraw_triangle(409,11251
+void xfill_line(381,10564
+void xfill_point(333,9374
+void xfill_text_2d(312,8899
+void xfill_triangle(441,12085
+static void xpd_intensity 138,4091
+static void xpd_rgb 78,2628
+static GC xpd_select_gc 157,4500
+
+threedee/xpictsort.c,363
+void PictSort 653,17813
+bsp_choose(68,2140
+static int bsp_compare(133,4147
+static int bsp_compute_norm(91,2838
+static void bsp_flatten(169,4912
+static PictCommPtr bsp_make_tree(490,13916
+static PictCommPtr bsp_new_plane(440,12382
+static void bsp_split_segment(217,6210
+static void bsp_split_triangle(269,7564
+static PictCommPtr bsp_stuff_tree(421,11972
+
+threedee/xvo.c,273
+static ColorModel ParseColors 73,2747
+static Real *VOConvertReps 218,6751
+static Real *VOCopyPoints(153,4926
+ViewObj VOCreate 417,12544
+void VODestroy 504,14716
+static void VOFreeBlocks 473,13825
+static FOboolean VOSetToBlocks 308,9380
+FOboolean VOUpdate 521,15128
+
+met/met_block.c,256
+MET__block_copy_deep(75,2224
+MET__block_free_deep(48,1588
+MET__block_has_ref(378,9932
+MET_block_lose_tags(156,4470
+MET_block_to_polybare(99,2920
+METblock_print(349,9088
+METblock_print_pretty(193,5451
+METblock_read(239,6383
+METblock_write(219,5990
+
+met/met_connex.c,303
+MET__connex_copy_deep(69,2019
+MET__connex_free_deep(48,1589
+MET__connex_has_ref(381,8886
+MET_connex_cross(124,3078
+MET_connex_equal(241,6004
+MET_connex_new(84,2253
+MET_connex_num_pts(266,6479
+MET_connex_union(177,4281
+METconnex_print(358,8352
+METconnex_read(328,7771
+METconnex_write(305,7288
+
+met/met_data.c,886
+MET__data_cast_to_field(358,9024
+MET__data_cast_to_type(419,10554
+MET__data_copy_deep(160,3854
+MET__data_free_deep(48,1587
+MET__data_has_ref(1152,28507
+MET__data_number_add(619,15316
+MET__data_pretty_array(652,16120
+MET__data_pretty_field(568,14112
+MET__data_pretty_map(558,13944
+MET__data_pretty_set(609,15121
+MET__data_pretty_traverse(764,18929
+MET__data_read_guts(896,22275
+MET__data_set_cast_to_type(383,9628
+MET__data_write_guts(857,21215
+MET_data_append(70,1968
+MET_data_cast_to_type(521,13176
+MET_data_copy_upto(86,2249
+MET_data_copy_very_deep(112,2849
+MET_data_extract_at(226,5502
+MET_data_extract_row(199,4719
+MET_data_extract_subset(260,6436
+MET_data_index(136,3426
+MET_data_new(173,4084
+MET_data_replicate(303,7561
+MET_data_to_block(328,8187
+METdata_print(1128,27872
+METdata_print_pretty(828,20603
+METdata_read(1003,24844
+METdata_write(945,23532
+
+met/met_env.c,244
+MET__env_copy_deep(101,2543
+MET__env_free_big_binding(56,1680
+MET__env_free_deep(66,1815
+MET__env_has_ref(316,7230
+MET_env_initialize(50,1614
+METenv_add_binding(149,3501
+METenv_lookup(215,4973
+METenv_new(112,2678
+METenv_print(271,6128
+
+met/met_globals.c,697
+#define BACKTRACE_CHUNKS(685,16709
+#define BLOW_CHUNKS(648,15608
+MET__chase_free_lists(367,8310
+MET__default_control(267,6551
+MET__dirty_memory(301,7233
+MET__dirty_stack(284,6938
+MET__free_chunks(437,9833
+MET_error_handler_default(228,5299
+MET_error_handler_ignore(238,5493
+MET_indent(739,18264
+MET_malloc_round_up(562,12597
+MET_periodic(425,9675
+METbacktrace_object(703,17357
+METdefaults_get(548,12402
+METdefaults_set(487,10832
+METexit(457,10214
+METinitialize(327,7753
+METprint_all_objects(660,16029
+METprint_memory_stats(584,13080
+METtroff(357,8219
+METtron(349,8163
+switch 806,19128
+switch 826,19485
+switch(838,19693
+switch(854,19936
+switch 876,20319
+switch 894,20634
+
+met/met_list.c,803
+#define MAXIFY(722,17144
+MET__list_clear_entry(468,11439
+MET__list_copy_deep(590,14036
+MET__list_free_deep(569,13590
+MET__list_has_ref(848,20184
+MET__list_hash_free_bits(499,12067
+MET_list_exit(165,4802
+MET_list_hash_add(197,5527
+MET_list_hash_find(406,10042
+MET_list_hash_find_object(392,9741
+MET_list_hash_print(693,16444
+MET_list_hash_stats(724,17182
+MET_list_hash_stats(788,18873
+MET_list_hash_total_stats(762,18094
+MET_list_hash_total_stats(795,18961
+MET_list_initialize(128,3793
+MET_list_read(616,14490
+METlist_hash_add_int(220,6080
+METlist_hash_add_set(242,6557
+METlist_hash_add_sym(283,7483
+METlist_hash_find_int(324,8431
+METlist_hash_find_set(347,8864
+METlist_hash_find_sym(370,9310
+METlist_hash_free_id(547,13167
+METlist_hash_new_id(430,10538
+METlist_print(803,19061
+
+met/met_opt.c,375
+MET__opt_cse_compare_syms(211,6050
+MET__opt_cse_eliminate(268,7341
+MET__opt_cse_eliminate_foundp(252,6924
+MET__opt_force_var_to(54,1778
+MET__opt_inline_sym(384,10097
+MET__opt_peephole(112,3175
+MET_opt_cse_eliminate(359,9514
+MET_opt_inline(79,2336
+MET_opt_inline_sym(400,10317
+MET_opt_peephole(188,5557
+MET_opt_remove_constants(420,10644
+MET_opt_whopper(456,11438
+
+met/met_set.c,1479
+MET__set_assoc(646,15805
+MET__set_clear_rep(894,22361
+MET__set_copy_deep(165,3995
+MET__set_copy_reps(766,18721
+MET__set_data_merge(1912,51036
+MET__set_free_deep(137,3468
+MET__set_free_reps(94,2608
+MET__set_has_ref(2645,69478
+MET__set_init(2337,61921
+MET__set_remove_last_tag(1003,24794
+MET__set_split_for_tag(1131,28930
+MET__set_unscalar_tag(1059,26714
+MET__set_update_dependencies(290,6796
+MET_set_add_block(1947,51880
+MET_set_add_dependency(258,6151
+MET_set_block_to_polybare(1404,37257
+MET_set_canonize(2139,57380
+MET_set_cast_to_type(1546,40765
+MET_set_de_canonize(2187,58538
+MET_set_exit(80,2355
+MET_set_extract_row(1681,44306
+MET_set_extract_set_row(1711,45107
+MET_set_extract_tagged_row(1743,45991
+MET_set_from_data_and_type(2103,56259
+MET_set_get_type(1456,38722
+MET_set_have_rep(829,20508
+MET_set_initialize(59,1855
+MET_set_new(237,5805
+MET_set_polybare_merge(2022,54097
+MET_set_remove_tag(1241,32243
+MET_set_to_data(2169,58192
+MET_set_zeroed(2061,55207
+METset_access_vertices(1816,48719
+METset_assoc(737,18061
+METset_clear_rep(973,24274
+METset_get_number(491,11787
+METset_get_string(602,14538
+METset_get_symbol(582,14148
+METset_get_type(1520,40120
+METset_have_rep(987,24499
+METset_new_number(429,10177
+METset_new_string(444,10502
+METset_new_tensor(359,8364
+METset_new_with_definition(309,7241
+METset_print(2552,66897
+METset_print_pretty(2206,59053
+METset_read(2370,62679
+METset_redefine(339,7982
+METset_write(2275,60611
+
+met/met_sym.c,786
+MET__sym_be_set_ref_control(481,10837
+MET__sym_copy_deep(216,5209
+MET__sym_copy_into(150,3658
+MET__sym_free_deep(129,3215
+MET__sym_free_deep_guts(95,2646
+MET__sym_has_ref(951,23669
+MET_sym_be_set_ref(537,12552
+MET_sym_clear_seen_flags(807,20411
+MET_sym_dup_with_kids(238,5633
+MET_sym_eval_set_ref(609,14441
+MET_sym_exit(79,2310
+MET_sym_find_dependencies(677,16381
+MET_sym_force_set_ref(450,10264
+MET_sym_force_to_sym(469,10590
+MET_sym_initialize(56,1824
+MET_sym_new_variable(328,7693
+MET_sym_preprocess_definition(720,17650
+METset_form_pair(826,20788
+METsym_add_kid(283,6687
+METsym_new_control(430,9852
+METsym_new_op(401,9313
+METsym_new_set_ref(301,7097
+METsym_new_sym(360,8466
+METsym_new_sym_const_set(383,8937
+METsym_new_zero(421,9716
+METsym_print(861,21543
+
+met/met_tags.c,219
+void MET_tags_add(83,2172
+void MET_tags_copy(136,3285
+void MET_tags_copy_new(222,5227
+Boolean MET_tags_equal(363,8263
+void MET_tags_free(64,1840
+void MET_tags_initialize(51,1648
+void MET_tags_partialize(386,8747
+
+met/met_type.c,755
+MET__type_blank(1237,33459
+MET__type_copy_deep(226,6908
+MET__type_free_deep(175,5903
+MET__type_has_ref(1524,40858
+MET__type_next(1267,34182
+MET__type_print_pretty(1069,29206
+MET__type_to_data(690,19388
+MET_type_base_field(811,22836
+MET_type_bogus(433,12020
+MET_type_cast(482,13475
+MET_type_cast_maps(612,17320
+MET_type_cast_to_field(930,25582
+MET_type_compatible(283,8500
+MET_type_count_data(354,10394
+MET_type_exit(157,5497
+MET_type_of_type(1029,28155
+MET_type_to_block_set(896,24677
+MET_type_to_data(763,21467
+MET_type_to_polybare_set(777,21781
+MET_type_traverse_data(859,23821
+MET_type_unknown(390,11066
+METtype_print(1450,38718
+METtype_print_pretty(1168,31717
+METtype_read(1309,35217
+METtype_write(1187,32066
+   for 131,4768
+
+met/met_verts.c,333
+#define COPY_LOOP(290,7185
+#define COPY_LOOP_I_TO_C(266,6200
+#define COPY_LOOP_I_TO_R(255,5772
+#define COPY_LOOP_R_TO_C(278,6687
+MET__verts_copy_deep(103,2690
+MET__verts_free_deep(48,1588
+MET__verts_has_ref(612,15809
+MET_verts_copy_vertices(317,8078
+MET_verts_new(126,3130
+MET_verts_zero(182,4307
+METverts_print(473,11899
+
+met/new_free_list.c,14
+FUNC(67,2298
+
+ops/op_add.c,521
+MET__op_add_guts(200,6365
+MET__op_max_guts(424,12717
+MET__op_min_guts(364,11066
+MET__op_subtract_guts(282,8687
+MET_op_add(492,14721
+#define TEMPLATE(53,1701
+TEMPLATE(86,2646
+TEMPLATE(90,2785
+TEMPLATE(95,2970
+TEMPLATE(100,3161
+TEMPLATE(104,3297
+TEMPLATE(110,3541
+TEMPLATE(119,3779
+TEMPLATE(123,3923
+TEMPLATE(127,4061
+TEMPLATE(132,4251
+TEMPLATE(137,4448
+TEMPLATE(142,4645
+TEMPLATE(147,4838
+TEMPLATE(151,4979
+TEMPLATE(157,5228
+TEMPLATE(167,5446
+TEMPLATE(172,5619
+TEMPLATE(184,5885
+TEMPLATE(189,6058
+
+ops/op_apply.c,385
+MET__op_apply_choose_op(750,21211
+MET__op_apply_decross(79,2323
+MET__op_apply_directly(514,14309
+MET__op_apply_get_id(63,1861
+MET__op_apply_multiply(173,4605
+MET__op_apply_replace_parms_with_set_refs(152,4070
+MET__op_apply_restore_tags(345,9519
+MET__op_apply_set_of_fns(206,5491
+MET_op_apply_infer(823,22955
+MET_op_apply_to_elements(1002,27913
+MET_op_apply_to_set(613,17521
+
+ops/op_biint.c,203
+MET__op_biint_choose(58,1747
+MET__op_biint_guts(138,3585
+MET_op_biint(170,4343
+#define TEMPLATE(88,2199
+TEMPLATE(121,3093
+TEMPLATE(125,3201
+TEMPLATE(128,3308
+TEMPLATE(131,3415
+TEMPLATE(134,3521
+
+ops/op_bilogic.c,117
+MET__op_bilogic_guts(92,2655
+MET_op_bilogic(117,3104
+#define TEMPLATE(54,1717
+TEMPLATE(85,2500
+TEMPLATE(88,2593
+
+ops/op_card.c,50
+MET__op_card_connex(53,1637
+MET_op_card(92,2369
+
+ops/op_cat.c,20
+MET_op_cat(55,1657
+
+ops/op_comm.c,51
+MET__op_shift_guts(53,1672
+MET_op_shift(104,3142
+
+ops/op_cross.c,178
+MET__op_cross_guts(188,5767
+MET__op_cross_repl_data(59,1906
+MET__op_cross_set(102,3140
+MET_op_cross(244,7259
+#define TEMPLATE(151,4573
+TEMPLATE(181,5484
+TEMPLATE(183,5616
+
+ops/op_cxbuild.c,123
+MET__op_cxbuild_guts(96,2971
+MET_op_complex_build(152,4518
+#define TEMPLATE(53,1715
+TEMPLATE(88,2664
+TEMPLATE(90,2806
+
+ops/op_cxfrag.c,102
+MET__op_cxfrag_guts(88,2618
+MET_op_complex_frag(99,2797
+#define TEMPLATE(52,1685
+TEMPLATE(83,2527
+
+ops/op_div.c,173
+MET__op_div_guts_scalar(124,4167
+MET_op_div(225,6337
+#define TEMPLATE(53,1648
+TEMPLATE(86,2595
+TEMPLATE(88,2737
+TEMPLATE(99,3181
+TEMPLATE(107,3509
+TEMPLATE(119,4042
+
+ops/op_dot.c,282
+MET__op_dot_guts(230,7567
+MET__op_dot_guts_m 153,5174
+MET__op_dot_type(339,10487
+MET_op_dot(459,13816
+#define TEMPLATE(53,1701
+TEMPLATE(89,2798
+TEMPLATE(95,2997
+TEMPLATE(101,3190
+TEMPLATE(109,3505
+TEMPLATE(117,3829
+TEMPLATE(125,4153
+TEMPLATE(133,4474
+TEMPLATE(144,4916
+
+ops/op_enum.c,55
+MET__op_enum_result_type(56,1725
+MET_op_enum(78,2139
+
+ops/op_extract.c,158
+MET__op_extract_guts(116,3480
+MET_op_extract(145,4319
+#define TEMPLATE(55,1743
+TEMPLATE(101,3025
+TEMPLATE(103,3113
+TEMPLATE(108,3284
+TEMPLATE(112,3410
+
+ops/op_if.c,108
+MET__op_if_else_guts(76,2266
+MET__op_if_simple(140,3982
+MET__op_if_up_blocks(54,1711
+MET_op_if(181,5115
+
+ops/op_implicit.c,91
+MET__op_implicit_choose(62,1887
+MET__op_implicit_guts(134,3653
+MET_op_implicit(209,5724
+
+ops/op_interval.c,151
+MET__op_id_matrix(325,9373
+MET__op_interval_flat(82,2309
+MET__op_interval_set_vertices(53,1682
+MET_op_interval(224,6548
+MET_op_set_null(387,10930
+
+ops/op_map.c,148
+MET__op_map_invert_parm_code(83,2926
+MET__op_map_replace_parms_with_parm_code(270,7827
+MET_op_map(336,9725
+MET_op_map_invert_parm_code(225,6663
+
+ops/op_mult.c,714
+MET__op_mult_guts_map_acc(418,12709
+MET__op_mult_guts_matrix_matrix(713,20976
+MET__op_mult_guts_matrix_vector(595,18359
+MET__op_mult_guts_mm_map(527,16060
+MET__op_mult_guts_mv_map(464,14030
+MET__op_mult_guts_scalar(150,4693
+MET_op_mult(834,23644
+#define MM_TEMPLATE(296,8150
+#define MV_TEMPLATE(253,6950
+MV_TEMPLATE(344,9733
+MV_TEMPLATE(353,10047
+MV_TEMPLATE(360,10305
+MV_TEMPLATE(367,10563
+MV_TEMPLATE(377,10982
+MV_TEMPLATE(385,11341
+MV_TEMPLATE(393,11700
+MV_TEMPLATE(401,12053
+MV_TEMPLATE(411,12488
+#define TEMPLATE(56,1723
+TEMPLATE(89,2671
+TEMPLATE(95,2845
+TEMPLATE(101,3013
+TEMPLATE(108,3269
+TEMPLATE(115,3531
+TEMPLATE(122,3793
+TEMPLATE(129,4052
+TEMPLATE(135,4223
+TEMPLATE(144,4556
+
+ops/op_opp.c,219
+MET__op_opp_guts(118,3718
+MET__op_opp_guts_square(158,4569
+MET_op_opp(195,5356
+#define TEMPLATE(52,1624
+TEMPLATE(82,2342
+TEMPLATE(88,2548
+TEMPLATE(96,2898
+TEMPLATE(100,2991
+TEMPLATE(107,3304
+TEMPLATE(114,3638
+
+ops/op_pairs.c,67
+MET_op_pair_build(85,2276
+MET_op_pair_build_compute_data(53,1685
+
+ops/op_poly.c,228
+MET__op_poly_field(247,6627
+MET__op_poly_guts(152,4650
+MET__op_poly_type(266,6987
+MET_op_poly(305,7910
+#define TEMPLATE(53,1704
+TEMPLATE(105,3054
+TEMPLATE(107,3187
+TEMPLATE(120,3663
+TEMPLATE(130,4023
+TEMPLATE(143,4483
+
+ops/op_pow.c,285
+MET__op_pow_guts(232,6563
+MET_op_pow(330,8627
+#define RESULT_FIELD_COMPLEX(63,1958
+#define RESULT_FIELD_REAL(61,1872
+#define SIMPLE(57,1744
+#define TEMPLATE(80,2770
+TEMPLATE(141,4247
+TEMPLATE(166,4812
+TEMPLATE(173,5047
+TEMPLATE(175,5179
+TEMPLATE(193,5752
+TEMPLATE(227,6455
+
+ops/op_prime.c,331
+MET__op_prime(779,21643
+MET__op_prime_chain(84,2693
+MET__op_prime_expand_vector(664,18586
+MET__op_prime_handler_code(603,17016
+MET__op_prime_handler_partial(636,17919
+MET__op_prime_partial(483,14147
+MET__op_prime_product(427,12712
+MET__op_prime_special(199,5759
+MET__op_prime_type_to_sym(704,19529
+MET_op_prime(824,22980
+
+ops/op_print.c,44
+MET_op_print(55,1687
+MET_op_trace(93,2622
+
+ops/op_quote.c,44
+MET_op_assoc(83,2377
+MET_op_quote(52,1637
+
+ops/op_reduce.c,543
+MET__op_reduce_and(500,12654
+MET__op_reduce_bad_base(151,4230
+MET__op_reduce_general(550,13886
+MET__op_reduce_guts(562,14085
+MET__op_reduce_list(438,11233
+MET__op_reduce_max(290,7551
+MET__op_reduce_min(231,6154
+MET__op_reduce_or(450,11426
+MET__op_reduce_product(349,8951
+MET__op_reduce_sum(168,4670
+MET__op_reduce_union(405,10389
+MET_op_reduce(633,16003
+#define TEMPLATE(69,2088
+TEMPLATE(95,2712
+TEMPLATE(102,2939
+TEMPLATE(108,3065
+TEMPLATE(119,3478
+TEMPLATE(125,3608
+TEMPLATE(131,3727
+TEMPLATE(137,3869
+TEMPLATE(144,4074
+
+ops/op_relop.c,438
+MET__op_relop_guts(207,7137
+MET_op_relop(449,13269
+#define TEMPLATE(53,1709
+TEMPLATE(95,2741
+TEMPLATE(97,2871
+TEMPLATE(103,3086
+TEMPLATE(109,3300
+TEMPLATE(114,3448
+TEMPLATE(119,3597
+TEMPLATE(124,3747
+TEMPLATE(129,3960
+TEMPLATE(135,4231
+TEMPLATE(141,4440
+TEMPLATE(147,4646
+TEMPLATE(153,4911
+TEMPLATE(159,5178
+TEMPLATE(166,5452
+TEMPLATE(173,5802
+TEMPLATE(180,6150
+TEMPLATE(189,6442
+TEMPLATE(195,6737
+TEMPLATE(201,7030
+
+ops/op_sample.c,23
+MET_op_sample(55,1672
+
+ops/op_scalar.c,679
+MET__op_cos_complex(175,4920
+MET__op_exp_complex(265,6904
+MET__op_ln_complex(236,6338
+MET__op_sin_complex(150,4349
+MET__op_sqrt_complex(291,7547
+MET__op_tan_complex(207,5703
+MET_op_scalar(629,18693
+MET_op_scalar_choose_guts(346,9182
+#define SIMPLE_INTEGER(117,3507
+SIMPLE_INTEGER(142,4156
+SIMPLE_INTEGER(167,4727
+SIMPLE_INTEGER(192,5300
+SIMPLE_INTEGER(232,6248
+SIMPLE_INTEGER(261,6812
+SIMPLE_INTEGER(287,7451
+SIMPLE_INTEGER(323,8427
+SIMPLE_INTEGER(325,8507
+SIMPLE_INTEGER(327,8587
+SIMPLE_INTEGER(330,8668
+SIMPLE_INTEGER(332,8752
+SIMPLE_INTEGER(334,8836
+SIMPLE_INTEGER(337,8921
+SIMPLE_INTEGER(339,9001
+SIMPLE_INTEGER(341,9081
+#define SIMPLE_REAL(129,3832
+
+ops/op_setof.c,58
+MET__op_setof_process_data(51,1641
+MET_op_setof(68,1983
+
+ops/op_shared.c,618
+MET__op_guts_for_maps(195,5494
+MET__op_guts_for_maps_1col(127,3522
+MET__op_shared_extend_by_tag(1006,28664
+MET__op_shared_extend_set(1119,31861
+MET__op_type_eval_arg(706,20490
+MET_op_bad_args(1242,34649
+MET_op_bare_only(372,10962
+MET_op_block_only(414,11996
+MET_op_cant_cast(1189,33552
+MET_op_check_parms(50,1637
+MET_op_error_bad_arg_type(1172,33141
+MET_op_guts_failure(1208,34003
+MET_op_guts_for_maps(292,8402
+MET_op_polybare_to_blocks(796,22617
+MET_op_polybare_to_parts(475,13578
+MET_op_reconcile_sets(1154,32719
+MET_op_type_expr(855,24454
+MET_op_type_only(87,2631
+MET_op_unimplemented(1219,34170
+
+ops/op_triangle.c,92
+MET__op_triangle(115,3062
+MET__op_triangle_set_vertices(53,1679
+MET_op_triangle(182,4775
+
+ops/op_type.c,142
+MET__op_type_eval_type(53,1660
+MET_op_type(84,2397
+MET_op_type_and_cast(113,3044
+MET_op_type_match(183,4823
+MET_op_type_unknown(220,5801
+
+ops/op_unint.c,134
+MET__op_unint_guts(112,3021
+MET_op_unint(136,3502
+#define TEMPLATE(60,1884
+TEMPLATE(95,2674
+TEMPLATE(101,2808
+TEMPLATE(107,2937
+
+ops/op_union.c,22
+MET_op_union(53,1664
+
+ops/op_unlogic.c,99
+MET__op_unlogic_guts(85,2347
+MET_op_unlogic(106,2688
+#define TEMPLATE(53,1690
+TEMPLATE(81,2284
+
+ops/op_unpair.c,23
+MET_op_unpair(53,1642
+
+ops/op_vectors.c,152
+MET__op_vector_from_pair(92,2687
+MET__op_vector_to_pair(56,1825
+MET_op_frag(313,9004
+MET_op_vector_build(164,4634
+MET_op_vector_from_pair(139,3917
+
+main/main.c,141
+clean_up(122,2796
+handle_int(144,3091
+initialize(103,2519
+main(184,3834
+my_read(68,1897
+parse_files(155,3247
+set_met_defaults(90,2260

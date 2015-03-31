@@ -1,0 +1,82 @@
+/****************************************************************
+ *
+ * Copyright 1990, Brown University, Providence, RI
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ ****************************************************************/
+
+/**********************************************************************
+ *
+ * RCH 10/16/90
+ *
+ * Osculating Tube.
+ * Weird. 
+ **********************************************************************/
+
+/*
+ * the base curve
+ */
+f
+   := R -> R^3
+   : t ->  [ (1-cos(t))cos(t), (1-cos(t))sin(t), sin(t) ] 
+   ;
+DomF := Interval( -pi, pi, 60 );
+
+/* k as the curvature */
+k 
+   := R -> R
+   : t -> (Curvature f)(t)
+   ;
+/* frenet frame as single letters */
+T 
+   := R -> R^3
+   : t -> (FrenetTangent f)(t)
+   ;
+P 
+   := R -> R^3
+   : t -> (FrenetNormal f)(t)
+   ;
+B 
+   := R -> R^3
+   : t -> (FrenetBinormal f)(t)
+   ;
+
+/* domain for tube */
+DomCirc := Interval( -pi, pi, 30 );
+
+DomSurf := [DomF >< DomCirc];
+
+/* define the tube surface  */
+OscTube 
+   := R^2 -> R^3
+   : [t,u] -> f(t) + (1/k(t))*P(t) 
+              + (1/k(t))*(cos(u)*T(t) + sin(u)*P(t) ) 
+   ;
+
+/*
+ * make pretty window
+ */
+
+myView := widget type<-`view;
+
+widget type<-`vobject, set<-( OscTube(DomSurf)  ),
+   parent<-`myView, color<-"red";
+widget type<-`vobject, set<-( f(DomF) ),
+   parent<-`myView, color<-"black";
+widget type<-`vobject, set<-( Axes ),
+   parent<-`myView, color<-"green";
+
+

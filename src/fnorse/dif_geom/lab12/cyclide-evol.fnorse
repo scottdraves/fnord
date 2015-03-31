@@ -1,0 +1,118 @@
+/****************************************************************
+ *
+ * Copyright 1990, Brown University, Providence, RI
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ ****************************************************************/
+
+/**********************************************************************
+ * RCH 11/28/90
+ * 
+ * Evolute Surfaces for Catenoid and Helicoid
+ *
+ **********************************************************************/
+
+/* Slider for deformation constant   */
+
+
+alpha := widget Slider( 0, pi ), drag<-False, name<-"Alpha for 4d rotation", init<-0;
+
+Surf
+   := R^2 -> R^3
+   : [u,v] -> [ cos(alpha)cos(u)+sin(alpha)sin(v), sin(u), cos(v)]
+                  /(sqrt(2)-(-sin(alpha)cos(u)+cos(alpha)sin(v))) 
+   ;
+
+/* domains*/
+SurfDom := Grid( (-pi, pi, 20 ), (-pi, pi, 20 ) )         
+	 ;
+EvolDom := Patch( (-pi, pi, 20 ), (-pi, pi, 20 ) )        
+	 ;
+
+/* Definition of the standard curves		*/
+
+N
+   	:= R^2 -> R^3
+   	: v -> (SurfaceNormal Surf)(v) 
+        ;
+
+/* 
+ * radius to move along normal for evolute surface 
+ * (see library/standard/std.fnorse for definitions )
+ */
+/*K       := R^2 -> R
+        : v -> (GaussianCurvature Surf)(v)
+        ;
+*/
+L11 := R^2 -> R: v -> (Surf''(v)^1^1).SurfaceNormal(Surf)(v);
+L22 := R^2 -> R: v -> (Surf''(v)^2^2).SurfaceNormal(Surf)(v);
+L12 := R^2 -> R: v -> (Surf''(v)^1^2).SurfaceNormal(Surf)(v);
+G11 := R^2 -> R: v -> Surf'(v)^1 . Surf'(v)^1;
+G22 := R^2 -> R: v -> Surf'(v)^2 . Surf'(v)^2;
+G12 := R^2 -> R: v -> Surf'(v)^2 . Surf'(v)^1;
+G := R^2 -> R: v -> G11(v)*G22(v) - G12(v)**2;
+
+K := R^2 -> R: v -> (L11(v)*L22(v) - L12(v)**2 )/ ( G(v) );
+
+H       := R^2 -> R
+        : v -> (L11(v)*G22(v) - 2*L12(v)G12(v) + L22(v)G11(v))/(2*G(v) );
+
+
+EvolRad1
+        := R^2 -> R
+        : v -> H(v) - sqrt( H(v)**2 - K(v) )
+        ;
+EvolRad2
+        := R^2 -> R
+        : v -> H(v) + sqrt( H(v)**2 - K(v) )
+        ;
+   	
+/*
+ * evolute surface 
+ */
+EvolSurf1
+   	:= R^2 -> R^3
+   	:  v -> Surf(v) + 1/EvolRad1(v)*N(v)
+        ;
+EvolSurf2
+   	:= R^2 -> R^3
+   	:  v -> Surf(v) + N(v)/EvolRad2(v)
+        ;
+
+/* check boxes to turn evolutes on and off */
+e1 := widget CheckBox, name<-"Evolute 1", init<-False;
+e2 := widget CheckBox, name<-"Evolute 2", init<-False;
+E1Dom   := EvolDom
+     	   if e1 = True else [ {0} >< {0} ];
+E2Dom   := EvolDom
+	   if e2 = True else [ {0} >< {0} ];
+
+
+/* Now to show the curves in glorious color.
+	Catenoid in cyan,
+	Evolute curves in magenta	*/
+
+myView := widget type <-`view;
+
+widget type<-`vobject, set<-(Surf SurfDom), parent <- `myView,
+	color<-"cyan";
+
+widget type<-`vobject, set<-(EvolSurf1 E1Dom), parent <- `myView,
+   	color<-"yellow";
+
+widget type<-`vobject, set<-(EvolSurf2 E2Dom), parent <- `myView,
+   	color<-"magenta";
+

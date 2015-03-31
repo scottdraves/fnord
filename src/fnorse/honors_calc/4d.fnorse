@@ -1,0 +1,178 @@
+/****************************************************************
+ *
+ * Copyright 1990, Brown University, Providence, RI
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ ****************************************************************/
+require "std.fnorse";
+
+nunits := 18;
+half := 9;
+third := 6;
+inpt := widget type<-`window, width<-600,height<-900, numUnits<-nunits;
+eqinpt := widget type<-`window, width<-1000,height<-50, numUnits<-1;
+
+fxy :=
+    widget TypeIn, field<-type(R^3->R), name<-"f := R^3->R :",
+    init<-/*"[x,y,z]-> - x**2 + y**2 + z**2"*/
+            "[x,y,z]-> -8(x**4 + y**4 + z**4) + 8(x**2 + y**2 + z**2) - 3", 
+    top<-0, bottom<-1, left<-0, right<-1,  
+    parent<-`eqinpt;
+
+    
+f := R^3 -> R^4
+  : [u,v,w] -> [ u, v, w, fxy( [u,v,w] ) ]
+  ;
+
+
+umin := widget TypeIn, field<-R, name<-"X min := R :", init<-"-1", 
+        parent<-`inpt, top<-1, bottom<-3, left<-0, right<-(third);
+umax := widget TypeIn, field<-R, name<-"X max := R :", init<-"1", 
+        parent<-`inpt, top<-1, bottom<-3, left<-(third), right<-(2*third);
+ures := widget Slider(0,50), field<-Z, name<-"X res := Z :", init<-8,
+        drag<-False,
+        parent<-`inpt, top<-1, bottom<-3, left<-(2*third), right<-(3*third);
+vmin := widget TypeIn, field<-R, name<-"Y min := R :", init<-"-1", 
+        parent<-`inpt, top<-3, bottom<-5, left<-0, right<-third;
+vmax := widget TypeIn, field<-R, name<-"Y max := R :", init<-"1", 
+        parent<-`inpt, top<-3, bottom<-5, left<-third, right<-2*third;
+vres := widget Slider(0,50), field<-Z, name<-"Y res := Z :", init<-8, 
+        drag<-False,
+        parent<-`inpt, top<-3, bottom<-5, left<-2*third, right<-3*third;
+wmin := widget TypeIn, field<-R, name<-"Z min := R :", init<-"-1", 
+        parent<-`inpt, top<-5, bottom<-7, left<-0, right<-third;
+wmax := widget TypeIn, field<-R, name<-"Z max := R :", init<-"1", 
+        parent<-`inpt, top<-5, bottom<-7, left<-third, right<-2*third;
+wres := widget Slider(0,50), field<-Z, name<-"Z res := Z :", init<-8, 
+        drag<-False,
+        parent<-`inpt, top<-5, bottom<-7, left<-2*third, right<-3*third;
+axes := widget CheckBox, init<-True, parent<-`inpt, name<-"Axes",
+        top<-7, bottom<-8, left<-0, right<-third;
+zplane := widget CheckBox, init<-False, parent<-`inpt, name<-"Z-Plane",
+        top<-7, bottom<-8, left<-third, right<-2*third;
+splane := widget CheckBox, init<-False, parent<-`inpt, name<-"Slice Plane",
+        top<-7, bottom<-8, left<-2*third, right<-3*third;
+which := widget Slider(0, 3), field<-Z, init<-0, drag<-False,
+        name<-"Axes to slice along (none,x,y,z) = (0,1,2,3)",
+        parent<-`inpt, top<-8, bottom<-10, left<-0, right<-half;
+ture := widget Slider(1, 3), field<-Z, init<-2, drag<-False,
+        name<-"Drawing Texture (.,+,*) = (1,2,3)",
+        parent<-`inpt, top<-8, bottom<-10, left<-half, right<-2*half;
+slice := widget Slider(umin, umax), init<-0, name<-"c := Slice value", 
+         drag<-False,
+        parent<-`inpt, top<-10, bottom<-12, left<-0, right<-3*third;
+/*slice := widget TapeDeck( 0.05 ), init<-0, min<-(-10.0), max<-10.0,
+        field<-R;	*/
+
+cmin := widget TypeIn, field<-R, name<-"CLIP min:=R:", init<-"-1", 
+        parent<-`inpt, top<-12, bottom<-14, left<-0, right<-third;
+cmax := widget TypeIn, field<-R, name<-"CLIP max:=R:", init<-"0", 
+        parent<-`inpt, top<-12, bottom<-14, left<-third, right<-2*third;
+clip := widget Slider(0,3), field<-Z, init<-0, drag<-False,
+        name<-"Clip: (none, max, min, range):", 
+        parent<-`inpt, top<-12, bottom<-14, left<-2*third, right<-3*third;
+sspeed := widget TypeIn, field<-R, name<-"Slicing Speed:", init<-"0.1",
+        parent<-`inpt, top<-15, bottom<-16, left<-0, right<-half;
+start := R: 0.0;
+update:= R -> R: t -> t + sspeed if t < (umax-.001)  else umin;
+mslice := widget Evolve( start, update ), 
+       parent<-`inpt, top<-14, bottom<-15, left<-0, right<-half
+       ;
+
+widget Print( slice+mslice ), name<-"Current Slicing Value",
+   parent<-`inpt, top<-14, bottom<-16, left<-half, right<-2*half
+   ;   
+
+/* image */
+
+pict := widget type<-`view;
+
+domNone := [sample(Interval( umin, umax, ures )) ><
+       sample(Interval( vmin, vmax, vres )) ><
+       sample(Interval( wmin, wmax, wres ))];
+
+domX :=  [{slice+mslice} ><
+       sample(Interval( vmin, vmax, vres )) ><
+       sample(Interval( wmin, wmax, wres ))];
+
+domY :=  [sample(Interval( umin, umax, ures )) ><
+       {slice+mslice} ><
+       sample(Interval( wmin, wmax, wres ))];
+
+
+domZ :=  [sample(Interval( umin, umax, ures )) ><
+       sample(Interval( vmin, vmax, vres )) ><
+       {slice+mslice} ] ;
+
+dom := domNone if which = 0 else
+       domX    if which = 1 else
+       domY    if which = 2 else
+       domZ    if which = 3;
+
+texture := R^4 -> ?
+	: v ->  v           if ture = 1 else
+	       (v, "+" )    if ture = 2 else
+	       (v, "*" )    if ture = 3 
+	;
+
+
+clipped := f(dom)                                       if clip = 0 else
+	{x in f(dom)| x^4 < cmax }			if clip = 1 else
+	{x in f(dom)| x^4 > cmin }			if clip = 2 else
+	{x in f(dom)| (x^4 > cmin) and (x^4 < cmax) }	
+	;
+
+
+widget Color ( texture( clipped ), "4:Black->Red"),
+   parent<-`pict;
+/* Axes */
+
+widget type<-`vobject, parent<-`pict, color<-"CornflowerBlue",
+   set<-( Axes if axes = True else  {} );
+
+widget type<-`vobject, parent<-`pict, color<-"white",
+   set<-( Labels if axes = True else {});
+
+
+pdom := Patch ((umin, umax, ures), (vmin, vmax, vres)) 
+     /*if zsolid = True 
+     else Grid ((umin, umax, ures), (vmin, vmax, vres))*/
+     ; 
+
+plane := R^2 -> R^3: [u,v]->[ u, v, 0 ];
+
+widget type<-`vobject, parent<-`pict, color<-"darkgreen",
+   set<-( plane(pdom) if zplane = True else { [0,0,0] } );
+
+/*
+ * Slice plane 
+ */
+slDomAll := 
+   [Interval( umin, umax, ures ) ><
+    Interval( vmin, vmax, vres ) ><
+    Interval( wmin, wmax, wres ) ]
+   ;
+
+sliceDom :=  Grid( ( vmin, vmax, vres ), ( wmin, wmax, wres ));
+
+flip := R^2 -> R^3
+     : [u,v] -> [slice+mslice, u, v]        if which = 1 else
+                [u, slice+mslice, v]	     if which = 2 else
+     		[u, v, slice+mslice]        if which = 3
+     ;
+
+widget type<-`vobject, parent<-`pict, color<-"darkgreen",
+   set<-( flip(sliceDom) if splane = True and which > 0 else { [0,0,0] } );

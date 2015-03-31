@@ -1,0 +1,83 @@
+/****************************************************************
+ *
+ * Copyright 1990, Brown University, Providence, RI
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ ****************************************************************/
+
+require "std.fnorse";
+
+inpt := widget type<-`window, width<-600,height<-300, numUnits<-6;
+
+fxy :=
+  widget TypeIn, field<-type(R^2->R), name<-"f := R^2->R :",
+  init<-"[x,y]-> -x**4 + 2x**2 - y**2", 
+  top<-0, bottom<-1, left<-0, right<-6, 
+  parent<-`inpt;
+
+f := Surfaces
+  : [u,v] -> [ u, v, fxy( [u,v] ) ]
+  ;
+
+
+umin := widget TypeIn, field<-R, name<-"X min := R :", init<-"-1.5", 
+        parent<-`inpt, top<-1, bottom<-3, left<-0, right<-2;
+umax := widget TypeIn, field<-R, name<-"X max := R :", init<-"1.5", 
+        parent<-`inpt, top<-1, bottom<-3, left<-2, right<-4;
+ures := widget Slider(0,50), field<-Z, name<-"X res := Z :", init<-20, 
+        parent<-`inpt, top<-1, bottom<-3, left<-4, right<-6;
+vmin := widget TypeIn, field<-R, name<-"Y min := R :", init<-"-1", 
+        parent<-`inpt, top<-3, bottom<-5, left<-0, right<-2;
+vmax := widget TypeIn, field<-R, name<-"Y max := R :", init<-"1", 
+        parent<-`inpt, top<-3, bottom<-5, left<-2, right<-4;
+vres := widget Slider(0,50), field<-Z, name<-"Y res := Z :", init<-10, 
+        parent<-`inpt, top<-3, bottom<-5, left<-4, right<-6;
+axes := widget CheckBox, init<-True, parent<-`inpt, name<-"Axes",
+        top<-5, bottom<-6, left<-0, right<-2;
+zplane := widget CheckBox, init<-False, parent<-`inpt, name<-"Z-Plane",
+        top<-5, bottom<-6, left<-2, right<-4;
+solid :=  widget CheckBox, init<-True, parent<-`inpt, name<-"Solid Surf",
+        top<-5, bottom<-6, left<-4, right<-6;
+
+/*height := widget TypeIn, field<-R,  name<-"Plane Height:", init<-"0", 
+ *       parent<-`inpt, top<-5, bottom<-6, left<-4, right<-6;
+ */
+
+
+/* image */
+
+pict := widget type<-`view;
+
+dom := Patch ((umin, umax, ures), (vmin, vmax, vres)) if solid = True else
+       Grid ((umin, umax, ures), (vmin, vmax, vres));
+
+widget Color ( f( dom ), "red"),
+   parent<-`pict;
+/* Axes */
+
+widget type<-`vobject, parent<-`pict, color<-"green",
+   set<-( Axes if axes = True else  {} );
+
+widget type<-`vobject, parent<-`pict, color<-"white",
+   set<-( Labels if axes = True else {});
+
+pdom := Patch ((umin, umax, ures), (vmin, vmax, vres)); 
+
+plane := R^2 -> R^3: [u,v]->[ u, v, 0 ];
+
+widget type<-`vobject, parent<-`pict, color<-"blue",
+   set<-( plane(pdom) if zplane = True else { [0,0,0] } );
+
+/*widget type<-`output;*/

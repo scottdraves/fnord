@@ -1,0 +1,40 @@
+$Id: one-paragraph.text,v 1.2 1992/06/22 15:53:18 mas Exp $
+
+Copyright 1990, 1991, 1992, Brown University, Providence, RI
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
+------------------------------------------------------------
+
+Fnord is a system for visualizing mathematics.  The user describes
+mathematical objects such as curves and surfaces; the program computes
+and displays them.
+
+Descriptions of objects may depend upon the values of interactive
+widgets; when the widgets are changed by the user the objects are
+updated in real time.
+
+The purely functional language includes symbolic operations such as
+differentiation and higher-order functions, thus powerful mathematical
+operators such as differential geometry's first and second fundamental
+forms may be easily implemented in terms of language primitives.
+
+The interpreter is very high performance.  It does optimization
+(mostly common subexpression elimination), and it evalutes expressions
+over sets of points in a SIMD fashion to eliminate overhead.  For
+simple things, it is hundreds of times faster than Mathematica (Fnord
+computes a typical parametric surface in 0.05 seconds on a sun4).
+Complex surfaces computed in only 5 or 10 seconds by Fnord cause
+Mathematica to hang or crash.

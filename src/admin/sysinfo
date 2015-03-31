@@ -1,0 +1,43 @@
+#!/bin/csh -f
+
+# $Id: sysinfo,v 1.1 1991/03/28 16:29:07 wsd Exp $
+
+# -i installation
+# -s operating system
+# -m hardware architecture
+# -r operating system revision
+
+# this program is used by the makefiles to determine
+# what sort of system it is on.
+
+# modify it, and put it in your path.
+
+if ($#argv != 1) then
+   goto usage
+endif
+
+if ("$argv[1]" == "-i") then
+   echo brown
+else
+if ("$argv[1]" == "-s") then
+   echo SunOS
+else
+if ("$argv[1]" == "-m") then
+   echo sun4
+else
+if ("$argv[1]" == "-r") then
+   echo 4_1
+else 
+   goto usage
+endif
+endif
+endif
+endif
+
+exit 0
+
+usage:
+
+echo usage: sysinfo -ismr
+exit -1
+

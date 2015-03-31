@@ -1,0 +1,602 @@
+/****************************************************************
+ *
+ * Copyright 1990, Brown University, Providence, RI
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ ****************************************************************/
+/* 
+
+   Level surfaces of 4-D functions f(x,y,z) = c
+
+   This file does the level set computations
+
+   $Id: levels4.alg4d.fnorse,v 1.1 1993/06/02 17:41:51 rch Exp $ */
+
+/***********************************************************************
+ The following things must be defined:
+ 
+ ViewWindow : widget type<-`view
+
+ F : R^3 -> R
+ XInfo : (R,R,R)
+ YInfo : (R,R,R)
+ ZInfo : (R,R,R)
+ DoSurf : True/False
+ StripeX : True/False
+ StripeY : True/False
+ StripeZ : True/False
+
+ Rot1 : R
+ Rot2 : R
+ **********************************************************************/
+
+/* determine the size of the domain */
+sizex2:=([XInfo]^2-[XInfo]^1)/ToZ([XInfo]^3-1);
+sizey2:=([YInfo]^2-[YInfo]^1)/ToZ([YInfo]^3-1);
+sizez2:=([ZInfo]^2-[ZInfo]^1)/ToZ([ZInfo]^3-1);
+
+sizex:=sizex2/1.5 if StripeX else sizex2; 
+sizey:=sizex2/1.5 if StripeY else sizex2;
+sizez:=sizex2/1.5 if StripeZ else sizex2;
+
+
+/* perform object space rotations */
+XYRot:=R^3->R^3: X->[[cos(Rot1),-sin(Rot1),0],
+                     [sin(Rot1), cos(Rot1),0],
+                     [   0     ,     0    ,1]]*X; 
+
+YZRot:=R^3->R^3: X->[[1,     0   ,    0     ], 
+                     [0,cos(Rot2),-sin(Rot2)],
+                     [0,sin(Rot2), cos(Rot2)]]*X;
+
+Funct:=R^3->R: X->F(YZRot(XYRot(X)));
+
+
+
+/* Create the Domain */
+Dom:=[sample(Interval(XInfo))><
+      sample(Interval(YInfo))><
+      sample(Interval(ZInfo))];
+
+/**********************************************************************
+ * Gets Deep here! 
+ **********************************************************************/
+
+DomFunct:=?->?: Dom->(Dom union Dom) if #Dom=1 else Dom;
+
+DomA:={x in Dom|(SumUp(x)!=0)} if #Dom!=0 else {};
+
+
+/*One Corner*/
+Dom3d:={x in DomA|(SumUp(x)=3)} if #DomA!=0 else {};
+Dom3:=DomFunct(Dom3d);              
+
+
+Dom4d:={x in DomA|(SumUp(x)=4)} if #DomA!=0 else {};
+Dom4:=DomFunct(Dom4d);
+
+/*Five Sided Thing*/
+Dom5:={x in DomA|(SumUp(x)=5)} if #DomA!=0 else {};
+Dom5Ad:={x in Dom5|(not((PSum1(x)=0) or (PSum4(x)=0)))} if #Dom5!=0 else {};
+Dom5A:=DomFunct(Dom5Ad);
+Dom5Bd:={x in Dom5|((PSum1(x)=0) or (PSum4(x)=0))} if #Dom5!=0 else {};
+Dom5B:=DomFunct(Dom5Bd);
+
+Dom6:={x in DomA|(SumUp(x)=6)} if #DomA!=0 else {};
+/*Two Corners*/
+Dom6Ad:={x in Dom6|((CC(x)^4=CC(x)^1=CC(x)^9=1) or (CC(x)^1=CC(x)^2=CC(x)^10=1)
+               or (CC(x)^2=CC(x)^3=CC(x)^11=1) or (CC(x)^3=CC(x)^4=CC(x)^12=1) 
+               or (CC(x)^8=CC(x)^5=CC(x)^9=1) or (CC(x)^5=CC(x)^6=CC(x)^10=1))}
+       if #Dom6!=0 else {};
+Dom6A:=DomFunct(Dom6Ad);
+
+/*Six Sided Thing*/
+Dom6Bd:={x in Dom6|(not 
+                 ((CC(x)^4=CC(x)^1=CC(x)^9=1) or (CC(x)^1=CC(x)^2=CC(x)^10=1)
+              or (CC(x)^2=CC(x)^3=CC(x)^11=1) or (CC(x)^3=CC(x)^4=CC(x)^12=1) 
+              or (CC(x)^8=CC(x)^5=CC(x)^9=1) or (CC(x)^5=CC(x)^6=CC(x)^10=1)))}
+       if #Dom6!=0 else {};
+Dom6B:=DomFunct(Dom6Bd);
+
+DomB:={x in DomA|(SumUp(x)>6)} if #DomA!=0 else {};
+
+Dom7d:={x in DomB|(SumUp(x)=7)} if #DomB!=0 else {};
+Dom7:=DomFunct(Dom7d);
+
+/*Two Rectangles(?)*/
+Dom8d:={x in DomB|(SumUp(x)=8)} if #DomB!=0 else {};
+Dom8:=DomFunct(Dom8d);
+
+
+/*Three Corners*/
+Dom9d:={x in DomB|(SumUp(x)=9)} if #DomB!=0 else {};
+Dom9:=DomFunct(Dom9d);
+
+Dom10:={x in DomB|(SumUp(x)=10)} if #DomB!=0 else {};
+ 
+/*Four Corners*/
+Dom12d:={x in DomB|(SumUp(x)=12)} if #DomB!=0 else {};
+Dom12:=DomFunct(Dom12d);
+
+
+
+
+
+uI:=unitInterval;
+
+CreateSegment:=R^?^2->(R->R^?): [S,E]->(t->t*E+(1-t)*S);
+
+uT:=triangle([[0,0],[1,0],[0,1]],2);
+
+Create:=R^2->R^?^3->R^?: [u,v]->[X,Y,Z]->X+u*(Y-X)+v*(Z-X);
+
+Corner1a:=R^3->R^3: [x,y,z]->[x-sizex/2,y-sizey/2,z+sizez/2];
+Corner2a:=R^3->R^3: [x,y,z]->[x-sizex/2,y+sizey/2,z+sizez/2];
+Corner3a:=R^3->R^3: [x,y,z]->[x+sizex/2,y+sizey/2,z+sizez/2];
+Corner4a:=R^3->R^3: [x,y,z]->[x+sizex/2,y-sizey/2,z+sizez/2];
+
+Corner1b:=R^3->R^3: [x,y,z]->[x-sizex/2,y-sizey/2,z-sizez/2];
+Corner2b:=R^3->R^3: [x,y,z]->[x-sizex/2,y+sizey/2,z-sizez/2];
+Corner3b:=R^3->R^3: [x,y,z]->[x+sizex/2,y+sizey/2,z-sizez/2];
+Corner4b:=R^3->R^3: [x,y,z]->[x+sizex/2,y-sizey/2,z-sizez/2];
+
+
+
+Mid1:=R^3->R^3: x->CreateSegment([Corner1a(x),Corner2a(x)])
+      (-Funct(Corner1a(x))/(Funct(Corner2a(x))-Funct(Corner1a(x))));
+Mid2:=R^3->R^3: x->CreateSegment([Corner2a(x),Corner3a(x)])
+      (-Funct(Corner2a(x))/(Funct(Corner3a(x))-Funct(Corner2a(x))));
+Mid3:=R^3->R^3: x->CreateSegment([Corner3a(x),Corner4a(x)])
+      (-Funct(Corner3a(x))/(Funct(Corner4a(x))-Funct(Corner3a(x))));
+Mid4:=R^3->R^3: x->CreateSegment([Corner4a(x),Corner1a(x)])
+      (-Funct(Corner4a(x))/(Funct(Corner1a(x))-Funct(Corner4a(x))));
+
+Mid5:=R^3->R^3: x->CreateSegment([Corner1b(x),Corner2b(x)])
+      (-Funct(Corner1b(x))/(Funct(Corner2b(x))-Funct(Corner1b(x))));
+Mid6:=R^3->R^3: x->CreateSegment([Corner2b(x),Corner3b(x)])
+      (-Funct(Corner2b(x))/(Funct(Corner3b(x))-Funct(Corner2b(x))));
+Mid7:=R^3->R^3: x->CreateSegment([Corner3b(x),Corner4b(x)])
+      (-Funct(Corner3b(x))/(Funct(Corner4b(x))-Funct(Corner3b(x))));
+Mid8:=R^3->R^3: x->CreateSegment([Corner4b(x),Corner1b(x)])
+      (-Funct(Corner4b(x))/(Funct(Corner1b(x))-Funct(Corner4b(x))));
+
+Mid9:=R^3->R^3: x->CreateSegment([Corner1a(x),Corner1b(x)])
+      (-Funct(Corner1a(x))/(Funct(Corner1b(x))-Funct(Corner1a(x))));
+Mid10:=R^3->R^3: x->CreateSegment([Corner2a(x),Corner2b(x)])
+      (-Funct(Corner2a(x))/(Funct(Corner2b(x))-Funct(Corner2a(x))));
+Mid11:=R^3->R^3: x->CreateSegment([Corner3a(x),Corner3b(x)])
+      (-Funct(Corner3a(x))/(Funct(Corner3b(x))-Funct(Corner3a(x))));
+Mid12:=R^3->R^3: x->CreateSegment([Corner4a(x),Corner4b(x)])
+      (-Funct(Corner4a(x))/(Funct(Corner4b(x))-Funct(Corner4a(x))));
+
+
+
+CC:=R^3->Z^12:x-> 
+            [0 if Funct(Corner1a(x))*Funct(Corner2a(x))>0 else 1,
+             0 if Funct(Corner2a(x))*Funct(Corner3a(x))>0 else 1,
+             0 if Funct(Corner3a(x))*Funct(Corner4a(x))>0 else 1,
+             0 if Funct(Corner4a(x))*Funct(Corner1a(x))>0 else 1,
+
+             0 if Funct(Corner1b(x))*Funct(Corner2b(x))>0 else 1,
+             0 if Funct(Corner2b(x))*Funct(Corner3b(x))>0 else 1,
+             0 if Funct(Corner3b(x))*Funct(Corner4b(x))>0 else 1,
+             0 if Funct(Corner4b(x))*Funct(Corner1b(x))>0 else 1,
+
+             0 if Funct(Corner1a(x))*Funct(Corner1b(x))>0 else 1,
+             0 if Funct(Corner2a(x))*Funct(Corner2b(x))>0 else 1,
+             0 if Funct(Corner3a(x))*Funct(Corner3b(x))>0 else 1,
+             0 if Funct(Corner4a(x))*Funct(Corner4b(x))>0 else 1];
+
+SumUpd:=Z^12->Z: X->X^1+X^2+X^3+X^4+X^5+X^6+X^7+X^8+X^9+X^10+X^11+X^12;
+SumUp:=R^3->Z: X->SumUpd(CC(X));
+
+PSum1d:=Z^12->Z: X->X^1+X^2+X^3+X^4;
+PSum1:=R^3->Z: X->PSum1d(CC(X));
+PSum2d:=Z^12->Z: X->X^1+X^9+X^5+X^10;
+PSum2:=R^3->Z: X->PSum2d(CC(X));
+PSum3d:=Z^12->Z: X->X^9+X^12+X^8+X^4;
+PSum3:=R^3->Z: X->PSum2d(CC(X));
+PSum4d:=Z^12->Z: X->X^5+X^6+X^7+X^8;
+PSum4:=R^3->Z: X->PSum4d(CC(X));
+PSum5d:=Z^12->Z: X->X^11+X^7+X^3+X^12;
+PSum5:=R^3->Z: X->PSum5d(CC(X));
+PSum6d:=Z^12->Z: X->X^10+X^11+X^2+X^6;
+PSum6:=R^3->Z: X->PSum6d(CC(X));
+
+FTri:=R^3->R^?^3^1: X->
+           [[Mid1(X),Mid4(X),Mid9(X)]]
+        if (CC(X)^1=CC(X)^4=CC(X)^9=1) else
+           [[Mid1(X),Mid2(X),Mid10(X)]]
+        if (CC(X)^1=CC(X)^2=CC(X)^10=1) else
+           [[Mid2(X),Mid3(X),Mid11(X)]]
+        if (CC(X)^2=CC(X)^3=CC(X)^11=1) else
+           [[Mid3(X),Mid4(X),Mid12(X)]]
+        if (CC(X)^3=CC(X)^4=CC(X)^12=1) else
+           [[Mid5(X),Mid8(X),Mid9(X)]]
+        if (CC(X)^8=CC(X)^5=CC(X)^9=1) else
+           [[Mid5(X),Mid6(X),Mid10(X)]]
+        if (CC(X)^5=CC(X)^6=CC(X)^10=1) else
+           [[Mid6(X),Mid7(X),Mid11(X)]]
+        if (CC(X)^6=CC(X)^7=CC(X)^11=1) else
+           [[Mid7(X),Mid8(X),Mid12(X)]];
+
+BTri:=R^3->R^?^3^1: X->
+           [[Mid7(X),Mid8(X),Mid12(X)]]
+        if (CC(X)^7=CC(X)^8=CC(X)^12=1) else
+           [[Mid6(X),Mid7(X),Mid11(X)]]
+        if (CC(X)^6=CC(X)^7=CC(X)^11=1) else
+           [[Mid5(X),Mid6(X),Mid10(X)]]
+        if (CC(X)^5=CC(X)^6=CC(X)^10=1) else
+           [[Mid5(X),Mid8(X),Mid9(X)]]
+        if (CC(X)^8=CC(X)^5=CC(X)^9=1) else
+           [[Mid3(X),Mid4(X),Mid12(X)]]
+        if (CC(X)^3=CC(X)^4=CC(X)^12=1) else
+           [[Mid2(X),Mid3(X),Mid11(X)]]
+        if (CC(X)^2=CC(X)^3=CC(X)^11=1) else
+           [[Mid1(X),Mid2(X),Mid10(X)]]
+        if (CC(X)^1=CC(X)^2=CC(X)^10=1) else
+           [[Mid1(X),Mid4(X),Mid9(X)]];
+
+Rect:=R^3->R^?^3^2: X->
+             [[Mid2(X),Mid4(X),Mid10(X)] ,
+              [Mid9(X),Mid4(X),Mid10(X)]]
+        if (CC(X)^4=CC(X)^9=CC(X)^10=CC(X)^2=1) else
+             [[Mid1(X),Mid3(X),Mid10(X)],
+              [Mid11(X),Mid3(X),Mid10(X)]]
+        if (CC(X)^1=CC(X)^10=CC(X)^3=CC(X)^11=1) else
+             [[Mid2(X),Mid4(X),Mid11(X)],
+              [Mid12(X),Mid4(X),Mid11(X)]]
+        if (CC(X)^2=CC(X)^11=CC(X)^4=CC(X)^12=1) else
+             [[Mid1(X),Mid3(X),Mid9(X)],
+              [Mid12(X),Mid3(X),Mid9(X)]]
+        if (CC(X)^3=CC(X)^12=CC(X)^1=CC(X)^9=1) else
+             [[Mid6(X),Mid8(X),Mid10(X)],
+              [Mid9(X),Mid8(X),Mid10(X)]]
+        if (CC(X)^8=CC(X)^9=CC(X)^6=CC(X)^10=1) else
+             [[Mid5(X),Mid7(X),Mid10(X)],
+              [Mid11(X),Mid7(X),Mid10(X)]]
+        if (CC(X)^5=CC(X)^10=CC(X)^7=CC(X)^11=1) else
+             [[Mid6(X),Mid8(X),Mid11(X)],
+              [Mid12(X),Mid8(X),Mid11(X)]]
+        if (CC(X)^11=CC(X)^6=CC(X)^8=CC(X)^12=1) else
+             [[Mid5(X),Mid7(X),Mid9(X)],
+              [Mid12(X),Mid7(X),Mid9(X)]]
+        if (CC(X)^12=CC(X)^7=CC(X)^9=CC(X)^5=1) else
+             [[Mid4(X),Mid8(X),Mid1(X)],
+              [Mid5(X),Mid8(X),Mid1(X)]]
+        if (CC(X)^1=CC(X)^4=CC(X)^5=CC(X)^8=1) else
+             [[Mid1(X),Mid5(X),Mid2(X)],
+              [Mid6(X),Mid5(X),Mid2(X)]]
+        if (CC(X)^1=CC(X)^2=CC(X)^5=CC(X)^6=1) else
+              [[Mid2(X),Mid6(X),Mid3(X)],
+               [Mid7(X),Mid6(X),Mid3(X)]]
+        if (CC(X)^2=CC(X)^3=CC(X)^6=CC(X)^7=1) else
+             [ [Mid3(X),Mid7(X),Mid4(X)],
+              [Mid8(X),Mid7(X),Mid4(X)]]
+        if (CC(X)^3=CC(X)^4=CC(X)^7=CC(X)^8=1) else
+             [[Mid9(X),Mid10(X),Mid12(X)],
+              [Mid11(X),Mid10(X),Mid12(X)]] 
+        if (CC(X)^1=CC(X)^2=0) else
+             [[Mid4(X),Mid8(X),Mid2(X)],
+              [Mid6(X),Mid8(X),Mid2(X)]] 
+        if (CC(X)^1=CC(X)^9=0) else
+             [[Mid1(X),Mid3(X),Mid5(X)],
+              [Mid7(X),Mid3(X),Mid5(X)]];
+
+SS:=R^3->R^?^3^4: X->
+             [[Mid4(X),Mid7(X),Mid8(X)],
+              [Mid4(X),Mid7(X),Mid11(X)],
+              [Mid1(X),Mid11(X),Mid10(X)],
+              [Mid1(X),Mid11(X),Mid4(X)]]
+        if (CC(X)^4=CC(X)^8=CC(X)^1=1) else 
+    
+             [[Mid4(X),Mid5(X),Mid8(X)],
+              [Mid4(X),Mid5(X),Mid10(X)],
+              [Mid3(X),Mid10(X),Mid11(X)],
+              [Mid3(X),Mid10(X),Mid4(X)]]
+        if (CC(X)^4=CC(X)^8=CC(X)^5=1) else 
+
+             [[Mid9(X),Mid7(X),Mid12(X)],
+              [Mid9(X),Mid7(X),Mid6(X)],
+              [Mid6(X),Mid1(X),Mid9(X)],
+              [Mid6(X),Mid1(X),Mid2(X)]]
+        if (CC(X)^9=CC(X)^12=CC(X)^1=1) else 
+
+             [[Mid9(X),Mid3(X),Mid12(X)],
+              [Mid9(X),Mid3(X),Mid2(X)],
+              [Mid5(X),Mid2(X),Mid6(X)],
+              [Mid5(X),Mid2(X),Mid9(X)]]
+        if (CC(X)^9=CC(X)^12=CC(X)^5=1) else 
+
+             [[Mid1(X),Mid8(X),Mid5(X)],
+              [Mid1(X),Mid8(X),Mid12(X)],
+              [Mid2(X),Mid12(X),Mid11(X)],
+              [Mid2(X),Mid12(X),Mid1(X)]]
+        if (CC(X)^1=CC(X)^5=CC(X)^2=1) else 
+
+             [[Mid1(X),Mid6(X),Mid5(X)],
+              [Mid1(X),Mid6(X),Mid11(X)],
+              [Mid4(X),Mid11(X),Mid12(X)],
+              [Mid4(X),Mid11(X),Mid1(X)]]
+        if (CC(X)^1=CC(X)^5=CC(X)^4=1) else 
+
+             [[Mid10(X),Mid8(X),Mid9(X)],
+              [Mid10(X),Mid8(X),Mid7(X)],
+              [Mid2(X),Mid7(X),Mid3(X)],
+              [Mid2(X),Mid7(X),Mid10(X)]]
+        if (CC(X)^9=CC(X)^10=CC(X)^2=1) else 
+
+             [[Mid10(X),Mid4(X),Mid9(X)],
+              [Mid10(X),Mid4(X),Mid3(X)],
+              [Mid6(X),Mid3(X),Mid7(X)],
+              [Mid6(X),Mid3(X),Mid10(X)]]
+        if (CC(X)^9=CC(X)^10=CC(X)^6=1) else
+ 
+             [[Mid1(X),Mid11(X),Mid3(X)],
+              [Mid1(X),Mid11(X),Mid6(X)],
+              [Mid9(X),Mid6(X),Mid8(X)],
+              [Mid9(X),Mid6(X),Mid1(X)]]
+        if (CC(X)^1=CC(X)^3=CC(X)^9=1) else 
+
+             [[Mid1(X),Mid12(X),Mid3(X)],
+              [Mid1(X),Mid12(X),Mid8(X)],
+              [Mid10(X),Mid8(X),Mid6(X)],
+              [Mid10(X),Mid8(X),Mid1(X)]]
+        if (CC(X)^1=CC(X)^3=CC(X)^10=1) else
+ 
+             [[Mid2(X),Mid9(X),Mid4(X)],
+              [Mid2(X),Mid9(X),Mid5(X)],
+              [Mid11(X),Mid5(X),Mid7(X)],
+              [Mid11(X),Mid5(X),Mid2(X)]]
+        if (CC(X)^2=CC(X)^4=CC(X)^11=1) else 
+
+             [[Mid2(X),Mid12(X),Mid4(X)],
+              [Mid2(X),Mid12(X),Mid7(X)],
+              [Mid10(X),Mid7(X),Mid5(X)],
+              [Mid10(X),Mid7(X),Mid2(X)]]
+        if (CC(X)^2=CC(X)^4=CC(X)^10=1) else 
+
+             [[Mid4(X),Mid1(X),Mid12(X)],
+              [Mid12(X),Mid1(X),Mid10(X)],
+              [Mid12(X),Mid10(X),Mid6(X)],
+              [Mid7(X),Mid12(X),Mid6(X)]] 
+        if (CC(X)^1=CC(X)^4=1) else
+
+             [[Mid2(X),Mid10(X),Mid3(X)],
+              [Mid8(X),Mid5(X),Mid12(X)],
+              [Mid10(X),Mid3(X),Mid5(X)],
+              [Mid5(X),Mid12(X),Mid3(X)]] 
+        if (CC(X)^3=CC(X)^2=1) else
+
+             [[Mid1(X),Mid2(X),Mid9(X)],
+              [Mid9(X),Mid8(X),Mid11(X)],
+              [Mid9(X),Mid2(X),Mid11(X)],
+              [Mid7(X),Mid8(X),Mid11(X)]]
+        if (CC(X)^1=CC(X)^2=1) else
+
+             [[Mid9(X),Mid4(X),Mid5(X)],
+              [Mid11(X),Mid3(X),Mid6(X)],
+              [Mid5(X),Mid4(X),Mid3(X)],
+              [Mid5(X),Mid6(X),Mid3(X)]];
+
+FS1:=R^3->R^?^3^3: X->
+             [[Mid4(X),Mid6(X),Mid8(X)],
+              [Mid4(X),Mid6(X),Mid10(X)],
+              [Mid4(X),Mid1(X),Mid10(X)]]
+        if (CC(X)^1=CC(X)^6=CC(X)^8=CC(X)^4=1) else            
+
+             [[Mid4(X),Mid6(X),Mid8(X)],
+              [Mid4(X),Mid6(X),Mid11(X)],
+              [Mid4(X),Mid3(X),Mid11(X)]]
+        if (CC(X)^3=CC(X)^6=CC(X)^8=CC(X)^4=1) else            
+
+             [[Mid1(X),Mid7(X),Mid5(X)],
+              [Mid1(X),Mid7(X),Mid11(X)],
+              [Mid1(X),Mid2(X),Mid11(X)]]
+        if (CC(X)^2=CC(X)^5=CC(X)^7=CC(X)^1=1) else
+
+             [[Mid1(X),Mid7(X),Mid5(X)],
+              [Mid1(X),Mid7(X),Mid12(X)],
+              [Mid1(X),Mid4(X),Mid12(X)]]
+        if (CC(X)^4=CC(X)^5=CC(X)^7=CC(X)^1=1) else            
+
+             [[Mid2(X),Mid8(X),Mid6(X)],
+              [Mid2(X),Mid8(X),Mid9(X)],
+              [Mid2(X),Mid1(X),Mid9(X)]]
+       if (CC(X)^2=CC(X)^6=CC(X)^8=CC(X)^1=1) else             
+
+             [[Mid2(X),Mid8(X),Mid6(X)],
+              [Mid2(X),Mid8(X),Mid12(X)],
+              [Mid2(X),Mid3(X),Mid12(X)]] 
+       if (CC(X)^2=CC(X)^6=CC(X)^8=CC(X)^3=1) else            
+
+             [[Mid3(X),Mid5(X),Mid7(X)],
+              [Mid3(X),Mid5(X),Mid10(X)],
+              [Mid3(X),Mid2(X),Mid10(X)]] 
+       if (CC(X)^3=CC(X)^7=CC(X)^5=CC(X)^2=1) else            
+
+             [[Mid3(X),Mid5(X),Mid7(X)],
+              [Mid3(X),Mid5(X),Mid9(X)],
+              [Mid3(X),Mid4(X),Mid9(X)]] 
+       if (CC(X)^3=CC(X)^7=CC(X)^5=CC(X)^4=1) else            
+
+             [[Mid8(X),Mid2(X),Mid4(X)],
+              [Mid8(X),Mid2(X),Mid10(X)],
+              [Mid8(X),Mid5(X),Mid10(X)]] 
+       if (CC(X)^8=CC(X)^4=CC(X)^2=CC(X)^5=1) else            
+
+             [[Mid8(X),Mid2(X),Mid4(X)],
+              [Mid8(X),Mid2(X),Mid11(X)],
+              [Mid8(X),Mid7(X),Mid11(X)]] 
+       if (CC(X)^8=CC(X)^4=CC(X)^2=CC(X)^7=1) else            
+
+             [[Mid5(X),Mid3(X),Mid1(X)],
+              [Mid5(X),Mid3(X),Mid11(X)],
+              [Mid5(X),Mid6(X),Mid11(X)]] 
+       if (CC(X)^5=CC(X)^1=CC(X)^3=CC(X)^6=1) else            
+
+             [[Mid5(X),Mid3(X),Mid1(X)],
+              [Mid5(X),Mid3(X),Mid12(X)],
+              [Mid5(X),Mid8(X),Mid12(X)]] 
+       if (CC(X)^5=CC(X)^1=CC(X)^3=CC(X)^8=1) else            
+
+             [[Mid6(X),Mid4(X),Mid2(X)],
+              [Mid6(X),Mid4(X),Mid9(X)],
+              [Mid6(X),Mid5(X),Mid9(X)]] 
+       if (CC(X)^6=CC(X)^2=CC(X)^4=CC(X)^5=1) else            
+
+             [[Mid6(X),Mid4(X),Mid2(X)],
+              [Mid6(X),Mid4(X),Mid12(X)],
+              [Mid6(X),Mid7(X),Mid12(X)]] 
+       if (CC(X)^6=CC(X)^2=CC(X)^4=CC(X)^7=1) else            
+
+             [[Mid7(X),Mid1(X),Mid3(X)],
+              [Mid7(X),Mid1(X),Mid10(X)],
+              [Mid7(X),Mid6(X),Mid10(X)]] 
+       if (CC(X)^7=CC(X)^3=CC(X)^1=CC(X)^6=1) else            
+
+             [[Mid7(X),Mid1(X),Mid3(X)],
+              [Mid7(X),Mid1(X),Mid9(X)],
+              [Mid7(X),Mid8(X),Mid9(X)]];          
+
+FS2:=R^?->R^?^3^3: X->
+             [[Mid12(X),Mid10(X),Mid9(X)],
+              [Mid12(X),Mid10(X),Mid2(X)],
+              [Mid12(X),Mid3(X),Mid2(X)]]
+        if (CC(X)^12=CC(X)^9=CC(X)^10=CC(X)^2=1) else            
+
+             [[Mid12(X),Mid10(X),Mid9(X)],
+              [Mid12(X),Mid10(X),Mid6(X)],
+              [Mid12(X),Mid7(X),Mid6(X)]]
+        if (CC(X)^12=CC(X)^9=CC(X)^10=CC(X)^6=1) else            
+
+             [[Mid9(X),Mid11(X),Mid10(X)],
+              [Mid9(X),Mid11(X),Mid3(X)],
+              [Mid9(X),Mid4(X),Mid3(X)]]
+        if (CC(X)^9=CC(X)^10=CC(X)^11=CC(X)^3=1) else
+
+             [[Mid9(X),Mid11(X),Mid10(X)],
+              [Mid9(X),Mid11(X),Mid7(X)],
+              [Mid9(X),Mid8(X),Mid7(X)]]
+        if (CC(X)^9=CC(X)^10=CC(X)^11=CC(X)^7=1) else            
+
+             [[Mid10(X),Mid12(X),Mid11(X)],
+              [Mid10(X),Mid12(X),Mid4(X)],
+              [Mid10(X),Mid1(X),Mid4(X)]]
+       if (CC(X)^10=CC(X)^11=CC(X)^12=CC(X)^4=1) else             
+
+             [[Mid10(X),Mid12(X),Mid11(X)],
+              [Mid10(X),Mid12(X),Mid8(X)],
+              [Mid10(X),Mid5(X),Mid8(X)]] 
+       if (CC(X)^10=CC(X)^11=CC(X)^12=CC(X)^8=1) else            
+
+             [[Mid11(X),Mid9(X),Mid12(X)],
+              [Mid11(X),Mid9(X),Mid1(X)],
+              [Mid11(X),Mid2(X),Mid1(X)]] 
+       if (CC(X)^11=CC(X)^12=CC(X)^9=CC(X)^1=1) else            
+
+             [[Mid11(X),Mid9(X),Mid12(X)],
+              [Mid11(X),Mid9(X),Mid5(X)],
+              [Mid11(X),Mid6(X),Mid5(X)]]; 
+
+MTri:=R^3->R^?^3^4: X->
+             [[Mid4(X),Mid1(X),Mid9(X)],
+              [Mid2(X),Mid3(X),Mid11(X)],
+	      [Mid5(X),Mid6(X),Mid10(X)],
+              [Mid7(X),Mid8(X),Mid12(X)]]
+       if (Funct(Corner1a(X))*Funct([X^1,X^2,X^3+sizez/2])<=0) else
+
+             [[Mid1(X),Mid2(X),Mid10(X)],
+              [Mid4(X),Mid3(X),Mid12(X)],
+	      [Mid8(X),Mid5(X),Mid9(X)],
+              [Mid6(X),Mid7(X),Mid11(X)]];
+
+ThTri:=R^3->R^?^3^3: X->
+             [[Mid1(X),Mid2(X),Mid10(X)],
+              [Mid4(X),Mid3(X),Mid12(X)],
+              [Mid5(X),Mid8(X),Mid9(X)]]
+       if (PSum1(X)+PSum2(X)+PSum3(X)=8) else
+
+             [[Mid2(X),Mid3(X),Mid11(X)],
+              [Mid5(X),Mid6(X),Mid10(X)],
+              [Mid8(X),Mid7(X),Mid12(X)]]
+       if (PSum4(X)+PSum5(X)+PSum6(X)=8) else
+
+             [[Mid5(X),Mid6(X),Mid10(X)],
+              [Mid2(X),Mid3(X),Mid11(X)],
+              [Mid1(X),Mid4(X),Mid9(X)]]
+       if (PSum1(X)+PSum2(X)+PSum6(X)=8) else
+
+             [[Mid6(X),Mid7(X),Mid11(X)],
+              [Mid1(X),Mid2(X),Mid10(X)],
+              [Mid4(X),Mid3(X),Mid12(X)]]
+       if (PSum1(X)+PSum5(X)+PSum6(X)=8) else
+
+             [[Mid7(X),Mid8(X),Mid12(X)],
+              [Mid2(X),Mid3(X),Mid11(X)],
+              [Mid1(X),Mid4(X),Mid9(X)]]
+       if (PSum1(X)+PSum3(X)+PSum5(X)=8) else
+
+             [[Mid6(X),Mid7(X),Mid11(X)],
+              [Mid1(X),Mid2(X),Mid10(X)],
+              [Mid8(X),Mid5(X),Mid9(X)]]
+       if (PSum4(X)+PSum2(X)+PSum6(X)=8) else
+
+             [[Mid5(X),Mid6(X),Mid10(X)],
+              [Mid8(X),Mid7(X),Mid12(X)],
+              [Mid1(X),Mid4(X),Mid9(X)]]
+       if (PSum4(X)+PSum2(X)+PSum3(X)=8) else
+
+             [[Mid6(X),Mid7(X),Mid11(X)],
+              [Mid5(X),Mid8(X),Mid9(X)],
+              [Mid4(X),Mid3(X),Mid12(X)]];
+             
+
+
+
+MS1:=R^2->R^?^3^?->R^?: U->B->(Create(U)) B^1;
+MS2:=R^2->R^?^3^?->R^?: U->B->(Create(U)) B^2;
+MS3:=R^2->R^?^3^?->R^?: U->B->(Create(U)) B^3;
+MS4:=R^2->R^?^3^?->R^?: U->B->(Create(U)) B^4;
+
+
+FinalSet:=
+          ((MS1 uT) (FTri Dom3)) union 
+          ((MS1 uT) (Rect Dom4)) union ((MS2 uT) (Rect Dom4)) union
+          ((MS1 uT) (SS Dom6B)) union ((MS2 uT) (SS Dom6B)) union 
+               ((MS3 uT) (SS Dom6B)) union ((MS4 uT) (SS Dom6B)) union 
+          ((MS1 uT) ((FS1 Dom5A) union (FS2 Dom5B))) union 
+               ((MS2 uT) ((FS1 Dom5A) union (FS2 Dom5B))) union
+               ((MS3 uT) ((FS1 Dom5A) union (FS2 Dom5B))) union
+          ((MS1 uT) ((FTri Dom6A) union (BTri Dom6A))) union 
+          ((MS1 uT) (FTri Dom7)) union ((MS1 uT) (Rect Dom7)) union
+               ((MS2 uT) (Rect Dom7)) union
+          ((MS1 uT) (ThTri Dom9)) union ((MS2 uT) (ThTri Dom9)) union 
+               ((MS3 uT) (ThTri Dom9)) union  
+          ((MS1 uT) (MTri Dom12)) union ((MS2 uT) (MTri Dom12)) union
+               ((MS3 uT) (MTri Dom12)) union ((MS4 uT) (MTri Dom12)) union
+           {[0,0,0]};
+
+
+
+/* add the level surface to the pre-existing view window */
+widget type<-`vobject, parent<-`ViewWindow, 
+   set<-(FinalSet if DoSurf else {[0,0,0]}),
+   color<-"sienna";
+/*
+TS:=widget Show(FinalSet if DoSurf else {[0,0,0]}),color<-"blue";
+PR:=widget Print(Dom8),name<-"Dom's";
+*/

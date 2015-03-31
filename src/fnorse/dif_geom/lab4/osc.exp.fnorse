@@ -1,0 +1,72 @@
+/****************************************************************
+ *
+ * Copyright 1990, Brown University, Providence, RI
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ ****************************************************************/
+
+/**********************************************************************
+ *
+ * RCH 10/3/90
+ *
+ * Osculating circles for an exp spiral
+ *
+ *
+ **********************************************************************/
+
+theDom := Interval( 0, 2pi, 90 );
+circDom := Interval( 0, 2pi, 30 );
+oscDom :=[ sample( Interval( 0, 2pi, 10 )) >< circDom ];
+
+theCurve 
+   := R -> R^3
+   : t -> [ cos(t) * exp(t), sin(t) * exp(t), 0 ]
+   ;
+
+theEvol
+   := R -> R^3
+   : t -> theCurve(t) + (FrenetNormal theCurve)(t) / (Curvature theCurve)(t)
+   ;
+
+oscs
+   := R^2 -> R^3
+   : [t, thet] -> theEvol(t) - 
+                [ cos(thet), sin(thet), 0 ] / (Curvature theCurve)(t)
+   ;
+
+myView := widget type<-`view;
+
+widget type<-`vobject, color<-"black", set<-(theCurve theDom),
+   parent<-`myView;
+widget type<-`vobject, color<-"green", set<-(oscs oscDom),
+   parent<-`myView;
+widget type<-`vobject, color<-"red", set<-(theEvol theDom),
+   parent<-`myView;
+
+myGoo := widget type<-`view;
+Myoscs
+   := R -> R^3
+   : thet -> theCurve(wh) + 
+                [ cos(thet), sin(thet), 0 ] / (Curvature theCurve)(wh)
+   ;
+
+wh := widget Slider( 0, 2pi ), init<-1;
+
+widget type<-`vobject, color<-"black", set<-(theCurve theDom),
+   parent<-`myGoo;
+widget type<-`vobject, color<-"red", set<-(Myoscs circDom ) ,
+   parent<-`myGoo;
+

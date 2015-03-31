@@ -1,0 +1,256 @@
+/**********************************************************************
+ * Copyright 1991, Brown University, Providence, RI
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ **********************************************************************/
+/****************************************************************/
+/*								*/
+/* Matthew Stone					11/16	*/
+/*								*/
+/* Basic Manipluations of Polygons				*/
+/*								*/
+/****************************************************************/
+
+require "std";
+
+/****************************************************************/
+/*								*/
+/* Build a triangular face at the passed index in the passed	*/
+/* array of vertices.  Curried because the array of vertices	*/
+/* is usually a constant over a big chunk of a file.		*/
+/*								*/
+/* Use the second function to ensure that color information is	*/
+/* associated with each triangle.				*/
+/*								*/
+/****************************************************************/
+
+IndexTri
+   := R^?^? -> ( Z^3 -> {R^?} )
+   :  verts ->   tri ->
+	triangle ([verts^(tri^1),
+                   verts^(tri^2),
+                   verts^(tri^3)], 2)
+   ;
+
+CIndexTri
+   :=  R^?^? -> (Z   -> ( Z^4 -> {R^?} ))
+   :   verts -> (Max -> (  tri ->
+	let color be [ tri^4 / Max ] in
+	    triangle ([verts^(tri^1) :: color,
+		       verts^(tri^2) :: color,
+		       verts^(tri^3) :: color], 2)))
+   ;
+
+/****************************************************************/
+/*								*/
+/* This function draws most, but not all of a triangle.  This	*/
+/* is useful if you want to highlight an edge.			*/
+/*								*/
+/****************************************************************/
+
+NinetyFive
+   := R^?^? -> (Z -> (Z^3 -> {R^?}))
+   :  verts ->  i ->  tri ->
+	let v1 be 0.05 * verts^i + 0.95 * verts^(tri^1) in 
+        let v2 be 0.05 * verts^i + 0.95 * verts^(tri^2) in
+	let v3 be 0.05 * verts^i + 0.95 * verts^(tri^3) in
+		triangle([v1, v2, v3], 2)
+   ;
+
+CNinetyFive
+   := R^?^? -> (Z  -> (Z -> (Z^4 -> {R^?})))
+   :  verts -> Max -> i ->  tri ->
+	let color be [ tri^4 / Max ] in
+	let v1 be 0.05 * verts^i + 0.95 * verts^(tri^1) in 
+        let v2 be 0.05 * verts^i + 0.95 * verts^(tri^2) in
+	let v3 be 0.05 * verts^i + 0.95 * verts^(tri^3) in
+		triangle([v1 :: color, v2 :: color, v3 :: color], 2)
+   ;
+
+
+/****************************************************************/
+/*								*/
+/* After you use these functions, you'll have to call the 	*/
+/* following function on the result when you map, so that 	*/
+/* all of the various triangles you produce get unioned 	*/
+/* into one unit.						*/
+/*								*/
+/****************************************************************/
+
+PolyRender
+   := UnionReduce
+   ;
+
+/****************************************************************/
+/*								*/
+/* Build a segment using the passed indices from the passed	*/
+/* vertex array.  Similar to the functions to build triangles,	*/
+/* except that a third and fourth function are provided to	*/
+/* do something intelligent when the two endpoints are the 	*/
+/* same.							*/
+/*								*/
+/****************************************************************/
+
+IndexSegFunc
+   := R^?^? ->   Z^2 -> (R->R^?)
+   :  verts ->   seg ->
+	(R->R^? : t -> t * verts^(seg^1) + (1 - t) * verts^(seg^2))
+   ;
+
+IndexSeg
+   := R^?^? -> ( Z^2 -> {R^?} )
+   :  verts ->   seg -> IndexSegFunc (verts)(seg) (interval(0,1,2))
+   ;
+
+CIndexSeg
+   := R^?^? -> (Z  -> ( Z^3 -> {R^?} ))
+   :  verts -> Max ->   seg ->
+	let color be [ seg^3 / Max ] in
+	(R -> R^4 :
+         t -> (t * verts^(seg^1) + (1 - t) * verts^(seg^2)) :: color) 
+	(interval(0,1,2))
+   ;
+
+SafeIndexSeg
+   := R^?^? -> ( Z^2 -> {R^?} )
+   :  verts ->   seg -> {} if seg^1 = seg^2 else IndexSeg(verts)(seg)
+   ;
+
+SafeCIndexSeg
+   := R^?^? -> (Z  -> ( Z^3 -> {R^?} ))
+   :  verts -> Max -> seg -> {} if seg^1 = seg^2 else 
+   	CIndexSeg(verts)(Max)(seg)
+   ;
+   
+/****************************************************************/
+/*								*/
+/* Compute the star of the passed vertex in the passed set of	*/
+/* vertices.  Returns a set of segment-index pairs.		*/
+/*								*/
+/****************************************************************/
+
+Star
+   := Z^3     -> ( Z -> Z^2 )
+   :  [a,b,c] ->   v -> [a,b] if v = c else
+                        [b,c] if v = a else
+	 	        [c,a] if v = b else
+		        [v,v]
+   ;
+
+CStar 
+   := Z^4       -> ( Z -> Z^3 )
+   :  [a,b,c,d] ->   v -> [a,b,d] if v = c else
+                          [b,c,d] if v = a else
+			  [c,a,d] if v = b else
+			  [v,v,d]
+   ;
+
+/****************************************************************/
+/*								*/
+/* Compute all of the triangles in the passed set which 	*/
+/* contain the passed vertex.  A lot like star.			*/
+/*								*/
+/****************************************************************/
+
+Neighborhood
+   := {Z^?}    ->   Z -> {Z^?}
+   :  tris     ->   v -> { T in tris | T^1 = v or T^2 = v or T^3 = v}
+   ;
+
+/****************************************************************/
+/* 								*/
+/* Takes a set of vertices, and then a height function, and 	*/
+/* then the indices that define a triangle, and generates a 	*/
+/* pair of sets.  The first set is the part of the triangle 	*/
+/* for which the height function is nonnegative; the second	*/
+/* set is the part of the triangle for which it is not pos-	*/
+/* itive.							*/
+/*								*/
+/****************************************************************/
+
+SplitIndex
+   := R^?^? -> (R^? -> R) -> Z^3 -> Z
+   :  verts -> height     -> tri ->
+	(0 if height(verts^(tri^1)) < 0 else 1) +
+	(0 if height(verts^(tri^2)) < 0 else 2) +
+	(0 if height(verts^(tri^3)) < 0 else 4)
+   ;
+
+IndexCut
+   := R^?^? -> (R^? -> R) -> (Z,  Z )  -> R^?
+   :  verts -> height     -> (e1, e2)  ->
+        IndexSegFunc(verts)([e1, e2])
+   	  (height(verts^e2) /
+           (height(verts^e2) - height(verts^e1)))
+   ;
+
+Index1Tri
+   := R^?^? -> ( Z,   R^?, R^?  ) -> {R^?} 
+   :  verts -> ( tri, new, new2 ) ->
+	triangle ([verts^tri,
+		   new,
+                   new2], 2)
+   ;
+
+Index2Tri
+   := R^?^? -> ( Z,  Z,  R^?,  R^?  ) -> {R^?} 
+   :  verts -> ( v1, v2, new1, new2 ) ->
+	triangle ([verts^v1,
+		   new1,
+                   new2], 2) union
+	triangle ([verts^v1,
+     		   new2,
+		   verts^v2], 2)
+   ;
+
+Split
+   := R^?^? -> (R^? -> R) -> Z^3 -> ({R^?}, {R^?})
+   :  verts -> height     -> tri ->
+      let index be SplitIndex(verts)(height)(tri) in
+        let cut be IndexCut(verts)(height) in
+          let m1 be cut(tri^1, tri^2) in
+	    let m2 be cut(tri^2, tri^3) in
+              let m3 be cut(tri^3, tri^1) in
+	        let itri be IndexTri verts in
+		  let i1tri be Index1Tri verts in
+		    let i2tri be Index2Tri verts in
+
+	({}, itri(tri))
+		if index = 0 else
+	(i1tri(tri^1, m1, m3), i2tri(tri^2, tri^3, m1, m3)) 
+		if index = 1 else 
+	(i1tri(tri^2, m1, m2), i2tri(tri^1, tri^3, m1, m2))
+		if index = 2 else
+	(i2tri(tri^1, tri^2, m3, m2), i1tri(tri^3, m3, m2))
+		if index = 3 else
+	(i1tri(tri^3, m3, m2), i2tri(tri^1, tri^2, m3, m2))
+		if index = 4 else
+	(i2tri(tri^1, tri^3, m1, m2), i1tri(tri^2, m1, m2)) 
+		if index = 5 else
+	(i2tri(tri^2, tri^3, m1, m3), i1tri(tri^1, m1, m3)) 
+		if index = 6 else 
+	(itri(tri), {})
+   ;
+
+
+CSplit
+   := R^?^? -> (R^? -> R) -> Z   -> Z^4       -> ({R^4}, {R^4})
+   :  verts -> height     -> Max -> [x,y,z,c] ->
+   	let tri be [x,y,z] in
+   	  let addcolor be (R^3 -> R^4 : v -> v :: [c/Max]) in
+   	    let pr be Split(verts)(height)(tri) in
+   		(addcolor(left(pr)), addcolor(right(pr)))
+   ;
+

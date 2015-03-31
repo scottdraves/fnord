@@ -1,0 +1,77 @@
+/****************************************************************
+ *
+ * Copyright 1990, Brown University, Providence, RI
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ ****************************************************************/
+
+
+
+/* 
+ * mapping for the parabaliod sheet
+ */
+paraSht 
+   := R^2->R^3
+   : [ x, y ] -> [ x, x^2, y ]
+   ; /* semicolon */
+
+
+/*
+ * this is the domain 
+ */
+paraDom := [ Interval(-1, 1, 10) >< Interval(-1,1, 10 ) ];
+
+
+
+/*
+ * this is the cubic sheet mapping 
+ */
+cubeSht 
+   := R^2->R^3
+   : [ x, y ] -> [ x, y, x^3 ]
+   ;
+
+cubeDom := [ Interval(-1,1,10) >< Interval( -1, 1, 10) ];
+
+
+
+
+/*
+ * create a window
+ */
+myWindow := widget type<-`window;
+
+
+/*
+ * create a view
+ */
+myView := widget type<-`view, parent<-`myWindow;
+
+/*
+ * now create the cubic sheet 
+ */
+
+myCubic := widget type<-`vobject,
+   set<-( cubeSht( cubeDom ) ),
+   parent<-`myView,
+   color<-"red";
+
+
+myPara := widget type<-`vobject,
+   set<-( paraSht( paraDom ) ),
+   parent<-`myView,
+   color<-"blue";
+

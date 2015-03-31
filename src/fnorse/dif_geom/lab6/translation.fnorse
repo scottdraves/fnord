@@ -1,0 +1,92 @@
+/****************************************************************
+ *
+ * Copyright 1990, Brown University, Providence, RI
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ ****************************************************************/
+
+/**********************************************************************
+ *
+ * RCH 10/16/90
+ *
+ * General translation surface
+ **********************************************************************/
+
+/*
+ * curve 1
+ */
+f
+   := R -> R^3
+   : t ->  [ sin(t), cos(t), 0 ]
+   ;
+DomF := Interval( 0, 2pi, 20 );
+
+/*
+ * curve 2 (should not be entirely in same plane as curve 1)
+ */
+g
+   := R -> R^3
+   : t ->  [ 0, t, t*t ]
+   ;
+DomG := Interval( -2,2, 20 );
+
+
+/*
+ * the surface of revolution!
+ */
+surf 
+   := R^2 -> R^3
+   : [ u, v ] ->  f(u) + g(v)
+   ;
+
+/*
+ * create a domain along curve1 and curve2
+ */
+DomSurf := [ DomF >< DomG ];
+
+widget Show( g(DomG) union f(DomF) union Axes );
+
+/*
+ * make pretty window
+ */
+
+/* 
+ * define light-source stuff
+ */
+/*
+ * this mapping takes a function and a light source vector and 
+ * creates the lightsource mapping for that function. The value
+ * of the light is the 4th dimension
+ */
+
+LS := (R^2->R^3, R^3) -> (R^2->R^4)
+   :  (f, v) -> ( t -> [ f(t)^1, f(t)^2, f(t)^3, SurfaceNormal(f)(t) . v ] )
+   ;
+/*
+ * light source vector
+ */
+lv := Normalize([-1, 0, .5]);
+
+myView := widget type<-`view;
+
+widget type<-`vobject, set<-( LS(surf, lv)(DomSurf)  ),
+   parent<-`myView, color<-"4:red->gray10";
+widget type<-`vobject, set<-( f(DomF) union g(DomG) ),
+   parent<-`myView, color<-"black";
+widget type<-`vobject, set<-( Axes ),
+   parent<-`myView, color<-"green";
+
+

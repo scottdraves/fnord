@@ -1,0 +1,54 @@
+/**********************************************************************
+ * Copyright 1990, Brown University, Providence, RI
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ **********************************************************************/
+/* $Id: super-quadrics.fnorse,v 1.15 1993/06/01 19:23:43 rch Exp $ */
+
+superQslider := Slider(0, 5), init<-1;
+
+r  := widget superQslider;
+e1 := widget superQslider;
+e2 := widget superQslider;
+
+
+U1 := Patch((-pi/2, pi/2, 20), (-pi, pi, 20));
+U2 := Patch((-pi, pi, 20), (-pi, pi, 20));
+
+U := U1 if r = 0 else U2;
+
+fabs := R -> R : x -> x if x > 0 else -x;
+
+/*
+ * we use fabs rather than just -x because "if" always evaluates
+ * both its arguments
+ */
+cosexp := (R, R) -> R
+       :  (x, e) -> let t be fabs(cos(x))**e in 
+                    t if (cos(x) > 0) else -t
+       ;
+
+sinexp := (R, R) -> R
+       :  (x, e) -> let t be fabs(sin(x))**e in
+                    t if (sin(x) > 0) else -t
+       ;
+
+X := U -> R^3 
+  :  [u,v] -> [ (r + cosexp(u, e1)) * cosexp(v, e2),
+                (r + cosexp(u, e1)) * sinexp(v, e2),
+                sinexp(u, e1) ]
+  ;
+
+widget Show(X(U));

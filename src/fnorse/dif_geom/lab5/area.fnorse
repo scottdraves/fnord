@@ -1,0 +1,81 @@
+/****************************************************************
+ *
+ * Copyright 1990, Brown University, Providence, RI
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ ****************************************************************/
+
+/**********************************************************************
+ * RCH 10/10/90
+ * 
+ * A simple demo surface: a function graph
+ * 
+ **********************************************************************/
+
+TheSurf
+   := R^2 -> R^3
+   : [u,v] -> [    u,              /* X */
+                   v,              /* Y */
+                   u*u - 2*v*v     /* Z */
+              ]
+   ;
+
+ThePara
+   := R^2 -> R^3
+   : [u,v]  -> TheSurf( [u,v] )  + r *   SurfaceNormal(TheSurf)( [u,v] )
+   ;   
+r := widget Slider( 0, 3 ), init<-0.1, name<-"distance";
+
+/*
+ * dom  = u >< v
+ */
+Dom := [Interval( -1, 1, 15 ) >< Interval( -1, 1, 15 ) ];
+DDom := [Interval( -1, 1, 40 ) >< Interval( -1, 1, 40 ) ];
+ClearDom := Grid( ( -1, 1, 15 ), ( -1, 1, 15 ) );
+
+myView := widget type<-`view;
+
+
+widget type<-`vobject, set<-( Axes ), 
+   parent<-`myView, color<-"green";
+
+widget type<-`vobject, set<-( TheSurf ClearDom ), 
+   parent<-`myView, color<-"red";
+
+widget type<-`vobject, set<-( ThePara Dom ), 
+   parent<-`myView, color<-"blue";
+
+len 
+   := R^? -> R
+   : v -> 5 * (v . v) if ((v . v) < 0.2) else  1
+   ;
+
+theArea 
+   := R^2->R^4
+   : [u,v] -> [ ThePara([u,v])^1, ThePara([u,v])^2, ThePara([u,v])^3, len((ThePara'( [u,v] )^1) >< (ThePara'( [u,v] )^2)) ]
+   ;
+
+theMapArea 
+   := R^2->R^4
+   : [u,v] -> [ u, v, 0, len((ThePara'( [u,v] )^1) >< (ThePara'( [u,v] )^2)) ]
+   ;
+
+myOtherWin := widget type<-`window;
+myOtherView := widget type<-`view, parent<-`myOtherWin;
+
+widget type<-`vobject, parent<-`myOtherView,
+   set<-(theMapArea DDom), color<-"4:blue->red";
+

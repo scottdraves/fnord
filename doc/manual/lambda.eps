@@ -1,0 +1,214 @@
+%!
+
+/FMBEGINPAGE { 3 {pop} repeat } def
+/FMENDPAGE {} def
+
+% doesn't handle lots of characters.
+/FMDEFINEFONT { 
+	findfont exch scalefont 
+	FMfonts 3 1 roll 
+	put
+} def
+
+20 /FMfonts exch array def
+
+
+% fill patterns.  gray only.
+/FP 32 array def
+/SG {setgray} def
+FP 0 { 0.0 SG } put
+FP 1 { 0.1 SG } put
+FP 2 { 0.3 SG } put
+FP 3 { 0.5 SG } put
+FP 4 { 0.7 SG } put
+FP 5 { 0.9 SG } put
+FP 6 { 0.97 SG } put
+FP 7 { 1.0 SG } put
+FP 8 { 0.0 SG } put
+FP 9 { 0.0 SG } put
+FP 10 { 0.0 SG } put
+FP 11 { 0.0 SG } put
+FP 12 { 0.0 SG } put
+FP 13 { 0.0 SG } put
+FP 14 { 0.0 SG } put
+FP 15 { 0.0 SG } put
+FP 16 { 1.0 SG } put
+FP 17 { 0.9 SG } put
+FP 18 { 0.7 SG } put
+FP 19 { 0.5 SG } put
+FP 20 { 0.3 SG } put
+FP 21 { 0.1 SG } put
+FP 22 { 0.03 SG } put
+FP 23 { 0.0 SG } put
+FP 24 { 0.0 SG } put
+FP 25 { 0.0 SG } put
+FP 26 { 0.0 SG } put
+FP 27 { 0.0 SG } put
+FP 28 { 0.0 SG } put
+FP 29 { 0.0 SG } put
+FP 30 { 0.0 SG } put
+FP 31 { 0.0 SG } put
+
+% x y x y ... n POLYLINE -
+/L {/n exch def newpath moveto 
+    2 1 n {pop lineto} for
+} def
+
+
+% x y x y FILLEDRECT -
+/R {/y2 exch def /x2 exch def /y1 exch def /x1 exch def
+     x1 y1 x2 y1 x2 y2 x1 y2 4 L closepath
+} def
+
+
+% x y x y r ROUNDEDRECT -
+/RR { 
+	/rad exch def
+	/y2 exch def
+	/x2 exch def
+	/y1 exch def
+	/x1 exch def
+	newpath
+	x1 y1 rad add moveto
+	x1 y2 x2 y2 rad arcto
+	x2 y2 x2 y1 rad arcto
+	x2 y1 x1 y1 rad arcto
+	x1 y1 x1 y2 rad arcto
+	closepath
+	16 {pop} repeat
+} def
+
+% angle1 angle2 radx rady x y ELLIPSE - (adds to path)
+/EM matrix def
+/ellipse {
+	EM currentmatrix pop
+	translate
+	scale
+	0 0 1 5 3 roll arc
+	EM setmatrix
+} def
+
+
+% ignore color
+/K {pop} def
+
+% simple stuff
+/V {gsave eofill grestore} def
+/H {setlinewidth} def
+/Z {setlinecap} def
+/N {stroke} def
+/X {FP exch get exec} def
+/Y {L closepath} def
+/F {FMfonts exch get setfont} def
+/T {moveto show} def
+/M {newpath moveto} bind def
+/D {curveto} bind def
+/A {newpath ellipse stroke} def
+/G {newpath ellipse closepath fill} def
+
+%%
+
+0 12 /Times-Roman FMDEFINEFONT
+612 792 0 FMBEGINPAGE
+207 333 261 351 9 RR
+1 H
+2 Z
+0 X
+0 K
+N
+279 423 315 441 9 RR
+N
+270 513 306 531 9 RR
+N
+243 468 279 486 9 RR
+N
+315 468 351 486 9 RR
+N
+243 378 279 396 9 RR
+N
+288 558 324 576 9 RR
+N
+216 513 252 531 9 RR
+N
+252 603 288 621 9 RR
+N
+0 F
+(apply) 225.18 706.91 T
+(right) 191.17 652.91 T
+(vector) 259.51 652.91 T
+(pair) 260.67 607.91 T
+(left) 226.01 517.91 T
+(right) 276.67 517.91 T
+(plus) 296 562.91 T
+(left) 253.01 472.91 T
+(right) 321.67 472.91 T
+(left) 253.01 382.91 T
+(source) 218.35 337.91 T
+247.32 690.81 242.99 702 252.59 694.8 249.95 692.8 4 Y
+V
+270 666 249.35 693.6 2 L
+N
+224.4 694.8 233.99 702 229.68 690.81 227.04 692.8 4 Y
+V
+207 666 227.65 693.6 2 L
+N
+266.69 636.46 270 648 273.31 636.46 270 636.46 4 Y
+V
+270 621 270 637.46 2 L
+N
+261.85 594.2 269.99 603.01 267.75 591.22 264.8 592.71 4 Y
+V
+234 531 265.26 593.59 2 L
+N
+239.85 502.55 233.99 513.02 244.51 507.25 242.18 504.9 4 Y
+V
+261 486 241.49 505.59 2 L
+N
+277.2 593.41 269.99 603 281.19 598.68 279.19 596.04 4 Y
+V
+306 576 278.4 596.65 2 L
+N
+296.8 550.29 305.99 558.01 302.29 546.59 299.55 548.44 4 Y
+V
+288 531 300.12 549.26 2 L
+N
+277.46 507.25 287.98 513.02 282.11 502.55 279.79 504.9 4 Y
+V
+261 486 280.51 505.59 2 L
+N
+306.97 546.05 305.99 558.01 313.16 548.38 310.06 547.21 4 Y
+V
+333 486 309.72 548.14 2 L
+N
+268.2 458.41 260.99 468.01 272.19 463.69 270.2 461.05 4 Y
+V
+297 441 269.4 461.64 2 L
+N
+321.8 463.69 332.99 468.01 325.79 458.41 323.79 461.05 4 Y
+V
+297 441 324.6 461.64 2 L
+N
+216 702 261 720 9 RR
+N
+180 648 225 666 9 RR
+N
+252 648 297 666 9 RR
+N
+(frag) 287.35 427.91 T
+285.8 418.69 296.99 423.01 289.79 413.41 287.79 416.05 4 Y
+V
+261 396 288.6 416.64 2 L
+N
+194.69 636.46 198 648 201.31 636.46 198 636.46 4 Y
+V
+198 396 198 637.46 2 L
+N
+250.46 372.26 260.98 378.02 255.12 367.56 252.79 369.91 4 Y
+V
+234 351 253.51 370.59 2 L
+N
+198 396 234 351 2 L
+N
+14 X
+%%BoundingBox: 180 333 351 720
+FMENDPAGE

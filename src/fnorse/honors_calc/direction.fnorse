@@ -1,0 +1,165 @@
+/****************************************************************
+ *
+ * Copyright 1990, Brown University, Providence, RI
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ ****************************************************************/
+
+require "std.fnorse";
+
+nunits := 12;
+half := 6;
+third := 4;
+inpt := widget type<-`window, width<-600,height<-600, numUnits<-nunits;
+
+fxy :=
+  widget TypeIn, field<-type(R^2->R), name<-"f := R^2->R :",
+  init<-"[x,y]-> -(x**2+y**2)/2 + 2", 
+  top<-0, bottom<-1, left<-0, right<-nunits, 
+  parent<-`inpt;
+
+f := Surfaces
+  : [u,v] -> [ u, v, fxy( [u,v] ) ]
+  ;
+
+
+umin := widget TypeIn, field<-R, name<-"X min := R :", init<-"-1", 
+        parent<-`inpt, top<-1, bottom<-3, left<-0, right<-(third);
+umax := widget TypeIn, field<-R, name<-"X max := R :", init<-"1", 
+        parent<-`inpt, top<-1, bottom<-3, left<-(third), right<-(2*third);
+ures := widget Slider(0,50), field<-Z, name<-"X res := Z :", init<-8, 
+        drag<-False, parent<-`inpt, 
+        top<-1, bottom<-3, left<-(2*third), right<-(3*third);
+vmin := widget TypeIn, field<-R, name<-"Y min := R :", init<-"-1", 
+        parent<-`inpt, top<-3, bottom<-5, left<-0, right<-third;
+vmax := widget TypeIn, field<-R, name<-"Y max := R :", init<-"1", 
+        parent<-`inpt, top<-3, bottom<-5, left<-third, right<-2*third;
+vres := widget Slider(0,50), field<-Z, name<-"Y res := Z :", init<-8,
+        drag<-False, parent<-`inpt, 
+        top<-3, bottom<-5, left<-2*third, right<-3*third;
+axes := widget CheckBox, init<-True, parent<-`inpt, name<-"Axes",
+        top<-5, bottom<-6, left<-0, right<-third;
+zplane := widget CheckBox, init<-False, parent<-`inpt, name<-"Z-Plane",
+        top<-5, bottom<-6, left<-third, right<-2*third;
+solid :=  widget CheckBox, init<-True, parent<-`inpt, name<-"Solid Surf",
+        top<-5, bottom<-6, left<-2*third, right<-3*third;
+zsolid :=  widget CheckBox, init<-True, parent<-`inpt, name<-"Solid Z-Plane",
+        top<-6, bottom<-7, left<-2*third, right<-3*third;
+
+/* image */
+
+pict := widget type<-`view;
+
+dom := Patch ((umin, umax, ures), (vmin, vmax, vres)) if solid = True else
+       Grid ((umin, umax, ures), (vmin, vmax, vres));
+
+widget Color ( f( dom ), "LightSlateBlue"),
+   parent<-`pict;
+/* Axes */
+
+widget type<-`vobject, parent<-`pict, color<-"CornflowerBlue",
+   set<-( Axes if axes = True else  {} );
+
+widget type<-`vobject, parent<-`pict, color<-"white",
+   set<-( Labels if axes = True else {});
+
+pdom := Patch ((umin, umax, ures), (vmin, vmax, vres)) if zsolid = True 
+     else Grid ((umin, umax, ures), (vmin, vmax, vres)); 
+
+plane := R^2 -> R^3: [u,v]->[ u, v, 0 ];
+
+widget type<-`vobject, parent<-`pict, color<-"gray20",
+   set<-( plane(pdom) if zplane = True else { [0,0,0] } );
+
+/*****************************/
+/*  direction tangent stuff  */
+/*****************************/
+
+/* first the curve on the surface */
+longl := widget CheckBox, init<-False, parent<-`inpt, name<-"Long Line",
+        top<-6, bottom<-7, left<-0, right<-third;
+vector := widget CheckBox, init<-True, parent<-`inpt, name<-"Vector",
+        top<-6, bottom<-7, left<-third, right<-2*third;
+
+x0 := widget Slider(umin, umax), field<-R, name<-"Xo := R:", 
+   init<-((umin+umax)/2),
+   parent<-`inpt, top<-7, bottom<-9, left<-0, right<-(half);
+
+y0 := widget Slider(vmin, vmax), field<-R, name<-"Yo := R:", 
+   init<-((vmin+vmax)/2),
+   parent<-`inpt, top<-7, bottom<-9, left<-(half), right<-(2*half);
+
+ang := widget Slider(0, 2pi), field<-R, name<-"Angle of deriv := ang", init<-0,
+   parent<-`inpt, top<-9, bottom<-11, left<-0, right<-(3*third);
+
+/* get the point on the curve */
+ldom := Interval( -2, 2, 30 ) if longl = True else 
+        Interval( -1, 1, 30 );
+
+line := R -> R^2
+   : t -> [x0, y0] + t * [ cos(ang), sin(ang) ]
+   ;
+
+tline := R -> R^3
+      : t -> [ line(t)^1, line(t)^2, 0 ]
+      ;
+
+fline := R -> R^3
+      : t -> f(line(t))
+      ;
+
+widget type<-`vobject, parent<-`pict, color<-"green",
+   set<-( line( ldom ) );
+
+widget type<-`vobject, parent<-`pict, color<-"green",
+   set<-( f(line( ldom )) );
+
+/* now an assortment of vectors */
+uI := Interval( 0, 1, 2 ) if vector = True else {}; 
+uId := sample(Interval( 0, 1, 20 ));
+
+vec := ( R^?, R^? ) -> ( R -> R^? )
+     : ( p1, p2 )-> (t -> t * p1 + (1-t) * p2)
+     ;
+
+rvec := ( R^?, R^? ) -> ( R -> R^? )
+     : ( p1, p2 )-> (t -> p1 + t * p2)
+     ;
+
+/* directional derive */
+
+widget type<-`vobject, parent<-`pict, color<-"red",
+   set<-( rvec(f(line(0)),fline'(0))(uI) );
+
+/* now slice-curve */
+slice := widget type<-`view, name<-"slice curve";
+
+widget type<-`vobject, parent<-`slice, color<-"CornflowerBlue",
+   set<-( Axes );
+
+	
+
+fslice := R -> R^2
+       : t -> [t, fxy(line(t))]
+       ;
+
+widget type<-`vobject, parent<-`slice, color<-"green",
+   set<-( fslice( ldom ) );
+
+widget type<-`vobject, parent<-`slice, color<-"red",
+   set<-( rvec(fslice(0),fslice'(0))(uI) );
+
+   

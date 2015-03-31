@@ -1,0 +1,214 @@
+/**********************************************************************
+ * Copyright 1991, Brown University, Providence, RI
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ **********************************************************************/
+/****************************************************************/
+/*								*/
+/* This file contains a module that can be used to calculate	*/
+/* level curves on a surface.					*/
+/*								*/
+/* For file to make sense, two constants of type R must be 	*/
+/* defined before you request that fnord evaluate this code.	*/
+/* 	sizex	:=	distance between x samples		*/
+/*	sizey	:=      distance between y samples		*/
+/* (Where x is the first coordinate and y is the second 	*/
+/* coordinate of the vectors you pass in.)  You can use this	*/
+/* file to take levels of any surfaces you want, simultaneously	*/
+/* so long as these values are the same.  Note that the values	*/
+/* in question are determined based on the distance in the	*/
+/* *domain*.							*/
+/*								*/
+/* Although any surface can be constructed out of a square	*/
+/* patch in R^2, this file expects a patch (or volume even)	*/
+/* in R^3.  The third coordinate may be used by the distance	*/
+/* function that you provide to take levels at values other	*/
+/* than zero, and to take more than one such level at a time.	*/
+/*								*/
+/* More details accompany the individual functions in the 	*/
+/* file....							*/
+/*								*/
+/****************************************************************/
+
+require "std.fnorse";
+
+uI := Interval(0,1,2);
+
+/****************************************************************/
+/*								*/
+/* The file basically uses the marching squares algorithm.  For	*/
+/* each point, we'll look at each of its neighbors and position */
+/* a line around near it based on that information.  To get 	*/
+/* those neighbors, we'll use the Corner functions below.	*/
+/*								*/
+/****************************************************************/
+
+Corner1:=R^3->R^3: [x,y,z]->[x-sizex/2,y-sizey/2,z];
+Corner2:=R^3->R^3: [x,y,z]->[x-sizex/2,y+sizey/2,z];
+Corner3:=R^3->R^3: [x,y,z]->[x+sizex/2,y+sizey/2,z];
+Corner4:=R^3->R^3: [x,y,z]->[x+sizex/2,y-sizey/2,z];
+
+/****************************************************************/
+/*								*/
+/* CornerIndex determines how nearby points are positioned 	*/
+/* with respect to the level.  We encode a bit vector, where 	*/
+/* the i'th bit is set if there's NO crossing on the i'th edge	*/
+/* of our square.  We don't calculate and return the last code	*/
+/* explicitly, since it can be reconstructed by a parity 	*/
+/* argument.							*/
+/*								*/
+/****************************************************************/
+
+CornerIndex
+	:= (R^? -> R) -> (R^? -> Z)
+	:   height    -> point -> 
+	(1 if height(Corner1(point)) * height(Corner2(point)) > 0 else 0) +
+	(2 if height(Corner2(point)) * height(Corner3(point)) > 0 else 0) +
+	(4 if height(Corner3(point)) * height(Corner4(point)) > 0 else 0)
+	;
+
+
+/****************************************************************/
+/*								*/
+/* Segment generates the equation for a piece of curve which	*/
+/* maps the unit interval to the straight line segment between	*/
+/* the first and the second arguments.				*/
+/*								*/
+/****************************************************************/
+
+Segment
+        := (R^?, R^?)   -> Curves
+        :  (start, end) -> (t -> t*end + (1-t) * start)
+	;
+
+/****************************************************************/
+/*								*/
+/* The Mid functions encode something slightly more 		*/
+/* sophisticated than their names indicate.  Each first defines	*/
+/* a line segment corresponding to the i'th edge of our 	*/
+/* square.  Function application, at the ratio of the height	*/
+/* value at one point to the difference between the heights,	*/
+/* gives us a linearly interpolated guess at where in the	*/
+/* domain the zero crossing occurs.				*/
+/*								*/
+/****************************************************************/
+
+Mid1
+	:= (R^? -> R) ->  (R^? -> R^?)
+	:   height    -> point -> 
+	    Segment(Corner1(point),Corner2(point))
+		(height(Corner1(point)) /
+		 (height(Corner1(point)) - height(Corner2(point))))
+	;
+
+Mid2
+	:= (R^? -> R) ->  (R^? -> R^?)
+	:   height    -> point -> 
+	    Segment(Corner2(point),Corner3(point))
+		(height(Corner2(point)) /
+		 (height(Corner2(point)) - height(Corner3(point))))
+	;
+
+Mid3
+	:= (R^? -> R) ->  (R^? -> R^?)
+	:   height    -> point -> 
+	    Segment(Corner3(point),Corner4(point))
+		(height(Corner3(point)) /
+		 (height(Corner3(point)) - height(Corner4(point))))
+	;
+Mid4
+	:= (R^? -> R) ->  (R^? -> R^?)
+	:   height    -> point -> 
+	    Segment(Corner4(point),Corner1(point))
+		(height(Corner4(point)) /
+		 (height(Corner4(point)) - height(Corner1(point))))
+	;
+
+
+/****************************************************************/
+/*								*/
+/* The Coordinates function determines what segments should	*/
+/* be drawn for each vertex.  Our index tells us where there	*/
+/* are crossings.  For most of the values that that index takes	*/
+/* on, we have only one edge, which is calculated in the first	*/
+/* case statement.  However, if the level curve crosses all	*/
+/* four edges of our square, we have to add a second one (as	*/
+/* done in the second case statement).  A heuristic makes a 	*/
+/* guess about which two pairs of edges to connect.		*/
+/*								*/
+/****************************************************************/
+
+Coordinates
+	:= (R^? -> R) ->  (R^? -> R^?^4)
+	:  height     -> point -> let 
+	     ci be CornerIndex(height)(point) in let
+	      mid1 be Mid1(height)(point) in let
+	       mid2 be Mid2(height)(point) in let
+		mid3 be Mid3(height)(point) in let
+		 mid4 be Mid4(height)(point) in
+		   [
+	     	          (mid1, mid2) if 0 = ci and 
+       		     (height(Corner1(point)) >= 0) = (height(point) >= 0)
+		     else (mid2, mid3) if 0 = ci
+	             else (mid2, mid3) if 1 = ci
+	   	     else (mid1, mid3) if 2 = ci
+		     else (mid3, mid4) if 3 = ci
+		     else (mid1, mid2) if 4 = ci
+		     else (mid2, mid4) if 5 = ci
+		     else (mid4, mid1) if 6 = ci
+		     else ([0,0,0], [0,0,0]),
+
+			  (mid3, mid4) if 0 = ci and
+		     (height(Corner1(point)) >= 0) = (height(point) >= 0)
+		     else (mid4, mid1) if 0 = ci 
+		     else ([0,0,0], [0,0,0])
+		   ]
+	;
+
+
+/****************************************************************/
+/*								*/
+/* The MakeSegments functions translate the values returned	*/
+/* from the Coordinates function into equations for the 	*/
+/* segments we want to draw.					*/
+/*								*/
+/****************************************************************/
+
+MakeSegments1:= R^?^4->Curves: B->Segment(B^1,B^2);
+MakeSegments2:= R^?^4->Curves: B->Segment(B^3,B^4);
+
+
+/****************************************************************/
+/*								*/
+/* ZeroCurves puts it all together.  It takes a height function	*/
+/* and a set of points in space assumed to be connected in a	*/
+/* series of horizontal sheets, and returns the curves on each	*/
+/* sheet (approximately) at which the value of the height 	*/
+/* function is zero.  The height function should include the	*/
+/* mapping of the sheet into a surface;  this surface mapping	*/
+/* should then be used in displaying the output of this		*/
+/* function.							*/
+/*								*/
+/****************************************************************/
+
+ZeroCurves 
+  	:= (R^? -> R) -> ({R^?} -> {R^?})
+  	:  height     -> (set   -> let
+	     subset be { P in set | 7 != CornerIndex(height)(P) } in let
+	     func be MakeSegments1(Coordinates(height)(subset)) union
+		     MakeSegments2(Coordinates(height)(subset)) in
+		func(uI))
+       	;
+

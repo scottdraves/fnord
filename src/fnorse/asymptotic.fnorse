@@ -1,0 +1,132 @@
+/**********************************************************************
+ * Copyright 1991, Brown University, Providence, RI
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ **********************************************************************/
+/* $Id: asymptotic.fnorse,v 1.2 1993/06/01 19:23:13 rch Exp $ */
+
+/* this is stolen from principals.fnorse, and modified 
+   to do asymptotic lines instead */
+
+
+
+/* do them on a monkey saddle.  when r gets too large (.8 or so) the
+directions are so close the solver gets them mixed up.
+
+i use the polar form, which makes choosing starting points for the
+lines easy, but near the center, the eqn moves so slowly that not much
+gets done.  using the polynomial form cures this (i've tried it), but
+then getting nicely organized lines is harder.  doing so is left as an
+exercise (heh) */
+
+X
+   := R^2 -> R^3 
+   :  [r, t] -> [r sin(t), r cos(t), sin(3 t) r r r]
+   ;
+
+
+rez := 20;
+U := Patch((0, 1, 10), (0, 2pi, 60));
+
+/* widget Show(X(U)); */
+
+MakeDomainCrosses
+   := R^2 -> R^2 -> R^2
+   :  p   -> u   -> u + Transpose2(PrincipalDirections(X)(u)) p
+   ;
+
+sz := 1/rez/1.5;
+Cross := [Interval(-sz, sz, 2) >< {0}] union 
+         [{0} >< Interval(-sz, sz, 2)]
+      ;
+
+
+widget Show(MakeDomainCrosses(Cross)(sample(U)));
+
+/* *********** */
+h := widget Slider(0, .2), init <- 0.03;
+Segment
+   := (R^?, R^?) -> R -> R^?
+   :  (x,   y )  -> t -> (1-t)x + t y
+   ;
+EulerStep 
+   := (R^? -> R^?) -> R^? -> R^?
+   :   F           -> x   -> x + h F(x)
+   ;
+/* r-k doesn't work well at all.  why? */
+RungeKuttaStep
+   := (R^? -> R^?) -> R^? -> R^?
+   :  F            -> x   -> x + h F(x + h F(x + h F(x + h F(x) / 2))) / 6
+   ;
+/* this does the work of deciding which direction and sign to use
+   next, given the last direction used. */
+helpChoose
+   := (R^2^2, R^2) -> R^2
+   :  ([a, b], last) ->
+       (a if a . last > 0 else -a)
+       if Abs(a . last) > Abs(b . last) else
+       (b if b . last > 0 else -b)
+   ;
+
+Choose
+   := (R^2 -> R^2^2) -> R^2 -> R^2 -> R^2
+   :  f -> lastDir -> u -> helpChoose(f(u), lastDir)
+   ;
+
+/* here's where we build the asymptotic directions from the principal
+directions and curvatures */
+Asympt
+   := ((R^2 -> R^2^2), (R^2 -> R^2)) -> (R^2 -> R^2^2)
+   :  (dirs, curves) -> u -> [(curves u)^1 (dirs u)^1 +
+			      (curves u)^2 (dirs u)^2,
+			      (curves u)^1 (dirs u)^1 -
+			      (curves u)^2 (dirs u)^2]
+   ;
+
+myfun
+   := Choose(Asympt(PrincipalDirections(X), 
+		    PrincipalCurvatures(X)))
+   ;
+
+PairStep
+   := (R^2, R^2) -> (R^2, R^2, R^2)
+   :  (x, lastDir) -> (x, 
+		       EulerStep(myfun lastDir)(x),
+		       (myfun lastDir x))
+   ;
+Left2  := (?, ?, ?) -> ? : (x, y, z) -> (x, y);
+Right2 := (?, ?, ?) -> ? : (x, y, z) -> (y, z);
+J := Interval(0, 3/4, 2);
+nextstate
+   := (trails, triples) -> (trails union Segment(Left2 triples)(J),
+			    Right2 triples)
+   ;
+
+top := pi/2 - 0.05;
+UU := ([Interval(0.05, 1, 8) >< {0, pi/3, 2pi/3, pi}] >< 
+      {[0, 1], [0, -1]})
+   ;
+
+/* the pts are here pairs of point in the domain, and the last
+   direction taken.  we use the last direction to choose which of the
+   4 possible directions at the next pt to use (use the one that is
+   closest to the last.  For the first iteration, use an arbitrary
+   vector.  */
+ini := ({}, sample(UU));
+state := widget Evolve(ini, (trails, pts) -> nextstate(trails, PairStep(pts)));
+/* *********** */
+widget Show(left(state) union Axes);
+widget Show(X(left(state) union {[0,0]}));
+

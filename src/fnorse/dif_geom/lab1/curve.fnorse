@@ -1,0 +1,161 @@
+/****************************************************************
+ *
+ * Copyright 1990, Brown University, Providence, RI
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ ****************************************************************/
+
+/*--------------------------------------------------------
+ * MATH 106 - Diff Geom
+ * RCH 8/31/90  
+ * 
+ * Fnord simple CURVE mapping setup.
+ * 
+ * Simply set the size of the domain and the 
+ * equations in the vector function to quickly 
+ * create a surface.
+ *--------------------------------------------------------
+ */
+
+/*********
+ * DOMAIN: Set these variables to define the domain
+ *********
+ */
+
+Start :=	-2 pi;
+Stop  :=	2 pi;
+Points	:= 	40;    		/* number of points along domain */
+
+/*
+ * style to draw curve in:
+ * Solid, Dotted, Dashed
+ */
+Style  :=      Solid;
+
+/*
+ * expand axis option creates
+ * extended plains along the axes.
+ * Length sets how far to expand them
+ */
+ExtendAxes := False;
+ExtendLen  := 2;
+ExtendDensity := 8;
+
+/***********
+ * FUNCTION:
+ ***********
+ * edit this to define the function vector
+ * (make sure each the X & Y equations end with commas!)
+ */
+func := R->R^3:
+	t ->      [ 
+			/* X */	cos( t ),		
+			/* Y */ sin( t ),	
+			/* Z */ t/pi
+		  ];
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/***********************************************************************
+ ********************DO NOT EDIT BELOW THIS*****************************
+ **********************************************************************/
+
+/* define True/False */
+True := 1;
+False := 0;
+
+/* define styles */
+Dashed := 1;
+Solid := 0;
+Dotted := 2;
+
+/* define domain */
+dom := Interval( Start, Stop, Points ) if Style = Solid else
+	sample( Interval( Start, Stop, Points ) ) if Style = Dotted else
+	Dashes( Start, Stop, Points );
+
+
+/*
+ * define rotation so we are looking at it obliquely
+ */
+	/* X */		/* Y */		/* Z */
+A := [ 	[-sqrt(2)/2, 	 sqrt(2)/2,        0     ], 
+	[-1/2,		-1/2, 		1/sqrt(2)],
+	[ 1/2,	 	 1/2, 		1/sqrt(2)] ];
+
+
+/*
+ * rotate it so that we are looking along the vector [-1, -1, -1]
+ */
+tiltAngle :=
+	R^3 -> R^3:
+	vec -> A vec;
+
+
+/*
+ * create the expanded axes
+ */
+axRange := sample( Interval( -ExtendLen, ExtendLen, 2 ExtendDensity ) ) if ExtendAxes = True 
+	   else  {0};
+	
+ExtendedAxes  := [ axRange >< axRange >< {0} ] union
+		 [ axRange >< {0} >< axRange ] union
+		 [ {0} >< axRange >< axRange ];
+
+/*
+ * create the view widget
+ */
+widget Show(  tiltAngle [Axes]    union 
+	      tiltAngle ExtendedAxes union
+	      tiltAngle (func dom)
+	   );
+
+
+ 			
+
+

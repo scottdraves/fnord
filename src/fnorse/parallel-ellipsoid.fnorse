@@ -1,0 +1,60 @@
+/**********************************************************************
+ * Copyright 1990, Brown University, Providence, RI
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ **********************************************************************/
+/* $Id: parallel-ellipsoid.fnorse,v 1.11 1993/06/01 19:23:35 rch Exp $ */
+
+U := Patch((-pi, pi, 20), (0, pi/2, 20));
+U2 := Grid((-pi, pi, 20), (0, pi/2, 20));
+
+X := U -> R^3
+  :  [u, v] -> [a sin(u)cos(v), b cos(u)cos(v), sin(v)]
+  ;
+
+pX := U -> R^3
+   :  u -> (X(u) + (1 / PrincipalCurvatures(X)(u)^1) * SurfaceNormal(X)(u))
+   ;
+
+pX2 := U -> R^3
+   :  u -> (X(u) + (1 / PrincipalCurvatures(X)(u)^2) * SurfaceNormal(X)(u))
+   ;
+
+
+/* ugh, way out of date */
+
+PEWin := widget type<-`window, width<-300, height<-300, numUnits<-6,
+         name<-"parallel ellipsoid";
+
+a := widget type<-`slider, parent<-`PEWin, top<-0, left<-0, bottom<-2,
+	    right<-6, name<-"Axis of ellipsoid in X",
+	    min<-0, max<-1, init<-1;
+
+b := widget type<-`slider, parent<-`PEWin, top<-2, left<-0, bottom<-4,
+	    right<-6, name<-"Axis of ellipsoid in Y",
+	    min<-0, max<-1, init<-1;
+
+t := widget type<-`tapedeck, parent<-`PEWin, top<-4, left<-0, bottom<-6,
+	    right<-6, name<-"Distance of parallel surface",
+	    min<-0, max<-3;
+
+PEView := widget type<-`view ; /* , parent<-`PEWin, top<-0, left<-3,
+	         bottom<-6, right<-6; */
+
+widget type<-`vobject, set<-pX(U), parent<-`PEView, color<-"blue";
+widget type<-`vobject, set<-pX2(U), parent<-`PEView, color<-"red";
+widget type<-`vobject, set<-X(U2), parent<-`PEView, color<-"gray40";
+
+

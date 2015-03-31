@@ -1,0 +1,2 @@
+mode=optimize
+program=xmfnord

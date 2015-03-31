@@ -1,0 +1,47 @@
+/**********************************************************************
+ * Copyright 1990, Brown University, Providence, RI
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ **********************************************************************/
+/* $Id: horn.fnorse,v 1.4 1993/06/01 19:23:28 rch Exp $ */
+
+SphericalPlot
+   := (R^2 -> R) -> (R^2 -> R^3)
+   :  h -> (u -> h(u)[sin(u^1)cos(u^2),
+                      sin(u^1)sin(u^2),
+                      cos(u^1)])
+   ;
+
+U := Patch((-1, pi, 32), (0, 2pi, 48));
+
+horn := R^2 -> R
+     :  [theta, phi] -> sin(theta)(1.5^phi)
+     ;
+
+widget Show(SphericalPlot(horn)(U));
+
+
+
+
+U2 := Patch((pi/2, pi, 33), (0, 4pi, 65)) union
+      Patch((0,  pi/2, 33), (pi/2, 2pi, 25)) union
+      Patch((0,  pi/2, 33), (5pi/2, 4pi, 25));
+
+DD := R^2 -> R
+   :  [theta, phi] -> sin(theta)*(2 + cos(phi/2))
+   ;
+
+widget Show(SphericalPlot(DD)(U2));
+

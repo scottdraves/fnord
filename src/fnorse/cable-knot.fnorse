@@ -1,0 +1,41 @@
+/**********************************************************************
+ * Copyright 1990, Brown University, Providence, RI
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ **********************************************************************/
+/* $Id: cable-knot.fnorse,v 1.9 1993/06/01 19:23:14 rch Exp $ */
+
+/* i think this has a problem -- spot */
+
+I := Interval(-pi, pi, 201) ;
+
+u := 2 ;
+v := 3 ;
+
+H := I -> R^3 :
+     t -> [ (sqrt(2) + cos (v t)) (cos (u t)),
+            (sqrt(2) + cos (v t)) (sin (u t)),
+           sin (v t)]
+  ;
+
+
+radius := widget Slider(0, 1);
+X := Tube(H, r->radius);
+
+knot := R -> R^3
+     :  t -> X(t [u, v])
+     ;
+
+widget Show(knot(I));

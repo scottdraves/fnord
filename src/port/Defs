@@ -1,0 +1,3 @@
+# $Id: Defs,v 1.3 1991/09/30 14:29:21 mas Exp $
+
+port_objs := time.o comm.o

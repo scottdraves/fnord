@@ -1,0 +1,185 @@
+/**********************************************************************
+ * Copyright 1991, Brown University, Providence, RI
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ **********************************************************************/
+/* $Id: sphere.fnorse,v 1.3 1993/06/01 19:23:38 rch Exp $ */
+
+/*
+ * create geodesic approximations of a sphere.
+ * a lot of redundant calculation.
+ */
+
+/* These same technique can be used to import arbitrary triangular
+   data from an external program.  Have the program write out a file
+   that sez  DATA :=    {[[x1,y1,z1],[x2,y2,z2],[x3,y3,z3]],
+                         [[x1,y1,z1],[x2,y2,z2],[x3,y3,z3]],
+                         ... }
+   where each 3x3 matrix is a triangle.  Then say
+
+   gap := widget Slider(0, .5), drag <- False;
+   TD := triangle([[1-gap, gap, 0], [gap, 1-gap, 0], [gap, gap, 0]], 2); 
+   MyShape := Triangulate(DATA)(TD);
+   widget Show(MyShape);
+*/
+
+
+
+/* these things are really fractals in R^9...
+   i probably should write a generalized IFS function sometime */
+
+N := Normalize;
+
+Generate1
+   := R^3^3 -> R^3^3
+   :  [a, b, c] -> [a, N(a + b), N(a + c)]
+   ;
+Generate2
+   := R^3^3 -> R^3^3
+   :  [a, b, c] -> [N(a + b), b, N(b + c)]
+   ;
+Generate3
+   := R^3^3 -> R^3^3
+   :  [a, b, c] -> [N(a + c), N(b + c), c]
+   ;
+Generate4
+   := R^3^3 -> R^3^3
+   :  [a, b, c] -> [N(b + c), N(a + c), N(a + b)]
+   ;
+
+RefineSphere
+   := {R^3^3} -> {R^3^3}
+   :  tris    -> Generate1(tris) union
+                 Generate2(tris) union
+		 Generate3(tris) union
+		 Generate4(tris)
+   ;
+
+/* icosohedron works better, bwtf */
+BaseCase
+   := {[[ 1,  0,  0], [ 0,  1,  0], [ 0,  0,  1]],
+       [[ 1,  0,  0], [ 0,  1,  0], [ 0,  0, -1]],
+       [[ 1,  0,  0], [ 0, -1,  0], [ 0,  0,  1]],
+       [[ 1,  0,  0], [ 0, -1,  0], [ 0,  0, -1]],
+       [[-1,  0,  0], [ 0,  1,  0], [ 0,  0,  1]],
+       [[-1,  0,  0], [ 0,  1,  0], [ 0,  0, -1]],
+       [[-1,  0,  0], [ 0, -1,  0], [ 0,  0,  1]],
+       [[-1,  0,  0], [ 0, -1,  0], [ 0,  0, -1]]
+       };
+
+Triangulate
+   := R^3^3 -> R^3 -> R^3
+   :  [a, b, c] -> u ->
+      Transpose3([a - c, b - c, (a - c) >< (b - c)]) u + c
+   ;
+
+SphereIter
+   := (n, tris) -> tris if n = 0 else 
+                   SphereIter(n - 1, RefineSphere(tris))
+   ;
+
+Sphere
+   := {R^3} -> Z -> {R^3}
+   :  TD    -> n -> Triangulate(SphereIter(n, BaseCase))(TD)
+   ;
+
+levels := widget Slider(0, 5), field <- Z, init <- 2, drag <- False;
+
+gap := widget Slider(0, .5), drag <- False;
+tri := triangle([[1-gap, gap, 0], [gap, 1-gap, 0], [gap, gap, 0]], 2); 
+
+qDomain := [unitInterval >< {0} >< {0} union
+	    {0} >< unitInterval >< {0}];
+
+/* this reveals a bug in hidden surface removal (??) */
+widget Show(Sphere(tri)(levels));
+
+widget Show(Sphere(qDomain)(levels));
+
+
+
+/*
+ * this is an alternative weird version that uses quads and a cube
+ */
+/* it would be nice if the generator functions could somehow be
+   combined into one function... better notationally as well as
+   winning CSE */
+
+Generate11
+   := R^3^4 -> R^3^4
+   :  [a, b, c, d] -> [a, N(a + b), N(a + c), N(a + b + c + d)]
+   ;
+Generate12
+   := R^3^4 -> R^3^4
+   :  [a, b, c, d] -> [N(a + b), b, N(a + b + c + d), N(b + d)]
+   ;
+Generate21
+   := R^3^4 -> R^3^4
+   :  [a, b, c, d] -> [N(a + c), N(a + b + c + d), c, N(c + d)]
+   ;
+Generate22
+   := R^3^4 -> R^3^4
+   :  [a, b, c, d] -> [N(a + b + c + d), N(b + d), N(c + d), d]
+   ;
+
+RefineCube
+   := {R^3^4} -> {R^3^4}
+   :  quads   -> Generate11(quads) union
+                 Generate21(quads) union
+		 Generate12(quads) union
+		 Generate22(quads)
+   ;
+
+
+CubeBaseCase
+   := let c be sqrt(3)/3 in
+      {[[-c,  c,  c], [ c,  c,  c], [-c, -c,  c], [ c, -c,  c]],
+       [[ c,  c, -c], [ c,  c,  c], [-c,  c, -c], [-c,  c,  c]],
+       [[ c, -c,  c], [ c,  c,  c], [ c, -c, -c], [ c,  c, -c]],
+       [[ c, -c, -c], [-c, -c, -c], [ c,  c, -c], [-c,  c, -c]],
+       [[-c, -c,  c], [-c, -c, -c], [ c, -c,  c], [ c, -c, -c]],
+       [[-c,  c, -c], [-c, -c, -c], [-c,  c,  c], [-c, -c,  c]]}
+   ;
+
+/* use bilinear interpolation */
+Quadulate
+   := R^3^4        -> R^2    -> R^3
+   :  [a, b, c, d] -> [u, v] ->      v (u b + (1 - u) a)  + 
+                                (1 - v)(u d + (1 - u) c)  
+   ;
+
+CubeIter
+   := (n, quads) -> quads if n = 0 else 
+                    CubeIter(n - 1, RefineCube(quads))
+   ;
+
+Cube
+   := {R^2} -> Z -> {R^3}
+   :  QD    -> n -> Quadulate(CubeIter(n, CubeBaseCase))(QD)
+   ;
+
+
+widget Show(Cube(Patch((gap, 1-gap, 2), (gap, 1-gap, 2)))(levels));
+
+
+/* this avoids the recursive subdivision by using a mesh.
+   this is less fun, less accurate, but faster */
+
+
+widget Show(N(Triangulate(BaseCase)(triangle([[0, 0, 0],
+				  [1, 0, 0],
+				  [0, 1, 0]], 15))));
+
+

@@ -1,0 +1,61 @@
+/****************************************************************
+ *
+ * Copyright 1990, Brown University, Providence, RI
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ ****************************************************************/
+/*************************************************************
+
+   Copyright 1991, Brown University.  All rights reserved.
+
+   Create some of the triangles for the air-france cup
+ 
+ *************************************************************/
+
+/* requires:
+ 
+ hr  = half the radius
+ s   = length of side
+ hh  = half the height
+
+*/
+
+
+GenInTri1 := R -> {R^3}
+   : off -> triangle( [ [ 0, 0, hh ], 
+                        [ ss*cos(off), ss*sin(off), -hh ],
+                        [ r*cos(off+hwedge),  r*sin(off+hwedge), hh ]
+   		     ],
+   		     2 )
+   ;	
+
+GenInTri2 := R -> {R^3}
+   : off -> triangle( [ [ 0, 0, hh ], 
+                        [ ss*cos(off), ss*sin(off), -hh ],
+                        [ r*cos(off-hwedge),  r*sin(off-hwedge), hh ]
+   		     ],
+   		     2 )
+   ;	
+
+intri1 := UnionReduce( GenInTri1 SegDom );
+
+intri2 := UnionReduce( GenInTri2 SegDom );
+
+
+UpperTri := intri1 union intri2;
+
+
+

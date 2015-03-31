@@ -1,0 +1,93 @@
+/**********************************************************************
+ * Copyright 1990, Brown University, Providence, RI
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ **********************************************************************/
+/* $Id: ifs.fnorse,v 1.13 1993/06/01 19:23:30 rch Exp $ */
+
+require "std";
+
+/* a general purpose Iterated Function System function.
+   takes a set of functions, a seed set, and a number of
+   iterations, and returns the resulting fractal.
+*/
+IFS
+  := {? -> ?} -> {?} -> Z -> {?}
+  :  F -> I -> n -> I if n = 0 else F(IFS(F)(I)(n-1))
+  ;
+
+
+Map3 := type(R^3 -> R^3);
+
+fs :=
+   {Map3 : x -> (x + [ 1,  1,  1]) / 2,
+    Map3 : x -> (x + [ 1, -1, -1]) / 2,
+    Map3 : x -> (x + [-1, -1,  1]) / 2,
+    Map3 : x -> (x + [-1,  1, -1]) / 2}
+   ;
+
+Square := let I be Interval(-1, 1, 2) in 
+          [I >< I >< {0}];
+
+widget Show(IFS(fs)(Square)(4));
+widget Show(IFS(fs){[0,0,0]}(6));
+
+/***********/
+
+phi := widget Slider(0, pi), drag<-False;
+
+mat := [[cos phi, -sin phi],
+        [sin phi,  cos phi]]
+  ;
+
+
+Map2 := type(R^2 -> R^2);
+
+rotate := Map2 : x -> mat x;
+
+gs := {Map2 : x -> rotate((x + [ 1,  1]) / 2),
+       Map2 : x -> rotate((x + [ 1, -1]) / 2),
+       Map2 : x -> rotate((x + [-1,  1]) / 2)}
+   ;
+
+widget Show(IFS(gs){[0, 0]}(6));
+
+/***********/
+
+Map22 := type(R^2^2 -> R^2^2);
+
+rot := R^2 -> R^2 : [x, y] -> [-y, x];
+d := widget Slider(1/4, 1/2), init <- 1/3, drag<-False;
+
+hs := {Map22 : [u, v] -> [u,
+                          u + d(v - u)],
+       Map22 : [u, v] -> [u + d(v - u),
+                          u + sqrt(d - 1/4) rot(v - u) + (v - u)/2],
+       Map22 : [u, v] -> [u + sqrt(d - 1/4) rot(v - u) + (v - u)/2,
+                          u + (1-d)(v - u)],
+       Map22 : [u, v] -> [u + (1-d)(v - u),
+                          v]
+      }
+   ;
+
+Segment
+   := R -> R^2^2 -> R^2
+   :  t -> [u, v] -> (1-t)*u + t*v
+   ;
+
+levels := widget Slider(0, 6), field <- Z, drag<-False;
+Snowflake := IFS(hs){[[-1, 0], [1, 0]]}(levels);
+
+widget Show(Segment(Interval(0, 1, 2))(Snowflake));

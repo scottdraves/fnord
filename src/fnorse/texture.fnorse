@@ -1,0 +1,58 @@
+/**********************************************************************
+ * Copyright 1991, Brown University, Providence, RI
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ **********************************************************************/
+/* $Id: texture.fnorse,v 1.3 1993/06/01 19:23:45 rch Exp $ */
+
+
+/* this doesn't show up very well on mono systems, but in color it's ok */
+
+rez := 16;
+U := Patch((-pi, pi, rez * 2), (-pi, pi, rez * 2)) ;
+M := widget Bitmap(rez, rez);
+
+transpose
+  :=  (R^2, R^2) -> ((R, R), (R, R))
+  :   ([a, b], [c, d]) -> ((a, c), (b, d))
+  ;
+
+Bounds
+  := {R^2} -> ((R, R), (R, R))
+  :  U     -> transpose(reduce(U, (x, y) -> min(x,y),  [1e10, 1e10]),
+                        reduce(U, (x, y) -> max(x,y), -[1e10, 1e10]))
+  ;
+
+fix
+  := (R, R, R, Z) -> Z
+  :  (mn, mx, x, dims) -> (ToZ((x - mn) / (mx - mn) * dims) mod dims) + 1
+  ;
+
+Texturize
+  := (Z^?^?, {R^2}, (R^2 -> R^?)) -> R^2    -> R^?
+  :  (T,     U,     X           ) -> [u, v] -> X[u, v] :: (
+                let (colB, rowB) be Bounds(U) in
+		let (dum, cols, rows) be (type T) in
+		[T^fix(colB, v, cols)^fix(rowB, u, rows)])
+  ;
+
+
+X := R^2    -> R^3
+  :  [u, v] -> [u, v, 0]
+  ;
+
+
+
+widget Show(Texturize(M, U, X)(U)), color <- "4:blue->white";

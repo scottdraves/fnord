@@ -1,0 +1,122 @@
+/****************************************************************
+ *
+ * Copyright 1990, Brown University, Providence, RI
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ ****************************************************************/
+
+/**********************************************************************
+ * RCH 11/28/90
+ * 
+ * Evolute Surfaces for Catenoid and Helicoid
+ *
+ **********************************************************************/
+
+/* Slider for deformation constant   */
+
+c := widget Slider( 0, 5 ), drag<-False, name<-"which surface";
+d := ToZ(c);
+
+Surf
+   := R^2 -> R^3
+   : [u,v] -> [ cos(u)(1.5+cos(v)), sin(u)(1.5+cos(v)), sin(v) ]  if d = 0 else
+              [ -cos(u)cos(v), -sin(u)cos(v), sin(v) ]            if d = 1 else
+              [ u, v, (u*u - 2*v*v) ] 			          if d = 2 else
+              [ cosh(u)*cos(v), cosh(u)*sin(v), u ]	          if d = 3 else
+     	      [ sinh(u)*sin(v), -sinh(u)*cos(v), v ]             
+   ;
+
+/* domains*/
+SurfDom := Grid( (-pi, pi, 20), (-pi, pi, 20 ) )              if d = 0 else 
+           Grid( (-pi, pi, 20 ), (-pi/2, pi/2, 20 ) )         if d = 1 else
+           Grid( (-1, 1, 10 ), (-1, 1, 10 ) )                 if d = 2 else
+           Grid( (-pi/2, pi/2, 20 ), (-pi, pi, 20) )          if d = 3 else
+           Grid( (-pi/2, pi/2, 20 ), (-pi/2, pi/2, 20) )      
+	 ;
+EvolDom := Patch( (-pi, pi, 20), (-pi, pi, 20 ) )              if d = 0 else 
+           Patch( (-pi, pi, 20 ), (-pi/2, pi/2, 20 ) )         if d = 1 else
+           Patch( (-1, 1, 10 ), (-1, 1, 10 ) )                 if d = 2 else
+           Patch( (-pi/2, pi/2, 20 ), (-pi, pi, 20) )          if d = 3 else
+           Patch( (-pi/2, pi/2, 20 ), (-pi/2, pi/2, 20) )     
+	 ;
+
+/* Definition of the standard curves		*/
+
+N
+   	:= R^2 -> R^3
+   	: v -> (SurfaceNormal Surf)(v) 
+        ;
+
+/* 
+ * radius to move along normal for evolute surface 
+ * (see library/standard/std.fnorse for definitions )
+ */
+K       := R^2 -> R
+        : v -> (GaussianCurvature Surf)(v)
+        ;
+
+H       := R^2 -> R
+        : v -> Trace2(SecondFundamentalForm(Surf)(v)) / 2
+/*        : v -> 2*(MeanCurvature Surf)(v) */
+        ;
+
+EvolRad1
+        := R^2 -> R
+        : v -> -1*H(v) - sqrt( H(v)**2 - K(v) )
+        ;
+EvolRad2
+        := R^2 -> R
+        : v -> -1*H(v) + sqrt( H(v)**2 - K(v) )
+        ;
+   	
+/*
+ * evolute surface 
+ */
+EvolSurf1
+   	:= R^2 -> R^3
+   	:  v -> Surf(v) + EvolRad1(v)*N(v)
+        ;
+EvolSurf2
+   	:= R^2 -> R^3
+   	:  v -> Surf(v) + EvolRad2(v)*N(v)
+        ;
+
+Dom	:= Patch ( ( -pi/2 , pi/2 , 20) , ( -pi , pi , 20) );
+
+/* check boxes to turn evolutes on and off */
+e1 := widget CheckBox, name<-"Evolute 1", init<-False;
+e2 := widget CheckBox, name<-"Evolute 2", init<-False;
+E1Dom   := EvolDom
+     	   if e1 = True else [ {0} >< {0} ];
+E2Dom   := EvolDom
+	   if e2 = True else [ {0} >< {0} ];
+
+
+/* Now to show the curves in glorious color.
+	Catenoid in cyan,
+	Evolute curves in magenta	*/
+
+myView := widget type <-`view;
+
+widget type<-`vobject, set<-(Surf SurfDom), parent <- `myView,
+	color<-"cyan";
+
+widget type<-`vobject, set<-(EvolSurf1 E1Dom), parent <- `myView,
+   	color<-"magenta";
+
+widget type<-`vobject, set<-(EvolSurf2 E2Dom), parent <- `myView,
+   	color<-"magenta";
+

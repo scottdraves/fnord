@@ -1,0 +1,193 @@
+/**********************************************************************
+ *
+ * This subdirectory contains all the fnorse demo that were
+ * used to teach:
+ *
+ *    Third Semester Honors Calculus
+ *
+ * These are only the fnorse demos, none of the handouts, etc from the 
+ * course are included. 
+ *
+ **********************************************************************/
+
+/*
+ * INDEX
+ */
+
+************
+* 4d
+************
+
+Represents f(x,y,z) as a cube of points with the value of f(x,y,z) at
+each point mapped to color. Allows removal of points outside of a
+selected range of values. Also supports slices of the cube.
+
+************
+* levels4
+************
+
+USES: levels4.alg4d, levels4.funct4
+Computes levels surfaces for f(x,y,z) = const. Computation is
+slow, but can handle the resulting surface at normal speeds. 
+
+************
+* chain
+************
+
+The chain rule for taking the derivative of 
+	f(t) = f(x(t),y(t))
+with respect to t.
+
+************
+cheb
+************
+
+The Chebychev polynomials of order (n) = slider
+
+************
+cubic
+************
+
+z = f(x,y) with two constants (a,b; connected to sliders) over 
+a rectangular domain.
+
+************
+direction
+************
+
+Direction derivative of z=f(x,y) at Xo,Yo in the direction ang.
+(Control panel well coded in fnorse)
+
+************
+partial
+************
+
+Color z=f(x,y) based on the sign of fx * fy. 
+Points where 2 white and 2 red patches meet are criticle points (in general)
+
+************
+partial2
+************
+
+Color z=f(x,y) based on  -delta < abs(fx)+abs(fy) < delta
+Gives white dots around most criticle points for appropriate 
+deltas. Provides one constant c = slider.
+
+************
+polar
+************
+
+z = f(r,theta) with two constants a,b = sliders
+
+************
+* solid1, etc
+************
+
+These are used to visualize the dx & dy slices through a solid when
+some integration dxdy or dydx is being done. The sliders allow you to
+move the x and y slices through the solid, so you can observe how
+their shapes change as their positions change.
+
+************
+surface
+************
+
+Basic z=f(x,y) display.
+Function & domain editable
+Toggles: Axes, Z-plane, solid surface
+
+************
+surface2
+************
+
+z=f(x,y) with two constants, a &b = sliders. 
+Function & domain editable
+Toggles: Axes, Z-plane, solid surface
+
+************
+airfrance
+************
+
+USES: af.conecurves, af.intris, af.outris, af.tetra
+Demonstrates the decomposition of the airfrance cup 
+(aka the convex hull of a circle and a polygon in parallel
+planes) into simple geometric solids.
+
+************
+def.funct2
+************
+
+include this to get a general control panel for f(x,y) 
+and all its nice ammenities.
+
+************
+test.funct2
+************
+
+Shows how to use def.funct2 include file. 
+
+
+************
+dxdy
+************
+
+demo to show the domain for integrals of the form 
+            b_     _d(y)
+            /     /
+            |     |  f(x,y)  dx dy
+           _/    _/
+            a     c(y)
+
+
+************
+dxdy	
+************
+demo to show the domain for integrals of the form 
+            b_     _d(x)
+            /     /
+            |     |  f(x,y)  dy dx
+           _/    _/
+            a     c(x)
+
+
+************
+dxdydz 	
+************
+demo to show the domain (3D) for integrals of the form 
+            b_     _d(z) _n(y,z)
+            /     /     /
+            |     |     | f(x,y,z)  dx dy dz
+           _/    _/    _/
+            a     c(z)  m(y,z)
+
+
+************
+change.uv
+************
+change of variable demo. 
+Define a domain (for dudv integral) then map it through
+x = x(u,v), y = y(u,v)
+u & v colorings are available. 
+
+************
+change.vu
+************
+change of variable demo. 
+Define a domain (for dvdu integral) then map it through
+x = x(u,v), y = y(u,v)
+u & v colorings are available. 
+
+************
+taylor
+************
+demo of 0<=n<=4 taylor series approximations of 
+f(x,y) -> R 
+Slider for n (order of taylor polynomial)
+Typeins for (Xo,Yo) and standard inputs for a 2D function
+Displays R(x,y) - the remainder (diff T(x,y)-f(x,y) )
+
+Warning: breaks if you use a power operator less than n. 
+	type out x*x*x instead of x**3, where 
+	x/y**k, k <= n. If k > n, you're ok. That is a fnord
+	bug. 
+	

@@ -1,0 +1,97 @@
+/****************************************************************
+ *
+ * Copyright 1990, Brown University, Providence, RI
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ ****************************************************************/
+
+/**********************************************************************
+ * bmj 20 Nov 90
+ * (Bill Jesdale)
+ *
+ * Parallel surface of Intermediate, with curves of irregularity
+ *
+ **********************************************************************/
+
+/* Sliders for radius of parallel surface
+   and for deformation constant   */
+
+r := widget Slider ( -3 , 3), init <- 0, name <-"Radius of parallel curve";
+
+Deform := widget Slider ( 0 , pi/2 ), init <- 0, name<-"Deformation factor";
+
+/* Definition of the standard curves		*/
+
+Cat
+	:= R^2 -> R^3
+	:  [u,v] -> [ cosh(u)*cos(v) , cosh(u)*sin(v) , u ];
+
+Hel
+   	:= R^2 -> R^3
+   	:  [u,v] -> [ sinh(u)*sin(v) , -sinh(u)*cos(v) , v ];
+
+Inm
+   	:= R^2 -> R^3
+   	:  [u,v] -> cos(Deform)*Cat[u,v] + sin(Deform)*Hel[u,v];
+
+N
+   	:= R^2 -> R^3
+   	: v -> (SurfaceNormal Inm)(v) 
+        ;
+
+ParaSurf
+   	:= R^2 -> R^3
+   	:  [u,v] -> Inm[u,v] + r*N[u,v];
+
+
+/* magic formual for the U value that produces 
+ * the singular curve for the catenoid-helicoid
+ * This is actually u = +- sqrt( arccosh(|r|) )
+ */
+UVal := ln (sqrt(sqrt(r*r)) + sqrt(sqrt(r*r)-1));
+
+IrrCurve1
+   	:= R -> R^3
+   	:  t -> ParaSurf [UVal,t];
+IrrCurve2
+   	:= R -> R^3
+   	:  t -> ParaSurf [-UVal,t];
+
+
+CurveDom := Interval (-pi , pi , 20);
+
+Dom	:= Patch ( ( -pi/2 , pi/2 , 20) , ( -pi , pi , 20) );
+PDom    := Grid ( ( -pi/2 , pi/2 , 20) , ( -pi , pi , 20) );
+
+
+/* Now to show the curves in glorious color.
+	Catenoid in cyan,
+	Parallel surface in yellow,
+	Irregularity curves in magenta	*/
+
+myView := widget type <-`view;
+
+widget type<-`vobject, set<-(Inm Dom), parent <- `myView,
+	color<-"cyan";
+
+widget type<-`vobject, set<-(ParaSurf PDom), parent <- `myView,
+   	color<-"yellow";
+
+widget type<-`vobject, set<-(IrrCurve1 CurveDom), parent <- `myView,
+   	color<-"magenta";
+
+widget type<-`vobject, set<-(IrrCurve2 CurveDom), parent <- `myView,
+   	color<-"magenta";

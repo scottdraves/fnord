@@ -1,0 +1,120 @@
+/****************************************************************
+ *
+ * Copyright 1990, Brown University, Providence, RI
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ ****************************************************************/
+
+/**********************************************************************
+ * RCH 10/30/90
+ * Modified by Doug Dunham 11-18-90
+ *
+ * Demonstrate normal plane at point 7 theta cutting surface
+ * to produce a curve - normal curvature.
+ *
+ **********************************************************************/
+
+sk := widget Slider( 0, 1), drag<-False, init<-0, name<-"Which curve";
+k := ToZ( sk );
+
+/* domains*/
+SurfDom := Grid( (0, 2pi, 40), (0, 15, 75) )
+	 ;
+
+x := widget Slider( -pi, pi), drag<-False, init<-0,
+  name<-"u value of anchor point";
+y := widget Slider( -pi, pi ), drag<-False, init<-0, 
+  name<-"v value of anchor point";
+ang1 := widget Slider( -pi, pi ), init<-0, drag<-False,
+     name<-"line angle";
+size := widget Slider(0, 2*pi), init<-1, drag<-False,  
+     name<-"size";
+
+Curve 
+   := R -> R^2
+   : t -> [x,y] + size*t*[cos(ang1),sin(ang1)] * (1-sk) +    
+          ([size/2,0] + size/2*[cos(t),sin(t)]) * sk
+   ;
+
+CurveDom := Interval( 0, pi, 50 );
+
+/* define parts for red cross hair in domain */
+
+UnitI := Interval( -.5, .5, 2 );
+
+Hcross := R->R^2: t -> [x+t,y];
+Vcross := R->R^2: t -> [x,y+t];
+
+/*****
+ * create domain window 
+ *****/
+myUV := widget type<-`view, name<-"curve in U-V plane";
+
+widget type<-`vobject, set<-( SurfDom ), parent<-`myUV,
+   color<-"blue";
+widget type<-`vobject, set<-( Hcross UnitI ), parent<-`myUV,
+   color<-"green";
+widget type<-`vobject, set<-( Vcross UnitI ), parent<-`myUV,
+   color<-"green";
+widget type<-`vobject, set<-( Curve CurveDom ), parent<-`myUV,
+   color<-"red";
+
+/******
+ * find Gij's, in terms of t on curve!
+ ******/
+Cur := R-> R^2: t -> Curve(t);     /* short hand */
+
+sPrime := R->R : t -> sqrt( g11(Cur t)*u1'(t)**2 + 
+                            g22(Cur t)*u2'(t)**2 );
+
+X1 := R^2->R^3: v -> Surf'(v)^1;
+X2 := R^2->R^3: v -> Surf'(v)^2;
+
+g11 := R^2->R: v -> 1 if v^2 <= 0 else 1/(v^2)**2 ;
+g12 := R^2->R: v -> 0;
+g22 := R^2->R: v -> 1 if v^2 <= 0 else 1/(v^2)**2;
+
+g := R^2->R: v -> g11(v)*g22(v) - g12(v)*g12(v);
+
+u1 := R -> R: t -> Curve(t)^1;
+u2 := R -> R: t -> Curve(t)^2;
+
+/* define geodesic curvature */
+kg 
+   := R -> R
+   : t -> sqrt( g(Cur t) ) *  (
+             - 1/(2*g11(Cur t)) * g11'(Cur t)^1 * u1'(t)**2 * u2'(t)
+             - 1/g11(Cur t) * g11'(Cur t)^2 * u1'(t) * u2'(t)**2
+             + 1/(2*g11(Cur t)) * g22'(Cur t)^1 * u2'(t)**3
+   	     - u2'(t) * u1''(t)
+             - 1/(2*g22(Cur t)) * g11'(Cur t)^2 * u1'(t)**3
+   	     + 1/g22(Cur t) * g22'(Cur t)^1 * u1'(t)**2 * u2'(t)
+   	     + 1/(2*g22(Cur t)) * g22'(Cur t)^2 * u1'(t) * u2'(t)**2
+   	     + u1'(t) * u2''(t) 
+   	  ) / sPrime(t)**3
+   ;
+
+KGvsS := R -> R^2: t -> [size*t, kg(t) ];
+
+kgView := widget type<-`view, name<-"Curvature vs arclenth";
+
+widget type<-`vobject, set<-( Axes ), 
+   color<-"green", parent<-`kgView;
+
+widget type<- `vobject, set<-( KGvsS CurveDom ), 
+   color<-"red", parent<-`kgView;
+ 
+

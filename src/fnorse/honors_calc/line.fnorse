@@ -1,0 +1,222 @@
+/****************************************************************
+ *
+ * Copyright 1990, Brown University, Providence, RI
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ ****************************************************************/
+/**********************************************************************
+
+   Demo for line integral.
+
+             _               b_
+            /                /
+            |   p*dx+q*dy =  | (p(t)(dx/dt) + q(t)(dy/dt))dt
+           _/               _/
+                            a
+
+   Allows p(x,y), q(x,y), x(t),y(t) to be entered. 
+   Also will show the vector field (p,q) over a patch. 
+
+ **********************************************************************/
+
+/***********************************************************************
+ * Some handy positioning constants 
+ */
+nunits := 10;
+half := 5;
+third := 3;
+twothirds := 6;
+quarter := 2;
+twoquarter := 5;
+threequarter := 7;
+
+/***********************************************************************
+ * Define Function/Domain definition inputs
+ */
+inpt :=
+   widget type<-`window, name<-"line integral",
+   width<-500,height<-600, numUnits<-nunits;
+
+
+a := widget Slider(-1,1), field<-R, name<-"a := R:", init<-0, 
+	parent<-`inpt, 
+        top<-0, left<-0, bottom<-1, right<-half;
+b := widget Slider(-1,1), field<-R, name<-"b := R:", init<-0, 
+	parent<-`inpt, 
+        top<-0, left<-half, bottom<-1, right<-nunits;
+
+x := widget TypeIn, field<-Maps, name<-"x(t) := R->R :", 
+        parent<-`inpt, init<-"t -> (1+a)*cos(t)",
+        top<-1, left<-0, bottom<-2, right<-nunits;
+y := widget TypeIn, field<-Maps, name<-"y(t) := R->R :", 
+        parent<-`inpt, init<-"t -> (1+a)*sin(t)",
+        top<-2, left<-0, bottom<-3, right<-nunits;
+
+tmin := widget TypeIn, field<-R, name<-"t min", init<-"0",
+	parent<-`inpt, 
+        top<-3, left<-0, bottom<-4, right<-third;
+tmax := widget TypeIn, field<-R, name<-"t max", init<-"2pi",
+	parent<-`inpt, 
+        top<-3, left<-third, bottom<-4, right<-twothirds;
+tres := widget Slider(2,60), field<-Z, name<-"t res", init<-20,
+	parent<-`inpt, 
+        top<-3, left<-twothirds, bottom<-4, right<-nunits;
+Tinfo := ( tmin, tmax, tres );
+
+p := widget TypeIn, field<-type(R^2->R), name<-"p(x,y) := R^2->R:",
+	parent<-`inpt, init<-"[x,y]-> -y", 
+        top<-4, left<-0, bottom<-5, right<-nunits;
+q := widget TypeIn, field<-type(R^2->R), name<-"q(x,y) := R^2->R:",
+	parent<-`inpt, init<-"[x,y]->0", 
+        top<-5, left<-0, bottom<-6, right<-nunits;
+
+doaxes := widget CheckBox, init<-True, parent<-`inpt, name<-"Axes",
+        top<-6, left<-0, bottom<-7, right<-third;
+doint := widget CheckBox, init<-True, parent<-`inpt, name<-"Integral",
+        top<-6, left<-twothirds, bottom<-7, right<-nunits;
+docurve := 
+	widget CheckBox, init<-True, parent<-`inpt, name<-"Curve",
+        top<-6, left<-third, bottom<-7, right<-twothirds;
+
+scale := widget Slider(0,1), field<-R, name<-"Vector Scale", 
+        parent<-`inpt, init<-0.1,
+        top<-7, left<-0, bottom<-8, right<-twothirds;
+dofield := widget CheckBox, init<-True, parent<-`inpt, name<-"Field",
+        top<-7, left<-twothirds, bottom<-8, right<-nunits;
+
+xmin := widget TypeIn, field<-R, name<-"X min", init<-"-1", 
+        parent<-`inpt, top<-8, bottom<-9, left<-0, right<-third;
+xmax := widget TypeIn, field<-R, name<-"X max", init<-"1", 
+        parent<-`inpt, top<-8, bottom<-9, left<-third, right<-twothirds;
+xres := widget Slider(0,50), field<-Z, name<-"X res", init<-8, 
+        parent<-`inpt, drag<-False,
+        top<-8, bottom<-9, left<-twothirds, right<-nunits;
+Xinfo := ( xmin, xmax, xres );
+
+ymin := widget TypeIn, field<-R, name<-"Y min", init<-"-1", 
+        parent<-`inpt, top<-9, bottom<-10, left<-0, right<-third;
+ymax := widget TypeIn, field<-R, name<-"Y max", init<-"1", 
+        parent<-`inpt, top<-9, bottom<-10, left<-third, right<-twothirds;
+yres := widget Slider(0,50), field<-Z, name<-"Y res", init<-8, 
+        parent<-`inpt, drag<-False,
+        top<-9, bottom<-10, left<-twothirds, right<-nunits;
+Yinfo := ( ymin, ymax, yres );
+
+
+/**********************************************************************
+ * define the domain 
+ */
+
+Tdom := Interval(Tinfo);
+Tsdom := sample(Tdom);
+XYdom := [sample(Interval(Yinfo)) >< sample(Interval(Xinfo))];
+Hdom := [Tsdom >< Interval(0,1,2)];
+
+VecLen := Interval( 0,1,2 );
+FieldDom := [ sample( Interval(Xinfo)) >< sample( Interval(Yinfo) ) 
+	      >< VecLen ];
+
+/**********************************************************************
+ * construct some functions
+ */
+
+/* the curve */
+cur2 := R -> R^2
+   : t -> [ x(t), y(t) ]
+   ;
+
+/* p & q of t */
+pt := R -> R: t -> p( cur2(t) );
+qt := R -> R: t -> q( cur2(t) );
+
+/* compute the total value of the integrand */
+int := R -> R
+    : t ->  pt(t)*x'(t) + qt(t)*y'(t)
+    ;
+
+int2d := R -> R^2
+      : t -> [ t, int(t) ];
+
+int3d := R -> R^3
+      : t -> [ x(t), y(t), int(t) ]
+      ;
+
+int2Vert := R^2 -> R^2
+	: [t,v] -> [t, v*int(t) ]
+	;
+
+flat := R -> R^2: t -> [t,0];
+
+int3Vert := R^2 -> R^3
+	: [t,v] -> [x(t), y(t), v*int(t) ]
+	;
+
+/* field functions */
+Field1 := R^3->R^3
+  : [x,y,t] -> ([x,y,0]) + scale*t*([p([x,y]),q([x,y]),0])/2
+  ; 
+Field2 := R^3->R^3
+  : [x,y,t] -> ([x,y,0]) + scale*(.5+t/2)*([p([x,y]),q([x,y]),0])
+  ; 
+
+
+/**********************************************************************
+ * Create the output window and add some of our niceties
+ **********************************************************************/
+
+IView := widget type<-`view, name<-"the line integral";
+
+/* add axes option */
+widget type<-`vobject, parent<-`IView, color<-"green",
+   set<-( Axes if doaxes = True else  {} );
+
+widget type<-`vobject, parent<-`IView, color<-"white",
+   set<-( Labels if doaxes = True else {});
+
+widget  type<-`vobject, parent<-`IView, color<-"blue",
+   set<-( cur2( Tdom ) if docurve = True else {} );
+
+widget  type<-`vobject, parent<-`IView, color<-"green",
+   set<-( int3d( Tdom ) if doint = True else {} );
+
+widget  type<-`vobject, parent<-`IView, color<-"yellow",
+   set<-( int3Vert( Hdom ) if doint = True else {});
+
+widget type<-`vobject, parent<-`IView,  color<-"NavyBlue",
+	set<-( Field1( FieldDom ) if dofield = True else {} );
+widget type<-`vobject, parent<-`IView, color<-"red",
+	set<-( Field2( FieldDom ) if dofield = True else {} ); 
+
+/**********************************************************************
+ * The flattened integral graph
+ **********************************************************************/
+
+TView := widget type<-`view, name<-"integrand vs t";
+
+widget type<-`vobject, parent<-`TView, color<-"green",
+   set<-( Axes );
+
+widget type<-`vobject, parent<-`TView, color<-"white",
+   set<-( Labels );
+
+widget type<-`vobject, parent<-`TView, color<-"blue",
+   set<-( flat( Tdom ) );
+widget type<-`vobject, parent<-`TView, color<-"green",
+   set<-( int2d( Tdom ) );
+
+widget  type<-`vobject, parent<-`TView, color<-"yellow",
+   set<-( int2Vert( Hdom ) );
+

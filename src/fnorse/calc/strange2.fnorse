@@ -1,0 +1,71 @@
+/****************************************************************
+ *
+ * Copyright 1990, Brown University, Providence, RI
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ ****************************************************************/
+
+/**********************************************************************
+ *
+ * one of Tom's degenerate functions
+ **********************************************************************/
+
+Cap := R^3-> R^3
+ : v -> [0,0,0] if( v^3 > 1000) or (v^3 < -1000) else  v
+ ;	
+
+f := R^2 -> R^3
+  : [u,v] -> Cap([u,v, u*u*v/(u**4+v*v) ])
+  ;
+
+dom := Grid( (-1,1,40), (-1,1,40) );
+
+
+ang := widget Slider(-pi, pi);
+
+line := R-> R^2
+  : t -> t*[cos ang, sin ang]
+  ;
+
+parab := R->R^2
+  : t -> [t, t^2]
+  ;
+
+ldom := Interval( -1, 1, 40 );
+
+T := widget CheckBox;
+
+draw := widget type<-`view;
+
+widget type<-`vobject, parent<-`draw,
+	set<-( f dom ), color<-"blue";
+
+widget type<-`vobject, parent<-`draw,
+	set<-( f (line ldom)), color<-"red";
+
+widget type<-`vobject, parent<-`draw,
+	set<-( (line interval(-1,1,2))><interval(-1,1,2)), color<-"red";
+
+pline := f(parab ldom) if T = True else {[0,0,0]};
+
+widget type<-`vobject, parent<-`draw,
+	set<-( pline ), color<-"black";
+
+pobj := (parab interval(-1,1,8))><interval(-1,1,2) if T = True else { [0,0,0]};
+
+widget type<-`vobject, parent<-`draw,
+	set<-( pobj ),  color<-"green";
+

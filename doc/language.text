@@ -1,0 +1,125 @@
+$Id: language.text,v 1.3 1992/06/22 15:53:15 mas Exp $
+
+Copyright 1990, 1991, 1992, Brown University, Providence, RI
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
+-----------------------------------------------------------------
+
+The language mirrors common mathematical notation as much as possible.
+It is also closely related to LISP, but has no side effects (it is
+"pure functional").
+
+o   The base fields, out of which all types are constructed are
+
+           Boolean     Z2
+           Integer     Z
+           Real        R
+           Complex     C
+
+    The type operations, from which types are created are
+
+           Pair        a, b
+           Map         a -> b
+           Set of      {a}
+           Vector      a^3
+
+o   Parentheses are used only to indicate association.  They do not
+    indicate function calls.
+
+o   Functions are invoked by juxtaposition.  "f x" is "the function f
+    applied to x".  "f(x)" also means this, and this is the
+    usual syntax.  If the left object is not a function, then it
+    is multiplied instead; "2 x" means "2*x".
+
+o   Symbols are defined with := (like define), functions created with
+    -> (like lambda).  Definitions are terminated with ';' .
+    Thus f := x -> x + 1; binds f to a function which adds one and
+    f(2) evaluates to 3.
+
+o   Comma ',' is an op like any other.  It is the equivalent to LISP's
+    "cons".  left(a, b) is a and right(a, b) is b.
+
+o   Vectors and matrices are created with square brackets. [1, 2, 3]
+    is a vector of three integers; [[1, 2],[3, 4]] is a two by two
+    matrix.  Sets can be created with curly braces.  {1, 2, 3} is a
+    set containing three integers.  Ordered tuples (*not* the same as
+    vectors) are represented with comma lists; (1, 2, 3) is an ordered
+    triple.
+
+o   Entries are extracted from vectors with ^, so [a, b]^1 is a.  The
+    same goes for matrices, so if a := [[1, 2], [3, 4]], then a^1 is
+    [1, 2] and a^2^1 is 3.  ^ also works for exponentiation if both
+    args are scalar.
+
+o   Math functions include:
+
+          +    addition of scalars, vectors, matrices
+          -    subtraction of ditto
+          *    scalar-anything, matrix-vector, matrix-matrix.
+          /    division by scalars
+          **   exponent, works with complexes
+          .    dot product of vectors
+          ><   cross product of vectors, cartesian set product
+
+          >, < = , etc.  compare scalars, are Z2 valued.
+
+          not, and, or take and return Z2 values.
+
+          sin, cos, tan, log, square, sqrt, and exp.  These all work
+          with complex numbers as well as reals.
+
+          10 mod 3                 is 1
+          binomial(5, 3)           is 10
+          polynomial(2, [1, 2, 3]) is 17
+          1 if 2 > 3 else 4        is 4
+          1..3                     is (1, 2, 3)
+
+          ' (prime) takes the derivative of functions.  Thus f'.
+          Non-scalar domain and codomain are handled, sometimes
+          resulting in a Jacobian.  Differentiating a function
+          requires that it have a type, as assigned with colon, see
+          below. 
+
+          interval(0, 1, 10) creates a set with all the real numbers
+          from 0 to 1 inclusive in it.  10 "samples" are made in the
+          set.   For example, I := interval(0, 1, 10); U := [I >< I];
+          U is now a patch in R^2.  The []s are required to convert
+          from ordered pairs (which >< creates) to vectors.
+
+          A union B works as expected.
+
+          sample(A) reduces a set to its point samples.
+          sample(interval(0, 1, 3)) is {0, 0.5, 1.0}.
+
+o   Colon ':' is the type cast operator.  It's left operand is a type
+    expression.  The right operand is evaluated and cast to this type.
+    For example, (R:1) is a real number, and ((R -> R) : (t -> t)) is
+    the identity funtion for the real line.
+
+o   widget Show(A);  put A in a window.
+
+
+o   t := widget Slider(0, 1);
+    means that is attached to a slider that takes values from 0 to 1.
+    As the slider is moved, the object is recomputed and displayed.
+    You can delay the recompute/display until the slider is released
+    by appending drag<-0 to the declaration, eg
+    t := widget Slider(0, 1), drag<-0;
+    This is useful if the object affected by the slider takes a long
+    time to compute.
+    
+o   Note that both Slider and Show are declared in std.fnorse.  The
+    lower-level machanisms give more flexibility, if needed.

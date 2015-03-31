@@ -1,0 +1,47 @@
+/**********************************************************************
+ * Copyright 1990, Brown University, Providence, RI
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ **********************************************************************/
+/* $Id: triangles.fnorse,v 1.7 1993/06/01 19:23:48 rch Exp $ */
+
+a := widget TypeIn, field <- Z, init <- 2, name <- "divs on length";
+b := widget TypeIn, field <- Z, init <- 2, name <- "divs on tri";
+
+I := interval(-1, 1, a);
+T := triangle([[0,0],[.866,.5],[0,1]], b);
+
+prism := T >< I;
+
+tri := [[0, .001], [-.999, .999], [.999, .999]];
+
+sphd := triangle( tri, 10 );
+
+round := R^2 -> R^2 
+      :  [a, b] -> [0.0, 0.0] if b = 0 else 
+                  [ a b, b b ] / sqrt([a, b] . [a, b]);
+
+squeeze := R^? -> R^?
+        :  x -> (1 + twiddle - twiddle sqrt(x.x)) x;
+
+sphere := R^2 -> R^3
+       :  [x, y] -> [x, y, sqrt(1 - x**2 - y**2)];
+
+triwin := widget type<-`window, width<-250, height<-80, numUnits<-1;
+twiddle := widget type<-`slider, init<-.8, parent<-`triwin;
+widget type<-`vobject, set<-sphd, parent<-`triwin;
+widget type<-`vobject, set<-prism, parent<-`triwin;
+widget type<-`vobject, set<-sphere(squeeze(round((sphd)))), parent<-`triwin;
+

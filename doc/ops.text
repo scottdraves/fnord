@@ -1,0 +1,158 @@
+<<<<<<< ops.text
+$Id: ops.text,v 1.4 91/02/13 16:59:17 wsd Exp $
+===============================================
+Copyright 1990, 1991, 1992, Brown University, Providence, RI
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
+===============================================
+
+The following is a list of all the operations that the parser
+understands, and what they do.  They appear in order of precedence
+from lowest to highest.
+
+;	The semicolon marks the end of a statement in fnorse.
+Statements are either commands, or definitions.  The semicolon must be
+present for a command or defintion to be syntactically legal. 
+
+:=	The := operator defines the symbol to its left
+to be bound to the contents of the rest of the statement.  Following
+the semicolon can be a mathematical expression in which any of
+the following operators are used, optionally prefixed by the symbol
+"widget".  If a simple mathematical expression follows, the symbol is
+permanently bound to it.  If "widget" appears, the symbol is bound to
+the value of a new interactive object defined by the expression.
+
+,	The comma argument conjoins its operands into a pair.  like
+	cons from lisp.
+
+<-	The backwards arrow is used in building argument lists, by
+which fnorse functions can receive optional parameters.  It takes the
+symbol on its left and the expression on its right and generates the
+pair of the quoted symbol and the mathematical expression.  In other
+words,
+	a <- c + d
+is equivalent to 
+	`a, c + d.
+
+:	The colon operator is used to cast objects into a specific
+type.  The colon operator alters the representation of the expression
+on the right so that it is of the same type as the _elements_ of the
+set on the left.
+
+->	Mapping operator. Creates functions (lambda).
+
+if / if else  Conditional (a if b else c)
+..	enumerate, 1..3 = (1, 2, 3)
+union	takes union of set on the left and the set on the right.
+or	
+and
+= === != > < >= <= Relational operators.  May be chained together,
+as in
+	a = b = c,
+but this chaining is not the most tested of features.
+
++ -	These addition and subtraction operations work equally on
+simple numbers, vectors and lists.  They do not work for functions,
+however (so sin + cos is illegal).
+
+mod >< . / * ::
+	10 mod 3 = 1
+	>< is vector cross product or cartesian set product
+	. is vector dot product (works for complexes)
+	/ denominator must be a scalar, 4/2 = 2.0
+	* any*scalar, scalar*any, matrix*matrix, matrix*vector
+	:: is concatenate, ([1, 2] :: [3, 4]) = [1, 2, 3, 4]
+
+(unary) + - not
+
+f x	apply
+
+**	power (2**3 = 8)
+
+_ ^	oextract a component from a vector, ^ is also power
+
+' !	' is derivative, ! is factorial
+
+`	quote symbols
+
+() {} []
+
+============================================================
+These are the built-in functions
+
+ONE-ARG
+=======
+sin		as you would expect.  works on complexes.
+cos		ditto
+tan		ditto
+exp		ditto
+log		ditto
+sinh		as you would expect.  does not work on complexes
+cosh		ditto
+tanh		ditto
+arcsin		ditto
+arccos		ditto
+arctan		ditto
+arcsinh		ditto
+arccosh		ditto
+arctanh		ditto
+sqrt		sqrt(9) = 3.0, sqrt(-1) = error, sqrt(C : -1) = i
+square		square(3) = 9 square(3.0) = 9.0
+sample		a continuous set is reduced to is sample points
+left		left(a, b) = a
+right		right(a, b) = b
+identity	identity(a) = a
+spew		like identity put dumps to stdout
+bitnot		bitnot(5) = -6
+fragment	fragment[a, b] = (a, b)
+cxfrag		cxfrag(a + bi) = (a, b)
+type		creates type expressions
+quote		only works on symbols
+triangle	takes 3-vector, makes a tri with those vertices
+		eg triangle([[0,0],[.866,.5],[0,1]])
+realtoint	just like a C cast
+
+TWO-ARGS
+========
+polynomial	horner's rule: P(2, [3, 2, 1]) = 17 and
+    ___
+    \         i  j
+    /    A   x  y    = P(y,P(x,A)) where A is a matrix
+    ---   ij
+    i,j
+
+complex		complex(a, b) = a + bi
+binomial	binomial(5, 3) = 10
+bitand		bitand(6, 3) = 2
+bitor		bitor(6, 3) = 7
+bitxor		bitxor(6, 3) = 5
+assoc		looks up a symbol in an alist
+typematch	true if types of objects are the same
+typematchx	ditto, but no casting allowed
+interval	returns an interval in the real line
+
+
+
+
+
+
+
+
+
+
+
+
+

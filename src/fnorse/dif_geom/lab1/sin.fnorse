@@ -1,0 +1,46 @@
+/****************************************************************
+ *
+ * Copyright 1990, Brown University, Providence, RI
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ ****************************************************************/
+
+ := R -> R^3 :
+     t -> [t, 3 * sin(t),  3 * cos t]
+  ;
+
+PropertyOnCurve
+   := (R->R^3, (R->R^3) -> (R->R^3)) -> (R^2->R^3)
+   :  (f, p) -> ([t, d] -> f(t) + d p(f)(t))
+   ;
+
+mint := sample(Interval(0, 2pi, 60));
+cint := Interval(0, 2pi, 9);
+dom := [ sample(cint) >< Interval(0, 1, 2) ];
+
+widget Show ( f(mint) union PropertyOnCurve(f, FrenetNormal)(dom)
+		      union PropertyOnCurve(f, FrenetTangent)(dom)
+		      union PropertyOnCurve(f, FrenetBinormal)(dom) );
+
+
+g := R -> R^3:
+     t -> [t, 3 sin(t), 0]
+  ;
+
+widget Show ( g(mint) union PropertyOnCurve(g, FrenetNormal)(dom)
+		      union PropertyOnCurve(g, FrenetTangent)(dom)
+		      union PropertyOnCurve(g, FrenetBinormal)(dom) );
+

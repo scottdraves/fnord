@@ -1,0 +1,43 @@
+/****************************************************************
+ *
+ * Copyright 1990, Brown University, Providence, RI
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ ****************************************************************/
+
+ := widget Slider(0, 2), init<-1, drag<-0;
+
+r := R -> R:
+     t -> 4*(sl1 + cos(t));	
+
+f := R -> R^3 :
+     t -> [cos(t)*r(t), sin(t)*r(t),sin(t)]
+  ;
+
+PropertyOnCurve
+   := (R->R^3, (R->R^3) -> (R->R^3)) -> (R^2->R^3)
+   :  (f, p) -> ([t, d] -> f(t) + d p(f)(t))
+   ;
+
+mint := sample(Interval(0, 2pi, 100));
+cint := Interval(0, 2pi, 20);
+dom := [ sample(cint) >< Interval(0, .5, 2) ];
+
+widget Show ( f(mint) union 
+	      Axes    union PropertyOnCurve(f, FrenetNormal)(dom)
+		      union PropertyOnCurve(f, FrenetTangent)(dom)
+		      union PropertyOnCurve(f, FrenetBinormal)(dom) );
+

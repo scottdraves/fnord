@@ -1,0 +1,78 @@
+/**********************************************************************
+ * Copyright 1991, Brown University, Providence, RI
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ **********************************************************************/
+/* $Id: diffeq.fnorse,v 1.4 1993/06/01 19:23:23 rch Exp $ */
+
+A := [[.1,  1, -.2],
+      [-.9, -.1, 0],
+      [0,  .1,  1.1]]
+  ;
+
+myfun := R^3 -> R^3 : x -> A x ;
+
+h := widget Slider(0, .2), init <- .05;
+
+EulerStep 
+   := (R^? -> R^?) -> R^? -> R^?
+   :   F           -> x   -> x + h F(x)
+   ;
+
+RungeKuttaStep
+   := (R^? -> R^?) -> R^? -> R^?
+   :  F            -> x   -> x + h F(x + h F(x + h F(x + h F(x) / 2))) / 6
+   ;
+
+I := Interval(-1, 1, 5);
+U := [sample(I >< I >< I)];
+ini := ({}, U);
+
+Segment
+   := (R^?, R^?) -> R -> R^?
+   :  (x, y )    -> t -> (1-t)x + t y
+   ;
+
+PairStep
+   := R^? -> (R^?, R^?)
+   :  x   -> (x, EulerStep(myfun)(x))
+   ;
+
+Right := (?, ?) ->? : (x, y) -> y;
+
+J := Interval(0, .5, 2);
+
+nextstate
+   := (trails, pairs) -> (trails union Segment(pairs)(J), Right pairs)
+   ;
+
+Q := widget Evolve(ini, (trails, pts) -> nextstate(trails, PairStep(pts)));
+
+headRad := widget Slider(0, .2), init <- .05;
+Heads
+   := R^3 -> R^2 -> R^3
+   :  center -> [u, v] ->  center + headRad * [sin(u), cos(u), v]
+   ;
+HeadDomain := Patch((-pi, pi, 4), (-1, 1, 2));
+
+enableHeads := widget CheckBox, init <- True;
+theHeads := Heads(right Q)(HeadDomain)  if enableHeads else {} ; 
+
+widget Show((left Q) union theHeads);
+
+K := Interval(-1, 1, 10);
+U2 := [sample(K >< K >< K)];
+UU := Segment(PairStep U2)(J);
+widget Show(UU);

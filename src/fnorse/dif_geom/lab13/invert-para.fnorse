@@ -1,0 +1,82 @@
+/****************************************************************
+ *
+ * Copyright 1990, Brown University, Providence, RI
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ ****************************************************************/
+
+/* Forming a cyclide by inverting a torus. Inversion is a nifty op that 
+   Lobachevskian geometers like a lot. We also take the parallel surface of the torus,
+   since inversion preserves circles. This means that the parallel surface of a cyclide
+   is itself a cyclide. Except when the parent cyclide has a "horn", a singular point,
+   in which case the child is (understandably) a little distressed.
+
+   by Brook Conner,  e-mail dbc@cs */
+
+
+/* which surfaces to show */
+useCyclide := widget type<-`checkbox, init<-True;
+useParallel := widget type<-`checkbox, init<-True;
+
+
+r := widget Slider(0, 4), init<-3, name<-"Radius of Torus";
+d := widget Slider(-1, 1), init<-.5, name <- "Distance of Parallel Surface"; 
+
+/* The torus. By inverting this through a sphere, we get all sorts of neat cyclides */
+Torus := R^2 -> R^3 :
+  [u, v] -> [(r + (cos v))(cos u), (r +  (cos v))(sin u), sin v]
+  ;
+
+/* domains for everything */
+/* The if statement turns the surface into a point if we don't want to see it. */
+CycDom := StripesU((-pi, pi, 30), (-pi, pi, 31))  if useCyclide else [ {0} >< {0} ];
+ParaDom := StripesU((-pi, pi, 30), (-pi, pi, 31))  if useParallel else [ {0} >< {0} ];
+gDom := Grid((0, 2 pi, 10), (-pi/2, pi/2, 10));
+
+
+/* inversion around the origin through a sphere of radius one */
+Inversion := R^3 -> R^3
+   : doob -> doob / (doob . doob);
+
+/* The sphere. Just so we can get our bearings */
+Sphere := R^2 -> R^3
+       : [u, v] -> [(cos u) (cos v), (sin u) (cos v), sin v];
+
+/* Translate the torus relative to the inversion */
+a := widget Slider(0, 3), init<-.5, name<-"Translate X";
+b := widget Slider(0, 3), init<-.5, name<-"Translate Y";
+c := widget Slider(0, 3), init<-.5, name<-"Translate Z";
+
+Translate := R^3 -> R^3
+      : v -> v + [a, b, c];
+
+/* How to make a cyclide from a torus in 3space */
+Cyclide := R^2 -> R^3
+	: v -> Inversion(Translate( Torus(v) ));
+
+/* Its parallel surface, also a cyclide, unless the parent cyclide has 
+ singular points. */
+ParallelCyclide := R^2 -> R^3
+		: v -> Cyclide v + d * (SurfaceNormal(Cyclide) v);
+
+GooGoo := widget type<-`view;
+
+widget type<-`vobject, set<-(Cyclide(CycDom)), color<-"blue",
+      parent<-`GooGoo;
+widget type<-`vobject, set<-(ParallelCyclide(ParaDom)), color<-"red",
+      parent<-`GooGoo;
+widget type<-`vobject, set<-(Sphere(gDom)), color<-"green",
+      parent<-`GooGoo;

@@ -1,0 +1,49 @@
+/****************************************************************
+ *
+ * Copyright 1990, Brown University, Providence, RI
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ ****************************************************************/
+
+/**********************************************************************
+ * RCH 10/16/90
+ *
+ * Example 3 of coloring from lab #6 handout
+ * Home brewed light source shading 
+ **********************************************************************/
+surf 
+   := R^2-> R^3
+   : [u,v] -> [u,v, sin(u*v) ]
+   ;
+
+Dom := [ Interval(0, pi, 20) >< Interval(0, pi, 20) ];
+
+/* unit light source */
+lv := Normalize( [1, 1, 1] );
+
+/* add light in 4th D */
+lightSurf
+   := R^2->R^4
+   : v -> [ surf(v)^1, surf(v)^2, surf(v)^3, /* copy original surf */
+            ((SurfaceNormal surf)(v) . lv)/2 + 0.5   /* color */
+          ]
+   ;
+
+myView := widget type<-`view;
+
+mySurf := widget type<-`vobject, parent<-`myView,
+       set<-( lightSurf Dom ), color<-"4:gray20->gray80";
+
